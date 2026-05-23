@@ -1,0 +1,841 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Book Beacon | مكتبتك الرقمية الموثوقة</title>
+    <link rel="icon" href="img/logo.png" />
+
+    <!-- Google Fonts - Arabic Support -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Tajawal:wght@400;500;700;900&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Swiper CSS -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"
+    />
+
+    <!-- Font Awesome -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
+    />
+
+    <!-- Main CSS -->
+    <link rel="stylesheet" href="CSS/style.css" />
+  </head>
+  <body>
+    <!-- Cart Sidebar -->
+    <div class="cart">
+      <div class="top_cart">
+        <h3>عناصر السلة: <span class="Count_item_cart">0</span></h3>
+        <span onclick="open_close_cart()" class="close_cart">
+          <i class="fa-regular fa-circle-xmark"></i>
+        </span>
+      </div>
+
+      <div class="items_in_cart" id="cart_items"></div>
+
+      <div class="bottom_cart">
+        <div class="total">
+          <p>الإجمالي</p>
+          <p class="price_cart_toral">0 ج.م</p>
+        </div>
+
+        <div class="button_cart">
+          <a href="#" class="btn_cart btn">إتمام الشراء</a>
+          <span onclick="open_close_cart()" class="btn_cart trans_bg btn"
+            >متابعة التسوق</span
+          >
+        </div>
+      </div>
+    </div>
+
+    <!-- Header / Navigation -->
+    <header class="header">
+      <nav class="navbar">
+        <div class="container">
+          <!-- Logo -->
+          <a href="#" class="logo">
+            <i class="fas fa-book"></i> <span>Book Beacon</span>
+          </a>
+
+          <!-- Navigation Menu -->
+          <ul class="nav_links">
+            <li><a href="#home" class="active">الرئيسية</a></li>
+            <li><a href="#books">الكتب</a></li>
+            <li><a href="#notes">الملازم</a></li>
+            <li><a href="#tools">الأدوات</a></li>
+            <li><a href="#offers">العروض</a></li>
+            <li><a href="#contact">تواصل</a></li>
+          </ul>
+
+          <!-- Header Icons -->
+          <div class="header_icons">
+            <button class="icon_btn" onclick="toggleWishlist()">
+              <i class="far fa-heart"></i>
+              <span class="badge count_favourite">0</span>
+            </button>
+
+            <button class="icon_btn" onclick="open_close_cart()">
+              <i class="fas fa-shopping-cart"></i>
+              <span class="badge count_item_header">0</span>
+            </button>
+
+            <button class="hamburger" onclick="toggleMenu()">
+              <i class="fas fa-bars"></i>
+            </button>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero" id="home">
+      <div class="lighthouse-beam"></div>
+
+      <div class="hero-content">
+        <h1 class="hero-title">كل الكتب والملازم في مكان واحد 📚</h1>
+        <p class="hero-subtitle">
+          اطلب كتبك أونلاين بسهولة وأمان مع Book Beacon.
+        </p>
+
+        <div class="hero-buttons">
+          <a href="#products" class="btn btn-primary">
+            <i class="fas fa-shopping-cart"></i> ابدأ التسوق
+          </a>
+          <a href="#categories" class="btn btn-secondary">
+            <i class="fas fa-list"></i> تصفح الأقسام
+          </a>
+        </div>
+      </div>
+
+      <div class="hero-search">
+        <div class="search-box">
+          <input type="text" placeholder="ابحث عن كتب..." id="search_input" />
+          <button type="submit"><i class="fas fa-search"></i></button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Categories Section -->
+    <section class="categories" id="categories">
+      <div class="container">
+        <h2 class="section-title">أقسام متنوعة</h2>
+        <div class="categories-grid">
+          <div class="category-card" data-category="external">
+            <div class="category-icon">
+              <i class="fas fa-book"></i>
+            </div>
+            <h3>كتب خارجية</h3>
+            <p>أفضل الكتب والروايات العالمية</p>
+          </div>
+
+          <div class="category-card" data-category="notes">
+            <div class="category-icon">
+              <i class="fas fa-clipboard"></i>
+            </div>
+            <h3>ملازم ومذكرات</h3>
+            <p>ملازم شاملة لجميع المراحل</p>
+          </div>
+
+          <div class="category-card" data-category="novels">
+            <div class="category-icon">
+              <i class="fas fa-feather"></i>
+            </div>
+            <h3>تجربة حجز سهلة</h3>
+            <p>احجز كتبك أونلاين بكل سهولة وأمان</p>
+          </div>
+
+          <div class="category-card not-available" data-category="tools">
+            <div class="category-icon">
+              <i class="fas fa-pen"></i>
+            </div>
+
+            <h3>حجز وطلب أونلاين</h3>
+
+            <p>اطلب كتبك أونلاين واستلمها بسهولة وأنت في بيتك</p>
+          </div>
+
+          <div class="category-card" data-category="printing">
+            <div class="category-icon">
+              <i class="fas fa-print"></i>
+            </div>
+            <h3>خدمات الطباعة</h3>
+            <p>طباعة احترافية لكتبك ومذكراتك</p>
+            <p style="color: red; font-weight: bold">غير متوفر حاليًا</p>
+          </div>
+
+          <div class="category-card" data-category="ebooks">
+            <div class="category-icon">
+              <i class="fas fa-tablet-alt"></i>
+            </div>
+            <h3>مراجعات</h3>
+            <p>مراجعات للكتب والملازم تساعدك تختار الأفضل</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Promotional Banners -->
+    <section class="promo-banners">
+      <div class="container">
+        <div class="banner-grid">
+          <div class="promo-banner banner-1">
+            <div class="banner-content">
+              <span class="banner-label">خصم محدود</span>
+              <h3>تخفيضات الكتب الخارجية</h3>
+              <p class="discount">حتى <strong>50%</strong></p>
+              <a href="#" class="banner-link">تسوق الآن</a>
+            </div>
+          </div>
+
+          <div class="promo-banner banner-2">
+            <div class="banner-content">
+              <span class="banner-label">عرض خاص</span>
+              <h3>حزم العودة للمدارس</h3>
+              <p>ملازم + أدوات بسعر مميز</p>
+              <a href="#" class="banner-link">اكتشف العروض</a>
+            </div>
+          </div>
+
+          <div class="promo-banner banner-3">
+            <div class="banner-content">
+              <span class="banner-label">جديد</span>
+              <h3>الكتب الأكثر مبيعاً</h3>
+              <p>أحدث الإصدارات والكتب المشهورة</p>
+              <a href="#" class="banner-link">استكشف</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Featured Products Section -->
+    <section class="products-section" id="products">
+      <div class="container">
+        <div class="section-header">
+          <h2 class="section-title">المنتجات المميزة</h2>
+          <p class="section-subtitle">اختر من أفضل اختيارتنا</p>
+        </div>
+
+        <div class="products-grid" id="featured_products">
+          <!-- Products will be loaded by JavaScript -->
+        </div>
+      </div>
+    </section>
+
+    <!-- Hot Deals Slider -->
+    <section class="hot-deals">
+      <div class="container">
+        <div class="section-header">
+          <h2 class="section-title"><i class="fas fa-fire"></i> عروض ساخنة</h2>
+        </div>
+
+        <div class="swiper hot-deals-slider">
+          <div class="swiper-wrapper" id="hot_deals_slider">
+            <!-- Hot deals will be loaded by JavaScript -->
+          </div>
+          <div class="swiper-button-next"></div>
+          <div class="swiper-button-prev"></div>
+          <div class="swiper-pagination"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- New Arrivals Section -->
+    <section class="new-arrivals">
+      <div class="container">
+        <div class="section-header">
+          <h2 class="section-title">وصول حديث</h2>
+          <p class="section-subtitle">أحدث الكتب التي وصلتنا للتو</p>
+        </div>
+
+        <div class="products-grid" id="new_arrivals_grid">
+          <!-- New arrivals will be loaded by JavaScript -->
+        </div>
+      </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features">
+      <div class="container">
+        <h2 class="section-title">لماذا تختار Book Beacon؟</h2>
+
+        <div class="features-grid">
+          <div class="feature-card">
+            <div class="feature-icon">
+              <i class="fas fa-truck"></i>
+            </div>
+            <h3>شحن سريع</h3>
+            <p>توصيل في مصر خلال 5-7 أيام عمل</p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon">
+              <i class="fas fa-tag"></i>
+            </div>
+            <h3>أسعار مناسبة</h3>
+            <p>أفضل الأسعار مع ضمان المنافسة</p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon">
+              <i class="fas fa-headset"></i>
+            </div>
+            <h3>دعم فني</h3>
+            <p>فريق دعم متاح 24 ساعة لمساعدتك</p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon">
+              <i class="fas fa-lock"></i>
+            </div>
+            <h3>دفع آمن</h3>
+            <p>جميع طرق الدفع آمنة ومضمونة</p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon">
+              <i class="fas fa-mouse"></i>
+            </div>
+            <h3>طلب سهل</h3>
+            <p>واجهة بسيطة وسهلة الاستخدام</p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon">
+              <i class="fas fa-star"></i>
+            </div>
+            <h3>جودة مضمونة</h3>
+            <p>جميع المنتجات أصلية وذات جودة عالية</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Newsletter Section -->
+    <section class="book-beacon-section">
+      <div class="bb-container">
+        <div class="bb-header">
+          <h2>ملازمنا وكتبنا المميزة</h2>
+          <p>اكتشف أفضل الملازم والكتب لجميع المواد الدراسية</p>
+          <div class="bb-title-line"></div>
+        </div>
+
+        <div class="bb-slider-wrapper">
+          <button class="bb-arrow-btn right-arrow" id="bb_next_btn">
+            &#10095;
+          </button>
+
+          <div class="bb-grid-container" id="bb_carousel">
+            <div class="bb-book-card">
+              <span class="bb-card-tag tag-physics">فيزياء</span>
+              <div class="bb-image-wrapper">
+                <img src="path-to-physics-cover.jpg" alt="ملزمة الفيزياء" />
+              </div>
+              <div class="bb-card-info">
+                <h3 class="bb-book-title">ملزمة الفيزياء للثانوية العامة</h3>
+                <p class="bb-teacher-name">الأستاذ / محمود مجدي</p>
+                <p class="bb-book-code">كود: #PHYS101</p>
+                <div class="bb-card-meta">
+                  <span class="bb-stock-count">متاح: 12 نسخة</span>
+                  <span class="bb-book-price">150 ج.م</span>
+                </div>
+              </div>
+              <div class="bb-card-actions">
+                <button class="bb-btn-reserve">حجز الآن</button>
+                <button class="bb-btn-delivery">دليفري</button>
+              </div>
+            </div>
+
+            <div class="bb-book-card">
+              <span class="bb-card-tag tag-chemistry">كيمياء</span>
+              <div class="bb-image-wrapper">
+                <img src="path-to-chemistry-cover.jpg" alt="ملزمة الكيمياء" />
+              </div>
+              <div class="bb-card-info">
+                <h3 class="bb-book-title">البروفيسور في الكيمياء</h3>
+                <p class="bb-teacher-name">الأستاذ / محمد عبد الجواد</p>
+                <p class="bb-book-code">كود: #CHEM202</p>
+                <div class="bb-card-meta">
+                  <span class="bb-stock-count">متاح: 8 نسخ</span>
+                  <span class="bb-book-price">160 ج.م</span>
+                </div>
+              </div>
+              <div class="bb-card-actions">
+                <button class="bb-btn-reserve">حجز الآن</button>
+                <button class="bb-btn-delivery">دليفري</button>
+              </div>
+            </div>
+
+            <div class="bb-book-card">
+              <span class="bb-card-tag tag-arabic">عربي</span>
+              <div class="bb-image-wrapper">
+                <img src="path-to-arabic-cover.jpg" alt="ملزمة العربي" />
+              </div>
+              <div class="bb-card-info">
+                <h3 class="bb-book-title">لواء اللغة العربية (النحو)</h3>
+                <p class="bb-teacher-name">الأستاذ / رضا الفاروق</p>
+                <p class="bb-book-code">كود: #ARAB303</p>
+                <div class="bb-card-meta">
+                  <span class="bb-stock-count">متاح: 15 نسخة</span>
+                  <span class="bb-book-price">140 ج.م</span>
+                </div>
+              </div>
+              <div class="bb-card-actions">
+                <button class="bb-btn-reserve">حجز الآن</button>
+                <button class="bb-btn-delivery">دليفري</button>
+              </div>
+            </div>
+
+            <div class="bb-book-card">
+              <span class="bb-card-tag tag-geology">جيولوجيا</span>
+              <div class="bb-image-wrapper">
+                <img src="path-to-geology-cover.jpg" alt="ملزمة الجيولوجيا" />
+              </div>
+              <div class="bb-card-info">
+                <h3 class="bb-book-title">الماجد في الجيولوجيا</h3>
+                <p class="bb-teacher-name">الأستاذ / ماجد إمام</p>
+                <p class="bb-book-code">كود: #GEOL404</p>
+                <div class="bb-card-meta">
+                  <span class="bb-stock-count">متاح: 6 نسخ</span>
+                  <span class="bb-book-price">150 ج.م</span>
+                </div>
+              </div>
+              <div class="bb-card-actions">
+                <button class="bb-btn-reserve">حجز الآن</button>
+                <button class="bb-btn-delivery">دليفري</button>
+              </div>
+            </div>
+
+            <div class="bb-book-card">
+              <span class="bb-card-tag tag-biology">أحياء</span>
+              <div class="bb-image-wrapper">
+                <img src="path-to-biology-cover.jpg" alt="ملزمة الأحياء" />
+              </div>
+              <div class="bb-card-info">
+                <h3 class="bb-book-title">الموسوعة في علم الأحياء</h3>
+                <p class="bb-teacher-name">الدكتور / محمد أيمن</p>
+                <p class="bb-book-code">كود: #BIOL505</p>
+                <div class="bb-card-meta">
+                  <span class="bb-stock-count">متاح: 10 نسخ</span>
+                  <span class="bb-book-price">155 ج.م</span>
+                </div>
+              </div>
+              <div class="bb-card-actions">
+                <button class="bb-btn-reserve">حجز الآن</button>
+                <button class="bb-btn-delivery">دليفري</button>
+              </div>
+            </div>
+
+            <div class="bb-book-card">
+              <span class="bb-card-tag tag-english">إنجليزي</span>
+              <div class="bb-image-wrapper">
+                <img src="path-to-english-cover.jpg" alt="ملزمة الإنجليزي" />
+              </div>
+              <div class="bb-card-info">
+                <h3 class="bb-book-title">الزيتونة في اللغة الإنجليزية</h3>
+                <p class="bb-teacher-name">الأستاذ / عمرو رجب</p>
+                <p class="bb-book-code">كود: #ENGL606</p>
+                <div class="bb-card-meta">
+                  <span class="bb-stock-count">متاح: 20 نسخة</span>
+                  <span class="bb-book-price">130 ج.م</span>
+                </div>
+              </div>
+              <div class="bb-card-actions">
+                <button class="bb-btn-reserve">حجز الآن</button>
+                <button class="bb-btn-delivery">دليفري</button>
+              </div>
+            </div>
+          </div>
+
+          <button class="bb-arrow-btn left-arrow" id="bb_prev_btn">
+            &#10094;
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <style>
+      .book-beacon-section {
+        background: linear-gradient(
+          180deg,
+          #071324 0%,
+          #0c1b30 50%,
+          #112542 100%
+        ) !important;
+        padding: 50px 0 !important;
+        color: #ffffff !important;
+        font-family: "Cairo", "Tajawal", sans-serif !important;
+        direction: rtl !important;
+      }
+      .bb-container {
+        max-width: 1440px;
+        margin: 0 auto !important;
+        padding: 0 20px !important;
+      }
+      .bb-header {
+        text-align: center !important;
+        margin-bottom: 30px !important;
+      }
+      .bb-header h2 {
+        font-size: 30px !important;
+        font-weight: bold !important;
+        margin: 0 0 8px 0 !important;
+        color: #ffffff !important;
+      }
+      .bb-header p {
+        color: #a0a8b5 !important;
+        font-size: 15px !important;
+        margin: 0 !important;
+      }
+      .bb-title-line {
+        width: 90px;
+        height: 4px;
+        margin: 12px auto 0 auto;
+        background: linear-gradient(90deg, #00d4ff, #ffd700);
+        border-radius: 4px;
+      }
+
+      /* حاوية السلايدر لضبط المسافات والأسهم بره الكروت */
+      .bb-slider-wrapper {
+        position: relative !important;
+        display: flex !important;
+        align-items: center !important;
+        padding: 0 60px !important;
+      }
+
+      /* ستايل أزرار الأسهم - متمركزة في المنتصف الرأسي تماماً */
+      .bb-arrow-btn {
+        position: absolute !important;
+        top: 50% !important;
+        transform: translateY(-50%) !important;
+        background: rgba(15, 20, 25, 0.75) !important;
+        border: 1px solid rgba(0, 212, 255, 0.4) !important;
+        color: #00d4ff !important;
+        font-size: 22px !important;
+        width: 46px !important;
+        height: 46px !important;
+        border-radius: 50% !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        cursor: pointer !important;
+        z-index: 20 !important;
+        transition: all 0.2s ease-in-out !important;
+        user-select: none !important;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5) !important;
+      }
+
+      .bb-arrow-btn:hover {
+        color: #ffd700 !important;
+        border-color: #ffd700 !important;
+        background: #1a1f2e !important;
+        box-shadow: 0 0 15px rgba(255, 215, 0, 0.3) !important;
+      }
+
+      .bb-arrow-btn:active {
+        transform: translateY(-50%) scale(0.85) !important;
+      }
+
+      /* تم تبديل التمركز البصري للأسهم بناءً على تعديلك الأخير */
+      .right-arrow {
+        right: 5px !important;
+      }
+      .left-arrow {
+        left: 5px !important;
+      }
+
+      /* حاوية الكروت والـ Scroll الطبيعي السلس */
+      .bb-grid-container {
+        display: flex !important;
+        gap: 16px !important;
+        overflow-x: auto !important;
+        scroll-behavior: smooth !important;
+        padding: 15px 5px !important;
+        width: 100% !important;
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
+      .bb-grid-container::-webkit-scrollbar {
+        display: none;
+      }
+
+      /* تصميم الكروت المستطيلة الملمومة */
+      .bb-book-card {
+        background-color: #0f1419 !important;
+        border: 1px solid #2a3145 !important;
+        border-radius: 14px !important;
+        padding: 12px !important;
+        width: calc(16.66% - 14px) !important;
+        min-width: 210px !important;
+        box-sizing: border-box !important;
+        position: relative !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: space-between !important;
+        flex-shrink: 0 !important;
+        transition:
+          transform 0.3s cubic-bezier(0.25, 1, 0.5, 1),
+          box-shadow 0.3s ease,
+          border-color 0.3s ease !important;
+      }
+
+      .bb-book-card:hover {
+        transform: translateY(-5px) !important;
+        border-color: #00d4ff !important;
+        box-shadow: 0 10px 20px rgba(0, 212, 255, 0.15) !important;
+      }
+
+      /* الشارات الملونة لكل مادة */
+      .bb-card-tag {
+        position: absolute !important;
+        top: 10px !important;
+        right: 10px !important;
+        color: #0f1419 !important;
+        font-size: 11px !important;
+        font-weight: bold !important;
+        padding: 2px 10px !important;
+        border-radius: 20px !important;
+        z-index: 5;
+      }
+
+      .tag-physics {
+        background-color: #ffd700 !important;
+      }
+      .tag-chemistry {
+        background-color: #00d4ff !important;
+      }
+      .tag-arabic {
+        background-color: #ff6b6b !important;
+        color: #fff !important;
+      }
+      .tag-geology {
+        background-color: #2ecc71 !important;
+        color: #fff !important;
+      }
+      .tag-biology {
+        background-color: #e040fb !important;
+        color: #fff !important;
+      }
+      .tag-english {
+        background-color: #ffffff !important;
+      }
+
+      /* غلاف الكتاب القصير والملموم */
+      .bb-image-wrapper {
+        background: linear-gradient(
+          135deg,
+          #161c2a 0%,
+          #1e2638 100%
+        ) !important;
+        border-radius: 10px !important;
+        height: 140px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        margin-bottom: 10px !important;
+        padding: 8px !important;
+        border: 1px solid rgba(255, 255, 255, 0.03) !important;
+      }
+
+      .bb-image-wrapper img {
+        max-height: 100% !important;
+        max-width: 100% !important;
+        object-fit: contain !important;
+        filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.4)) !important;
+      }
+
+      .bb-card-info {
+        text-align: right !important;
+      }
+
+      .bb-book-title {
+        font-size: 13px !important;
+        font-weight: 600 !important;
+        color: #ffffff !important;
+        margin: 0 0 2px 0 !important;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .bb-teacher-name {
+        font-size: 11px !important;
+        color: #a0a8b5 !important;
+        margin: 0 0 4px 0 !important;
+      }
+
+      .bb-book-code {
+        font-size: 10px !important;
+        color: #00d4ff !important;
+        margin: 0 0 8px 0 !important;
+      }
+
+      .bb-card-meta {
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        border-top: 1px solid #2a3145 !important;
+        padding-top: 8px !important;
+        margin-bottom: 10px !important;
+      }
+
+      .bb-stock-count {
+        font-size: 10px !important;
+        color: #a0a8b5 !important;
+      }
+
+      .bb-book-price {
+        font-size: 13px !important;
+        font-weight: bold !important;
+        color: #ffffff !important;
+      }
+
+      /* الأزرار جنب بعض بالسطر لتوفير الارتفاع ورسم مظهر ملموم */
+      .bb-card-actions {
+        display: flex !important;
+        flex-direction: row !important;
+        gap: 6px !important;
+      }
+
+      .bb-card-actions button {
+        flex: 1 !important;
+        padding: 7px 0 !important;
+        border-radius: 6px !important;
+        font-size: 11px !important;
+        font-weight: bold !important;
+        cursor: pointer !important;
+        border: none !important;
+        transition: all 0.2s ease !important;
+        white-space: nowrap;
+      }
+
+      .bb-btn-reserve {
+        background-color: #00d4ff !important;
+        color: #0f1419 !important;
+      }
+      .bb-btn-reserve:hover {
+        background-color: #33e5ff !important;
+        box-shadow: 0 0 8px rgba(0, 212, 255, 0.3) !important;
+      }
+
+      .bb-btn-delivery {
+        background-color: transparent !important;
+        border: 1px solid #2a3145 !important;
+        color: #e0e6ed !important;
+      }
+      .bb-btn-delivery:hover {
+        background-color: #ffffff !important;
+        color: #0f1419 !important;
+        border-color: #ffffff !important;
+      }
+    </style>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const carousel = document.getElementById("bb_carousel");
+        const nextBtn = document.getElementById("bb_next_btn"); // سهم اليمين الفعلي بـ ID يمين
+        const prevBtn = document.getElementById("bb_prev_btn"); // سهم اليسار الفعلي بـ ID يسار
+
+        const scrollAmount = 850;
+
+        // تم إرجاع الاتجاه الطبيعي التام لحركة السكرول بناءً على طلبك التوضيحي الأخير
+        nextBtn.addEventListener("click", () => {
+          carousel.scrollLeft += scrollAmount;
+        });
+
+        prevBtn.addEventListener("click", () => {
+          carousel.scrollLeft -= scrollAmount;
+        });
+      });
+    </script>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="container">
+        <div class="footer-grid">
+          <div class="footer-section">
+            <h4>عن Book Beacon</h4>
+            <p>
+              Book Beacon هي وجهتك لشراء الكتب والملازم أونلاين بسهولة وأمان.
+              نوفر تجربة تسوق متميزة مع أفضل الأسعار والخدمات.
+            </p>
+            <div class="social-icons">
+              <a
+                href="https://www.facebook.com/profile.php?id=61589990976926"
+                class="social-link"
+                title="Facebook"
+                ><i class="fab fa-facebook-f"> </i
+              ></a>
+              <a href="#" class="social-link" title="Instagram"
+                ><i class="fab fa-instagram"></i
+              ></a>
+              <a href="#" class="social-link" title="Twitter"
+                ><i class="fab fa-twitter"></i
+              ></a>
+              <a
+                href="https://whatsapp.com/channel/0029VbCWXxVKQuJDVaJ6eW1c"
+                class="social-link"
+                title="WhatsApp"
+                ><i class="fab fa-whatsapp"></i
+              ></a>
+            </div>
+          </div>
+
+          <div class="footer-section">
+            <h4>روابط سريعة</h4>
+            <ul class="footer-links">
+              <li><a href="#">عن المتجر</a></li>
+              <li><a href="#">الأقسام</a></li>
+              <li><a href="#">المنتجات الجديدة</a></li>
+              <li><a href="#">العروض الخاصة</a></li>
+              <li><a href="#">المدونة</a></li>
+            </ul>
+          </div>
+
+          <div class="footer-section">
+            <h4>خدمة العملاء</h4>
+            <ul class="footer-links">
+              <li><a href="#">الأسئلة الشائعة</a></li>
+              <li><a href="#">سياسة الإرجاع</a></li>
+              <li><a href="#">شروط الاستخدام</a></li>
+              <li><a href="#">سياسة الخصوصية</a></li>
+              <li><a href="#">اتصل بنا</a></li>
+            </ul>
+          </div>
+
+          <div class="footer-section">
+            <h4>تواصل معنا</h4>
+            <ul class="contact-info">
+              <li><i class="fas fa-phone"></i> +20 1033558125</li>
+              <li><i class="fas fa-envelope"></i> bookbeacon.books@gmail</li>
+              <li><i class="fas fa-map-marker-alt"></i> بني سويف ، مصر</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="footer-bottom">
+          <p>&copy; 2026 Book Beacon. جميع الحقوق محفوظة.</p>
+          <div class="payment-methods">
+            <i class="fab fa-cc-visa"></i>
+            <i class="fab fa-cc-mastercard"></i>
+            <i class="fab fa-cc-paypal"></i>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <!-- Swiper JS -->
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+
+    <!-- Main JS Files -->
+    <script src="JS/swiper.js"></script>
+    <script src="JS/items_home.js"></script>
+    <script src="JS/main.js"></script>
+  </body>
+</html>
