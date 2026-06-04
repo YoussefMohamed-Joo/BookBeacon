@@ -1,0 +1,419 @@
+/* ========================================
+   Book Beacon - بوك بيكون
+   Arabic RTL Support + Extra Components
+   ======================================== */
+
+/* === Arabic Font Override === */
+body {
+    font-family: 'Cairo', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    direction: rtl;
+    text-align: right;
+}
+
+h1, h2, h3, h4, h5, h6,
+.logo-text,
+.hero-title,
+.hero-subtitle,
+.hero-description,
+.section-title,
+.section-description,
+.feature-title,
+.feature-description,
+.showcase-title,
+.showcase-description,
+.testimonial-text,
+.author-name,
+.author-title,
+.cta-title,
+.cta-description,
+.footer-description,
+.nav-menu a,
+.btn,
+.btn-get-started {
+    font-family: 'Cairo', 'Poppins', sans-serif;
+}
+
+/* === RTL Navbar Fix === */
+.nav-container {
+    flex-direction: row-reverse;
+}
+
+.nav-menu {
+    flex-direction: row-reverse;
+}
+
+/* === Logo Spacing Fix === */
+.logo {
+    flex-direction: row-reverse;
+}
+
+.logo-text {
+    font-size: 18px;
+}
+
+/* === Hero Section RTL === */
+.hero-container {
+    direction: rtl;
+}
+
+.hero-content {
+    text-align: right;
+}
+
+.hero-badge {
+    flex-direction: row-reverse;
+}
+
+.hero-buttons {
+    flex-direction: row-reverse;
+}
+
+.hero-stats {
+    flex-direction: row-reverse;
+}
+
+.stat-item {
+    text-align: right;
+}
+
+/* === Hero Badge font size === */
+.hero-badge span {
+    font-size: 11px;
+    letter-spacing: 0.5px;
+}
+
+/* === Floating Cards RTL === */
+.card-1 {
+    top: 10%;
+    left: 10%;
+    right: auto;
+}
+
+.card-2 {
+    top: 45%;
+    left: 5%;
+    right: auto;
+}
+
+.card-3 {
+    top: 75%;
+    left: 15%;
+    right: auto;
+}
+
+.floating-card {
+    flex-direction: row-reverse;
+    text-align: right;
+}
+
+/* === Features Section RTL === */
+.feature-card {
+    text-align: right;
+}
+
+.feature-link {
+    flex-direction: row-reverse;
+}
+
+.feature-link i {
+    transform: rotate(180deg);
+}
+
+/* === Section Labels === */
+.section-label {
+    font-family: 'Cairo', sans-serif;
+    letter-spacing: 0;
+}
+
+/* === Showcase Items RTL === */
+.showcase-content {
+    text-align: right;
+}
+
+.showcase-features li {
+    flex-direction: row-reverse;
+    text-align: right;
+}
+
+.showcase-item.reverse {
+    direction: ltr;
+}
+
+.showcase-item.reverse .showcase-content {
+    direction: rtl;
+    text-align: right;
+}
+
+/* === Testimonials RTL === */
+.testimonial-content {
+    text-align: right;
+}
+
+.testimonial-author {
+    flex-direction: row-reverse;
+    text-align: right;
+}
+
+.author-info {
+    text-align: right;
+}
+
+/* === Pricing Cards RTL === */
+.pricing-card {
+    text-align: right;
+}
+
+.pricing-features li {
+    flex-direction: row-reverse;
+    text-align: right;
+}
+
+.pricing-badge {
+    right: auto;
+    left: 20px;
+    font-family: 'Cairo', sans-serif;
+    letter-spacing: 0;
+}
+
+/* === CTA Section RTL === */
+.cta-content {
+    text-align: center;
+}
+
+.cta-buttons {
+    flex-direction: row-reverse;
+}
+
+/* === Footer RTL === */
+.footer-content {
+    direction: rtl;
+}
+
+.footer-column {
+    text-align: right;
+}
+
+.footer-logo {
+    flex-direction: row-reverse;
+}
+
+.footer-bottom {
+    direction: rtl;
+    flex-direction: row-reverse;
+}
+
+/* === Buttons RTL Fix === */
+.btn {
+    flex-direction: row-reverse;
+}
+
+.btn-get-started {
+    font-family: 'Cairo', sans-serif;
+}
+
+/* ===========================================
+   BOOKS GRID PREVIEW (Products Section)
+   =========================================== */
+.books-grid-preview {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    padding: 10px;
+}
+
+.book-card-preview {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 14px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.book-card-preview:hover {
+    border-color: rgba(255, 71, 87, 0.4);
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(255, 71, 87, 0.2);
+}
+
+.book-cover {
+    height: 110px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 36px;
+    color: white;
+}
+
+.book-info-mini {
+    padding: 10px 12px;
+    text-align: right;
+}
+
+.book-title-mini {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+    font-family: 'Cairo', sans-serif;
+}
+
+.book-price-mini {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--accent-red);
+    font-family: 'Cairo', sans-serif;
+}
+
+/* ===========================================
+   FAQ SECTION
+   =========================================== */
+.faq-list {
+    max-width: 800px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.faq-item {
+    background: var(--glass-bg);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.faq-item.open {
+    border-color: rgba(255, 71, 87, 0.4);
+    box-shadow: 0 4px 24px rgba(255, 71, 87, 0.15);
+}
+
+.faq-question {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-direction: row-reverse;
+    padding: 22px 28px;
+    cursor: pointer;
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--text-primary);
+    font-family: 'Cairo', sans-serif;
+    transition: color 0.3s ease;
+    user-select: none;
+}
+
+.faq-question:hover {
+    color: var(--accent-red);
+}
+
+.faq-question i {
+    color: var(--accent-red);
+    font-size: 16px;
+    transition: transform 0.3s ease;
+    flex-shrink: 0;
+}
+
+.faq-item.open .faq-question i {
+    transform: rotate(180deg);
+}
+
+.faq-answer {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s ease, padding 0.3s ease;
+    font-size: 15px;
+    color: var(--text-secondary);
+    font-family: 'Cairo', sans-serif;
+    line-height: 1.8;
+    padding: 0 28px;
+}
+
+.faq-item.open .faq-answer {
+    max-height: 200px;
+    padding: 0 28px 22px;
+}
+
+/* ===========================================
+   STATS SECTION - HERO NUMBERS (text labels)
+   =========================================== */
+.stat-number {
+    font-size: 36px;
+}
+
+/* ===========================================
+   MOBILE RTL FIXES
+   =========================================== */
+@media (max-width: 992px) {
+    .hero-buttons {
+        flex-direction: column;
+    }
+
+    .cta-buttons {
+        flex-direction: column;
+    }
+
+    .logo-text {
+        font-size: 15px;
+    }
+
+    .card-1 { left: auto; right: 10%; }
+    .card-2 { left: auto; right: 5%; }
+    .card-3 { left: auto; right: 15%; }
+
+    .showcase-item.reverse {
+        direction: rtl;
+    }
+}
+
+@media (max-width: 768px) {
+    .books-grid-preview {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .logo-text {
+        font-size: 13px;
+    }
+
+    .faq-question {
+        font-size: 15px;
+        padding: 18px 20px;
+    }
+
+    .faq-answer {
+        padding: 0 20px;
+    }
+
+    .faq-item.open .faq-answer {
+        padding: 0 20px 18px;
+    }
+}
+
+/* ===========================================
+   SOCIAL LINKS ICONS - Footer WhatsApp color
+   =========================================== */
+.social-links a:nth-child(4):hover {
+    background: #25D366;
+}
+
+/* ===========================================
+   HERO TITLE line height for Arabic
+   =========================================== */
+.hero-title {
+    line-height: 1.25;
+}
+
+/* section-label no uppercase for Arabic */
+.section-label {
+    text-transform: none;
+}
+
+/* ===========================================
+   SHOWCASE LABEL no uppercase
+   =========================================== */
+.showcase-label {
+    text-transform: none;
+    letter-spacing: 0;
+}

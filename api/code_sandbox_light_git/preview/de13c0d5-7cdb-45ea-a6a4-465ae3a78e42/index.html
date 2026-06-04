@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Beacon - بوك بيكون | كتبك كلها في مكان واحد</title>
+    <meta name="description" content="متجر بوك بيكون يوفر لك أفضل الكتب والملازم من أشهر المدرسين في مصر">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=Roboto+Mono:wght@400;500;600&family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    
+    <!-- Chart.js for Data Visualization -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/rtl.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                <span class="logo-icon">📚</span>
+                <span class="logo-text">Book Beacon - بوك بيكون</span>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="#solutions">الكتب</a></li>
+                <li><a href="#programs">المنتجات</a></li>
+                <li><a href="#vision">المدرسين</a></li>
+                <li><a href="#contact">ليه تختارنا</a></li>
+            </ul>
+            <a href="#contact" class="btn-get-started">ابدأ التسوق</a>
+            <div class="mobile-menu-toggle">
+                <i class="fas fa-bars"></i>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero" id="hero">
+        <div class="hero-container">
+            <div class="hero-content">
+                <div class="hero-badge">
+                    <i class="fas fa-book-open"></i>
+                    <span>أكبر متجر كتب أونلاين في مصر</span>
+                </div>
+                <h1 class="hero-title">
+                    كتبك كلها في<br>
+                    مكان واحد <span class="gradient-text">آمن، سهل، وسريع ❤️</span>
+                </h1>
+                <p class="hero-subtitle">
+                    كل الكتب والملازم من أشهر المدرسين في مصر
+                </p>
+                <p class="hero-description">
+                    متجر بوك بيكون يوفر لك أفضل الكتب والملازم من أشهر المدرسين في مصر بأفضل جودة وسعر ثابت
+                </p>
+                <div class="hero-buttons">
+                    <a href="#programs" class="btn btn-primary">
+                        <span>ابدأ التسوق</span>
+                        <i class="fas fa-shopping-cart"></i>
+                    </a>
+                    <a href="#contact" class="btn btn-secondary">
+                        <i class="fas fa-shopping-bag"></i>
+                        <span>عرض السلة</span>
+                    </a>
+                </div>
+                <div class="hero-stats">
+                    <div class="stat-item">
+                        <div class="stat-number" data-target="5000">0</div>
+                        <div class="stat-label">طالب بيستخدم الموقع</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" data-target="200">0</div>
+                        <div class="stat-label">مدرس متميز</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" data-target="27">0</div>
+                        <div class="stat-label">محافظة توصيل</div>
+                    </div>
+                </div>
+            </div>
+            <div class="hero-visual">
+                <canvas id="particleCanvas"></canvas>
+                <div class="data-grid"></div>
+                <div class="floating-card card-1">
+                    <div class="card-icon"><i class="fas fa-book"></i></div>
+                    <div class="card-content">
+                        <div class="card-value">+5000</div>
+                        <div class="card-label">كتاب متاح</div>
+                    </div>
+                </div>
+                <div class="floating-card card-2">
+                    <div class="card-icon"><i class="fas fa-star"></i></div>
+                    <div class="card-content">
+                        <div class="card-value">4.9 ⭐</div>
+                        <div class="card-label">تقييم المتجر</div>
+                    </div>
+                </div>
+                <div class="floating-card card-3">
+                    <div class="card-icon"><i class="fas fa-truck"></i></div>
+                    <div class="card-content">
+                        <div class="card-value">24h</div>
+                        <div class="card-label">سرعة التوصيل</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features" id="solutions">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-label">مميزاتنا</span>
+                <h2 class="section-title">كل اللي تحتاجه في <span class="gradient-text">مكان واحد</span></h2>
+                <p class="section-description">
+                    بوك بيكون وفر لك كل حاجة تحتاجها من كتب وملازم وتوصيل سريع
+                </p>
+            </div>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-book"></i>
+                    </div>
+                    <h3 class="feature-title">كتب وملازم أصلية</h3>
+                    <p class="feature-description">
+                        كل الكتب والملازم عندنا أصلية 100% من المدرسين بشكل مباشر، معمولة بأعلى جودة طباعة.
+                    </p>
+                    <a href="#" class="feature-link">
+                        اعرف أكتر <i class="fas fa-arrow-left"></i>
+                    </a>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-truck"></i>
+                    </div>
+                    <h3 class="feature-title">شحن سريع لكل المحافظات</h3>
+                    <p class="feature-description">
+                        بنوصل لكل محافظات مصر في أسرع وقت، مع تتبع الشحنة لحد ما توصلك.
+                    </p>
+                    <a href="#" class="feature-link">
+                        اعرف أكتر <i class="fas fa-arrow-left"></i>
+                    </a>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-credit-card"></i>
+                    </div>
+                    <h3 class="feature-title">طرق دفع متعددة</h3>
+                    <p class="feature-description">
+                        ادفع بالطريقة اللي تناسبك: كاش عند الاستلام، فودافون كاش، إنستاباي، وبطاقات بنكية.
+                    </p>
+                    <a href="#" class="feature-link">
+                        اعرف أكتر <i class="fas fa-arrow-left"></i>
+                    </a>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-chalkboard-teacher"></i>
+                    </div>
+                    <h3 class="feature-title">أفضل المدرسين</h3>
+                    <p class="feature-description">
+                        عندنا كتب وملازم لأشهر المدرسين في مصر في كل المواد والمراحل الدراسية.
+                    </p>
+                    <a href="#" class="feature-link">
+                        اعرف أكتر <i class="fas fa-arrow-left"></i>
+                    </a>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-graduation-cap"></i>
+                    </div>
+                    <h3 class="feature-title">تنظيم حسب الصف الدراسي</h3>
+                    <p class="feature-description">
+                        الموقع منظم بشكل سهل ومرتب حسب الصف الدراسي عشان تلاقي اللي تحتاجه بسرعة.
+                    </p>
+                    <a href="#" class="feature-link">
+                        اعرف أكتر <i class="fas fa-arrow-left"></i>
+                    </a>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-heart"></i>
+                    </div>
+                    <h3 class="feature-title">تجربة مستخدم سهلة وسريعة</h3>
+                    <p class="feature-description">
+                        الموقع مصمم بشكل بسيط وسهل، تقدر تطلب كتبك في ثواني من أي جهاز.
+                    </p>
+                    <a href="#" class="feature-link">
+                        اعرف أكتر <i class="fas fa-arrow-left"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats / Vision Section -->
+    <section class="data-viz" id="vision">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-label">إحصائياتنا</span>
+                <h2 class="section-title">أرقام <span class="gradient-text">بتتكلم عن نفسها</span></h2>
+                <p class="section-description">
+                    ثقة الآلاف من الطلاب دليل على جودة خدماتنا
+                </p>
+            </div>
+            <div class="viz-content">
+                <div class="viz-left">
+                    <div class="viz-card">
+                        <h3>📈 نمو المبيعات الشهري</h3>
+                        <div class="chart-container" style="height: 350px;">
+                            <canvas id="revenueChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="viz-right">
+                    <div class="viz-card small">
+                        <h3>📚 توزيع الكتب حسب المرحلة</h3>
+                        <div class="chart-container" style="height: 250px;">
+                            <canvas id="performanceChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="metric-cards">
+                        <div class="metric-card">
+                            <div class="metric-icon"><i class="fas fa-users"></i></div>
+                            <div class="metric-value">5K+</div>
+                            <div class="metric-label">طالب نشط</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-icon"><i class="fas fa-star"></i></div>
+                            <div class="metric-value">4.9⭐</div>
+                            <div class="metric-label">تقييم المتجر</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Products Section -->
+    <section class="product-showcase" id="programs">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-label">منتجاتنا</span>
+                <h2 class="section-title">أحدث <span class="gradient-text">الكتب والملازم</span></h2>
+            </div>
+            
+            <div class="showcase-item">
+                <div class="showcase-content">
+                    <span class="showcase-label">كتب ثانوي عام</span>
+                    <h3 class="showcase-title">كتب أولى ثانوي</h3>
+                    <p class="showcase-description">
+                        أفضل كتب وملازم للصف الأول الثانوي في كل المواد، من أشهر المدرسين في مصر بأعلى جودة طباعة وأفضل سعر.
+                    </p>
+                    <ul class="showcase-features">
+                        <li><i class="fas fa-check"></i> رياضيات - أ. أحمد الشيمي</li>
+                        <li><i class="fas fa-check"></i> فيزياء - أ. محمد عمر</li>
+                        <li><i class="fas fa-check"></i> كيمياء - أ. سارة عبدالله</li>
+                        <li><i class="fas fa-check"></i> إنجليزي - أ. هاني البنا</li>
+                    </ul>
+                </div>
+                <div class="showcase-visual">
+                    <div class="glass-card">
+                        <div class="books-grid-preview">
+                            <div class="book-card-preview">
+                                <div class="book-cover" style="background: linear-gradient(135deg, #FF4757, #A855F7);">
+                                    <i class="fas fa-calculator"></i>
+                                </div>
+                                <div class="book-info-mini">
+                                    <div class="book-title-mini">ملزمة رياضيات</div>
+                                    <div class="book-price-mini">250 جنيه</div>
+                                </div>
+                            </div>
+                            <div class="book-card-preview">
+                                <div class="book-cover" style="background: linear-gradient(135deg, #00D9FF, #0099FF);">
+                                    <i class="fas fa-atom"></i>
+                                </div>
+                                <div class="book-info-mini">
+                                    <div class="book-title-mini">ملزمة فيزياء</div>
+                                    <div class="book-price-mini">250 جنيه</div>
+                                </div>
+                            </div>
+                            <div class="book-card-preview">
+                                <div class="book-cover" style="background: linear-gradient(135deg, #00FFA3, #00D9FF);">
+                                    <i class="fas fa-flask"></i>
+                                </div>
+                                <div class="book-info-mini">
+                                    <div class="book-title-mini">ملزمة كيمياء</div>
+                                    <div class="book-price-mini">250 جنيه</div>
+                                </div>
+                            </div>
+                            <div class="book-card-preview">
+                                <div class="book-cover" style="background: linear-gradient(135deg, #A855F7, #FF4757);">
+                                    <i class="fas fa-language"></i>
+                                </div>
+                                <div class="book-info-mini">
+                                    <div class="book-title-mini">كتاب إنجليزي</div>
+                                    <div class="book-price-mini">250 جنيه</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="showcase-item reverse">
+                <div class="showcase-content">
+                    <span class="showcase-label">كتب ثانوي عام</span>
+                    <h3 class="showcase-title">كتب تانية وتالتة ثانوي</h3>
+                    <p class="showcase-description">
+                        كل كتب وملازم الثانية والثالثة الثانوي من نخبة المدرسين، مع تغطية كاملة للمنهج والمراجعات النهائية.
+                    </p>
+                    <ul class="showcase-features">
+                        <li><i class="fas fa-check"></i> مراجعة ليلة الامتحان</li>
+                        <li><i class="fas fa-check"></i> أسئلة وإجابات نموذجية</li>
+                        <li><i class="fas fa-check"></i> شرح مبسط وواضح</li>
+                        <li><i class="fas fa-check"></i> تغطية كاملة للمنهج</li>
+                    </ul>
+                </div>
+                <div class="showcase-visual">
+                    <div class="glass-card">
+                        <div class="ai-preview">
+                            <div class="ai-brain">
+                                <i class="fas fa-book-open"></i>
+                            </div>
+                            <div class="ai-waves">
+                                <div class="ai-wave"></div>
+                                <div class="ai-wave"></div>
+                                <div class="ai-wave"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section class="testimonials">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-label">آراء الطلاب</span>
+                <h2 class="section-title">بيقولوا إيه عنا <span class="gradient-text">طلابنا؟</span></h2>
+            </div>
+            <div class="testimonials-grid">
+                <div class="testimonial-card">
+                    <div class="testimonial-content">
+                        <div class="quote-icon"><i class="fas fa-quote-right"></i></div>
+                        <p class="testimonial-text">
+                            "الموقع وفرلي كل الكتب بسهولة وسرعة ❤️ كنت بدور على ملزمة الرياضيات من زمان ولاقيتها هنا بسعر كويس جداً"
+                        </p>
+                        <div class="testimonial-author">
+                            <div class="author-avatar">
+                                <i class="fas fa-user-graduate"></i>
+                            </div>
+                            <div class="author-info">
+                                <div class="author-name">أحمد محمد</div>
+                                <div class="author-title">طالب ثالثة ثانوي - القاهرة</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="testimonial-metrics">
+                        <div class="metric-item">
+                            <div class="metric-number">⭐⭐⭐⭐⭐</div>
+                            <div class="metric-text">تقييم ممتاز</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="testimonial-card">
+                    <div class="testimonial-content">
+                        <div class="quote-icon"><i class="fas fa-quote-right"></i></div>
+                        <p class="testimonial-text">
+                            "أفضل تجربة شراء كتب أونلاين! التوصيل وصل في يوم واحد بس والكتب في حالة ممتازة"
+                        </p>
+                        <div class="testimonial-author">
+                            <div class="author-avatar">
+                                <i class="fas fa-user-graduate"></i>
+                            </div>
+                            <div class="author-info">
+                                <div class="author-name">مريم علي</div>
+                                <div class="author-title">طالبة تانية ثانوي - الإسكندرية</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="testimonial-metrics">
+                        <div class="metric-item">
+                            <div class="metric-number">⭐⭐⭐⭐⭐</div>
+                            <div class="metric-text">خدمة رائعة</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="testimonial-card">
+                    <div class="testimonial-content">
+                        <div class="quote-icon"><i class="fas fa-quote-right"></i></div>
+                        <p class="testimonial-text">
+                            "التوصيل سريع جداً والخدمة ممتازة! الدعم الفني رد عليا على طول وساعدني في الطلب"
+                        </p>
+                        <div class="testimonial-author">
+                            <div class="author-avatar">
+                                <i class="fas fa-user-graduate"></i>
+                            </div>
+                            <div class="author-info">
+                                <div class="author-name">يوسف عبدالرحمن</div>
+                                <div class="author-title">طالب أولى ثانوي - الجيزة</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="testimonial-metrics">
+                        <div class="metric-item">
+                            <div class="metric-number">⭐⭐⭐⭐⭐</div>
+                            <div class="metric-text">توصيل فائق</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Categories Section (was Pricing) -->
+    <section class="pricing">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-label">الأقسام</span>
+                <h2 class="section-title">اختار <span class="gradient-text">قسمك</span></h2>
+                <p class="section-description">
+                    اختار الصف الدراسي وهنوفرلك كل الكتب والملازم اللي تحتاجها
+                </p>
+            </div>
+            <div class="pricing-grid">
+                <div class="pricing-card">
+                    <div class="pricing-header">
+                        <h3 class="pricing-name">📗 كتب أولى ثانوي</h3>
+                        <p class="pricing-description">كل مواد الصف الأول الثانوي</p>
+                    </div>
+                    <div class="pricing-price">
+                        <span class="price-amount" style="font-size:38px;">+50</span>
+                        <span class="price-period"> كتاب وملزمة</span>
+                    </div>
+                    <ul class="pricing-features">
+                        <li><i class="fas fa-check"></i> رياضيات وجبر</li>
+                        <li><i class="fas fa-check"></i> فيزياء وكيمياء</li>
+                        <li><i class="fas fa-check"></i> أحياء وجيولوجيا</li>
+                        <li><i class="fas fa-check"></i> لغة عربية وإنجليزية</li>
+                        <li><i class="fas fa-check"></i> تاريخ وجغرافيا</li>
+                        <li><i class="fas fa-check"></i> مراجعات نهائية</li>
+                    </ul>
+                    <a href="#" class="btn btn-outline">تسوق دلوقتي</a>
+                </div>
+                <div class="pricing-card featured">
+                    <div class="pricing-badge">الأكثر طلباً</div>
+                    <div class="pricing-header">
+                        <h3 class="pricing-name">📘 كتب تانية ثانوي</h3>
+                        <p class="pricing-description">كل مواد الصف الثاني الثانوي</p>
+                    </div>
+                    <div class="pricing-price">
+                        <span class="price-amount" style="font-size:38px;">+60</span>
+                        <span class="price-period"> كتاب وملزمة</span>
+                    </div>
+                    <ul class="pricing-features">
+                        <li><i class="fas fa-check"></i> رياضيات وجبر</li>
+                        <li><i class="fas fa-check"></i> فيزياء وكيمياء</li>
+                        <li><i class="fas fa-check"></i> أحياء وجيولوجيا</li>
+                        <li><i class="fas fa-check"></i> لغة عربية وإنجليزية</li>
+                        <li><i class="fas fa-check"></i> تاريخ وجغرافيا</li>
+                        <li><i class="fas fa-check"></i> مراجعات نهائية مكثفة</li>
+                    </ul>
+                    <a href="#" class="btn btn-primary" style="width:100%;justify-content:center;">تسوق دلوقتي</a>
+                </div>
+                <div class="pricing-card">
+                    <div class="pricing-header">
+                        <h3 class="pricing-name">📕 كتب تالتة ثانوي</h3>
+                        <p class="pricing-description">كل مواد الصف الثالث الثانوي</p>
+                    </div>
+                    <div class="pricing-price">
+                        <span class="price-amount" style="font-size:38px;">+80</span>
+                        <span class="price-period"> كتاب وملزمة</span>
+                    </div>
+                    <ul class="pricing-features">
+                        <li><i class="fas fa-check"></i> رياضيات بكالوريا</li>
+                        <li><i class="fas fa-check"></i> فيزياء وكيمياء</li>
+                        <li><i class="fas fa-check"></i> أحياء وجيولوجيا</li>
+                        <li><i class="fas fa-check"></i> لغة عربية وإنجليزية</li>
+                        <li><i class="fas fa-check"></i> مراجعات ثانوية عامة</li>
+                        <li><i class="fas fa-check"></i> نماذج امتحانات سابقة</li>
+                    </ul>
+                    <a href="#" class="btn btn-outline">تسوق دلوقتي</a>
+                </div>
+            </div>
+
+            <!-- 4th category - General Products -->
+            <div style="margin-top: 40px; text-align: center;">
+                <div class="pricing-card" style="max-width: 500px; margin: 0 auto; display: inline-block; width: 100%;">
+                    <div class="pricing-header">
+                        <h3 class="pricing-name">🛒 منتجات عامة</h3>
+                        <p class="pricing-description">أدوات مكتبية وقرطاسية ومستلزمات</p>
+                    </div>
+                    <div class="pricing-price">
+                        <span class="price-amount" style="font-size:38px;">+100</span>
+                        <span class="price-period"> منتج متاح</span>
+                    </div>
+                    <ul class="pricing-features" style="text-align: right;">
+                        <li><i class="fas fa-check"></i> أقلام ومستلزمات</li>
+                        <li><i class="fas fa-check"></i> أدوات رسم وهندسة</li>
+                        <li><i class="fas fa-check"></i> كراسات وأوراق</li>
+                        <li><i class="fas fa-check"></i> حقائب مدرسية</li>
+                    </ul>
+                    <a href="#" class="btn btn-outline">تصفح المنتجات</a>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section class="data-viz" id="faq" style="background: var(--bg-primary);">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-label">الأسئلة الشائعة</span>
+                <h2 class="section-title">عندك <span class="gradient-text">سؤال؟</span></h2>
+                <p class="section-description">إجابات على أكثر الأسئلة اللي بيسألها طلابنا</p>
+            </div>
+            <div class="faq-list">
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        <span>كيفية الطلب من الموقع؟</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        اختار الكتب اللي عايزها، حطها في السلة، اضغط على إتمام الطلب، وادخل بياناتك وعنوانك. وهنتواصل معاك لتأكيد الطلب.
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        <span>طريقة تأكيد الدفع؟</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        بنقبل الدفع عند الاستلام، فودافون كاش، إنستاباي، وبطاقات بنكية. هيتبعتلك رسالة تأكيد الدفع على الفور.
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        <span>مدة توصيل الكتاب كام يوم؟</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        بنوصل في 1 - 3 أيام عمل حسب المحافظة. القاهرة والجيزة والإسكندرية في يوم واحد غالباً.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta" id="contact">
+        <div class="container">
+            <div class="cta-content">
+                <h2 class="cta-title">جاهز تشتري كتبك؟ <span class="gradient-text">ابدأ دلوقتي مع بوك بيكون</span></h2>
+                <p class="cta-description">
+                    انضم لآلاف الطلاب اللي بيثقوا في بوك بيكون لشراء كتبهم وملازمهم بسهولة وأمان
+                </p>
+                <div class="cta-buttons">
+                    <a href="#programs" class="btn btn-primary btn-large">
+                        <span>ابدأ التسوق</span>
+                        <i class="fas fa-shopping-cart"></i>
+                    </a>
+                    <a href="#" class="btn btn-secondary btn-large">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <span>تابع طلبك</span>
+                    </a>
+                </div>
+                <p class="cta-note">توصيل لكل محافظات مصر &bull; دفع آمن 100% &bull; دعم فني 24/7</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-column">
+                    <div class="footer-logo">
+                        <span class="logo-icon">📚</span>
+                        <span class="logo-text">بوك بيكون</span>
+                    </div>
+                    <p class="footer-description">
+                        متجر بوك بيكون هتلاقي فيه كل الكتب والملازم وهتقدر تحصل عليها بسهولة وسرعة
+                    </p>
+                    <div class="social-links">
+                        <a href="#" title="فيسبوك"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" title="إنستجرام"><i class="fab fa-instagram"></i></a>
+                        <a href="#" title="تيك توك"><i class="fab fa-tiktok"></i></a>
+                        <a href="#" title="واتساب"><i class="fab fa-whatsapp"></i></a>
+                    </div>
+                </div>
+                <div class="footer-column">
+                    <h4>الكتب</h4>
+                    <ul>
+                        <li><a href="#">الكتب والملازم</a></li>
+                        <li><a href="#">المنتجات</a></li>
+                        <li><a href="#">المدرسين</a></li>
+                        <li><a href="#">العروض</a></li>
+                        <li><a href="#">الجديد</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h4>الشركة</h4>
+                    <ul>
+                        <li><a href="#">احنا مين؟</a></li>
+                        <li><a href="#">الدعم الفني</a></li>
+                        <li><a href="#">تواصل معنا</a></li>
+                        <li><a href="#">الوظائف</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h4>القانوني</h4>
+                    <ul>
+                        <li><a href="#">شروط الاستخدام</a></li>
+                        <li><a href="#">سياسة الخصوصية</a></li>
+                        <li><a href="#">سياسة الإلغاء</a></li>
+                        <li><a href="#">سياسة الاسترداد</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h4>تواصل معنا</h4>
+                    <ul>
+                        <li><a href="#"><i class="fab fa-whatsapp"></i> واتساب</a></li>
+                        <li><a href="#"><i class="fab fa-facebook-f"></i> فيسبوك</a></li>
+                        <li><a href="#"><i class="fab fa-instagram"></i> إنستجرام</a></li>
+                        <li><a href="#"><i class="fas fa-headset"></i> الدعم الفني</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 Book Beacon - بوك بيكون. جميع الحقوق محفوظة.</p>
+                <p>صُنع بـ <i class="fas fa-heart"></i> لكل طلاب مصر</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Custom JavaScript -->
+    <script src="js/main.js"></script>
+    <script>
+        // FAQ Toggle
+        function toggleFaq(el) {
+            const item = el.parentElement;
+            const isOpen = item.classList.contains('open');
+            document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('open'));
+            if (!isOpen) item.classList.add('open');
+        }
+    </script>
+<script src="https://www.genspark.ai/sandbox_inspect.js"></script><script defer src="https://static.cloudflareinsights.com/beacon.min.js/v833ccba57c9e4d2798f2e76cebdd09a11778172276447" integrity="sha512-57MDmcccJXYtNnH+ZiBwzC4jb2rvgVCEokYN+L/nLlmO8rfYT/gIpW2A569iJ/3b+0UEasghjuZH/ma3wIs/EQ==" data-cf-beacon='{"version":"2024.11.0","token":"4edd5f8ec12a48cfa682ab8261b80a79","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
+</body>
+</html>
