@@ -1,0 +1,365 @@
+[
+  {
+    "id": 1,
+    "name": "العادات الذرية: تغييرات صغيرة، نتائج كبيرة",
+    "author": "جيمس كليار",
+    "price": 85,
+    "old_price": 120,
+    "category": "external",
+    "img": "img/product/1.jpg",
+    "rating": 4.8,
+    "reviews": 324,
+    "featured": true
+  },
+  {
+    "id": 2,
+    "name": "ملازم اللغة العربية - الثانوية العامة",
+    "author": "د. محمود الحسيني",
+    "price": 45,
+    "category": "notes",
+    "img": "img/product/2.jpg",
+    "rating": 4.6,
+    "reviews": 156,
+    "featured": true
+  },
+  {
+    "id": 3,
+    "name": "1984 - جورج أورويل (مترجم)",
+    "author": "جورج أورويل / ترجمة: إحسان عباس",
+    "price": 75,
+    "old_price": 100,
+    "category": "novels",
+    "img": "img/product/3.jpg",
+    "rating": 4.9,
+    "reviews": 542,
+    "featured": true
+  },
+  {
+    "id": 4,
+    "name": "أدوات مدرسية - مجموعة كاملة",
+    "author": "Book Beacon",
+    "price": 120,
+    "category": "tools",
+    "img": "img/product/4.jpg",
+    "rating": 4.5,
+    "reviews": 89,
+    "featured": false
+  },
+  {
+    "id": 5,
+    "name": "ملازم الرياضيات - المرحلة الإعدادية",
+    "author": "د. أحمد محمد",
+    "price": 55,
+    "category": "notes",
+    "img": "img/product/5.jpg",
+    "rating": 4.7,
+    "reviews": 203,
+    "featured": true
+  },
+  {
+    "id": 6,
+    "name": "الأب الغني والأب الفقير",
+    "author": "روبير كيوساكي",
+    "price": 90,
+    "old_price": 130,
+    "category": "external",
+    "img": "img/product/6.jpg",
+    "rating": 4.8,
+    "reviews": 678,
+    "featured": true
+  },
+  {
+    "id": 7,
+    "name": "مذكرة العلوم - الصف الأول الثانوي",
+    "author": "د. فاطمة عماد",
+    "price": 50,
+    "category": "notes",
+    "img": "img/product/7.jpg",
+    "rating": 4.4,
+    "reviews": 127,
+    "featured": false
+  },
+  {
+    "id": 8,
+    "name": "الممثل - أنطون تشيخوف",
+    "author": "أنطون تشيخوف (ترجمة)",
+    "price": 60,
+    "category": "novels",
+    "img": "img/product/8.jpg",
+    "rating": 4.3,
+    "reviews": 95,
+    "featured": false
+  },
+  {
+    "id": 9,
+    "name": "أقلام التلوين الاحترافية - 72 لون",
+    "author": "Brand Premium",
+    "price": 95,
+    "old_price": 140,
+    "category": "tools",
+    "img": "img/product/9.jpg",
+    "rating": 4.9,
+    "reviews": 312,
+    "featured": true
+  },
+  {
+    "id": 10,
+    "name": "أساسيات البرمجة بلغة Python",
+    "author": "د. محمود عبدالقادر",
+    "price": 110,
+    "category": "external",
+    "img": "img/product/10.jpg",
+    "rating": 4.7,
+    "reviews": 456,
+    "featured": true
+  },
+  {
+    "id": 11,
+    "name": "ملازم اللغة الإنجليزية - TOEFL",
+    "author": "د. سارة أحمد",
+    "price": 80,
+    "old_price": 110,
+    "category": "notes",
+    "img": "img/product/11.jpg",
+    "rating": 4.6,
+    "reviews": 234,
+    "featured": false
+  },
+  {
+    "id": 12,
+    "name": "رواية الحب والحرب - نجيب محفوظ",
+    "author": "نجيب محفوظ",
+    "price": 70,
+    "category": "novels",
+    "img": "img/product/12.jpg",
+    "rating": 4.5,
+    "reviews": 178,
+    "featured": false
+  },
+  {
+    "id": 13,
+    "name": "دفاتر ملاحظات - 5 قطع",
+    "author": "Book Beacon",
+    "price": 65,
+    "old_price": 90,
+    "category": "tools",
+    "img": "img/product/13.jpg",
+    "rating": 4.8,
+    "reviews": 289,
+    "featured": true
+  },
+  {
+    "id": 14,
+    "name": "تعلم التاريخ الإسلامي",
+    "author": "د. علي الطنطاوي",
+    "price": 95,
+    "category": "external",
+    "img": "img/product/14.jpg",
+    "rating": 4.7,
+    "reviews": 167,
+    "featured": false
+  },
+  {
+    "id": 15,
+    "name": "مذكرات الكيمياء - الثانوية العامة",
+    "author": "د. محمود الدسوقي",
+    "price": 60,
+    "old_price": 85,
+    "category": "notes",
+    "img": "img/product/15.jpg",
+    "rating": 4.6,
+    "reviews": 198,
+    "featured": true
+  },
+  {
+    "id": 16,
+    "name": "غريب الأطوار - عماره",
+    "author": "عماره",
+    "price": 65,
+    "category": "novels",
+    "img": "img/product/16.jpg",
+    "rating": 4.4,
+    "reviews": 112,
+    "featured": false
+  },
+  {
+    "id": 17,
+    "name": "حقيبة مدرسية ذكية",
+    "author": "Smart Brand",
+    "price": 145,
+    "old_price": 200,
+    "category": "tools",
+    "img": "img/product/17.jpg",
+    "rating": 4.7,
+    "reviews": 356,
+    "featured": true
+  },
+  {
+    "id": 18,
+    "name": "فن التفاوض - روجر فيشر",
+    "author": "روجر فيشر",
+    "price": 100,
+    "category": "external",
+    "img": "img/product/18.jpg",
+    "rating": 4.8,
+    "reviews": 523,
+    "featured": false
+  },
+  {
+    "id": 19,
+    "name": "ملازم الفلسفة والمنطق",
+    "author": "د. إبراهيم عماره",
+    "price": 55,
+    "old_price": 75,
+    "category": "notes",
+    "img": "img/product/19.jpg",
+    "rating": 4.5,
+    "reviews": 143,
+    "featured": false
+  },
+  {
+    "id": 20,
+    "name": "البرق والرعد - إحسان عبدالقدوس",
+    "author": "إحسان عبدالقدوس",
+    "price": 72,
+    "category": "novels",
+    "img": "img/product/20.jpg",
+    "rating": 4.6,
+    "reviews": 201,
+    "featured": true
+  }
+]
+  },
+  {
+    "id": 7,
+    "img": "img/product/7.png",
+    "name": "HP Victus Gaming Laptop 8RAM SSD",
+    "price": 370,
+    "catetory":"electronics"
+  },
+  {
+    "id": 8,
+    "img": "img/product/8.png",
+    "name": "Xiaomi Redmi 13C Dual SIM 8GB",
+    "price": 320,
+    "catetory":"mobiles"
+  },
+  {
+    "id": 9,
+    "img": "img/product/9.png",
+    "name": "Handheld Barcode Scanner 1D/2D/QR Code",
+    "price": 80,
+    "old_price": 100,
+    "catetory":"electronics"
+  },
+  {
+    "id": 10,
+    "img": "img/product/10.png",
+    "name": "Large Venue building mapping Projector",
+    "price": 300,
+    "catetory":"electronics"
+  },
+  {
+    "id": 11,
+    "img": "img/product/11.png",
+    "name": "Infinix Hot 40i (RAM: 4+4GB, 128GB)",
+    "price": 260,
+    "old_price": 300,
+    "catetory":"mobiles"
+  },
+  {
+    "id": 12,
+    "img": "img/product/12.png",
+    "name": "HP DeskJet 2710 Printer, All-in-One",
+    "price": 370,
+    "catetory":"electronics"
+  },
+  {
+    "id": 13,
+    "img": "img/product/13.png",
+    "name": "Fuzzy Logic Rice Cooker DIGITAL-JAR 1.8L 940W – HD4515/67",
+    "price": 490,
+    "catetory":"appliances"
+  },
+  {
+    "id": 14,
+    "img": "img/product/14.png",
+    "name": "Sencor STS 5070SS Electric Toaster for Four Slices",
+    "price": 340,
+    "catetory":"appliances"
+  },
+  {
+    "id": 15,
+    "img": "img/product/15.png",
+    "name": "Infinix Smart 6 Plus (Miracle Black)",
+    "price": 240,
+    "old_price": 300,
+    "catetory":"mobiles"
+  },
+  {
+    "id": 16,
+    "img": "img/product/16.png",
+    "name": "Washing Machine 959 Series 8kg Senator Aqua SX, Silver",
+    "price": 600,
+    "old_price": 700,
+    "catetory":"appliances"
+  },
+  {
+    "id": 17,
+    "img": "img/product/17.png",
+    "name": "HIKVISION PTZ Camera 4K Outdoo",
+    "price": 185,
+    "catetory":"electronics"
+  },
+  {
+    "id": 18,
+    "img": "img/product/18.png",
+    "name": "OPPO Reno11 5G 256GB 12GB",
+    "price": 225,
+    "catetory":"mobiles"
+  },
+  {
+    "id": 19,
+    "img": "img/product/19.png",
+    "name": "VIVAX kettle WH-175L with a capacity of 1.7 ",
+    "price": 140,
+    "catetory":"appliances"
+  },
+  {
+    "id": 20,
+    "img": "img/product/20.png",
+    "name": "Kenstar Ester ABS Plastic 750W Mixer Grinder",
+    "price": 280,
+    "old_price": 330,
+    "catetory":"appliances"
+  },
+  {
+    "id": 21,
+    "img": "img/product/21.png",
+    "name": "Multifunctional Food Processor",
+    "price": 350,
+    "catetory":"appliances"
+  },
+  {
+    "id": 22,
+    "img": "img/product/22.png",
+    "name": "Zanussi Washing Machine 8 Kg 1200 RPM ",
+    "price": 580,
+    "catetory":"appliances"
+  },
+  {
+    "id": 23,
+    "img": "img/product/23.png",
+    "name": "Sharp 42 Lt Electronic Oven Convection",
+    "price": 400,
+    "catetory":"appliances"
+  },
+  {
+    "id": 24,
+    "img": "img/product/24.png",
+    "name": "Lenovo Monitor Legion R27fc-30 Gaming Curved",
+    "price": 300,
+    "old_price": 380,
+    "catetory":"electronics"
+  }
+]
