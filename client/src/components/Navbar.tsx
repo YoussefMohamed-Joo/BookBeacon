@@ -132,11 +132,16 @@ export default function Navbar() {
                 </AnimatePresence>
               </div>
             ) : (
-              <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                <Link to="/login" className="btn-primary text-sm !py-2.5 !px-5 shadow-lg shadow-primary-500/20">
-                  <User className="w-4 h-4 inline ml-1.5" /> تسجيل الدخول
+              <>
+                <Link to="/register" className="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-primary-500 dark:hover:text-primary-400 px-3 py-2 rounded-xl hover:bg-gray-100/50 dark:hover:bg-dark-700/50 transition-all">
+                  <Sparkles className="w-4 h-4 inline ml-1" /> إنشاء حساب
                 </Link>
-              </motion.div>
+                <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                  <Link to="/login" className="btn-primary text-sm !py-2.5 !px-5 shadow-lg shadow-primary-500/20">
+                    <User className="w-4 h-4 inline ml-1.5" /> تسجيل الدخول
+                  </Link>
+                </motion.div>
+              </>
             )}
           </div>
 
@@ -184,9 +189,14 @@ export default function Navbar() {
                   </button>
                 </>
               ) : (
-                <Link to="/login" className="block px-4 py-3 rounded-xl text-sm btn-primary text-center">
-                  تسجيل الدخول
-                </Link>
+                <>
+                  <Link to="/register" className="block px-4 py-3 rounded-xl text-sm font-medium text-center text-primary-500 border border-primary-200 dark:border-primary-800 hover:bg-primary-50 dark:hover:bg-primary-900/20 mb-2">
+                    <Sparkles className="w-4 h-4 inline ml-1" /> إنشاء حساب
+                  </Link>
+                  <Link to="/login" className="block px-4 py-3 rounded-xl text-sm btn-primary text-center">
+                    تسجيل الدخول
+                  </Link>
+                </>
               )}
               <button onClick={toggleDarkMode} className="flex items-center gap-2 px-4 py-3 text-sm text-gray-600 dark:text-gray-300 w-full">
                 {isDarkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}

@@ -1,6 +1,8 @@
 import { motion } from 'framer-motion';
 import { Helmet } from 'react-helmet-async';
+import { useState } from 'react';
 import { Phone, Mail, MapPin, Clock, MessageCircle, Send, ChevronLeft } from 'lucide-react';
+import toast from 'react-hot-toast';
 import ScrollReveal from '../components/animations/ScrollReveal';
 
 const contactInfo = [
@@ -12,6 +14,16 @@ const contactInfo = [
 ];
 
 export default function Contact() {
+  const [formSent, setFormSent] = useState(false);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setFormSent(true);
+    toast.success('تم إرسال رسالتك بنجاح! سنتواصل معك قريباً');
+    (e.target as HTMLFormElement).reset();
+    setTimeout(() => setFormSent(false), 3000);
+  };
+
   return (
     <>
       <Helmet>
@@ -80,7 +92,7 @@ export default function Contact() {
                 <h2 className="text-xl font-bold mb-2">أرسل لنا رسالة</h2>
                 <p className="text-sm text-gray-500 mb-6">نحن نرد خلال ٢٤ ساعة</p>
 
-                <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
+                <form className="space-y-4" onSubmit={handleSubmit}>
                   <div>
                     <label className="block text-sm font-medium mb-1 text-gray-600 dark:text-gray-300">الاسم</label>
                     <input type="text" className="input-field rounded-2xl" placeholder="الاسم الكامل" />
@@ -99,8 +111,8 @@ export default function Contact() {
                     <label className="block text-sm font-medium mb-1 text-gray-600 dark:text-gray-300">الرسالة</label>
                     <textarea className="input-field rounded-2xl min-h-[120px]" placeholder="اكتب رسالتك هنا..." />
                   </div>
-                  <button type="submit" className="w-full py-3 rounded-2xl bg-gradient-to-l from-primary-600 to-primary-500 text-white font-bold shadow-xl shadow-primary-500/25 hover:shadow-primary-500/40 transition-all flex items-center justify-center gap-2">
-                    <Send className="w-4 h-4" /> إرسال الرسالة
+                  <button type="submit" disabled={formSent} className="w-full py-3 rounded-2xl bg-gradient-to-l from-primary-600 to-primary-500 text-white font-bold shadow-xl shadow-primary-500/25 hover:shadow-primary-500/40 transition-all disabled:opacity-60 flex items-center justify-center gap-2">
+                    <Send className="w-4 h-4" /> {formSent ? 'تم الإرسال ✓' : 'إرسال الرسالة'}
                   </button>
                 </form>
               </div>

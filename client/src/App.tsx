@@ -17,6 +17,11 @@ import Blog from './pages/Blog';
 import BlogDetail from './pages/BlogDetail';
 import Contact from './pages/Contact';
 import AdminDashboard from './pages/AdminDashboard';
+import Privacy from './pages/Privacy';
+import Terms from './pages/Terms';
+import FAQ from './pages/FAQ';
+import PaymentMethods from './pages/PaymentMethods';
+import DeliveryPolicy from './pages/DeliveryPolicy';
 import ChatBot from './components/ChatBot';
 
 const pageVariants = {
@@ -68,6 +73,11 @@ function App() {
           <Route path="/blog/:slug" element={<AnimatedPage><BlogDetail /></AnimatedPage>} />
           <Route path="/contact" element={<AnimatedPage><Contact /></AnimatedPage>} />
           <Route path="/admin" element={<AnimatedPage><AdminDashboard /></AnimatedPage>} />
+          <Route path="/privacy" element={<AnimatedPage><Privacy /></AnimatedPage>} />
+          <Route path="/terms" element={<AnimatedPage><Terms /></AnimatedPage>} />
+          <Route path="/faq" element={<AnimatedPage><FAQ /></AnimatedPage>} />
+          <Route path="/payment-methods" element={<AnimatedPage><PaymentMethods /></AnimatedPage>} />
+          <Route path="/delivery-policy" element={<AnimatedPage><DeliveryPolicy /></AnimatedPage>} />
           <Route path="*" element={<AnimatedPage><div className="min-h-screen flex items-center justify-center pt-16"><div className="text-center"><h1 className="text-6xl font-bold text-gray-300 mb-4">404</h1><p className="text-gray-500">الصفحة غير موجودة</p></div></div></AnimatedPage>} />
         </Routes>
       </AnimatePresence>

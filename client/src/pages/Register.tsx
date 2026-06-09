@@ -9,7 +9,7 @@ import { authAPI } from '../lib/api';
 
 export default function Register() {
   const navigate = useNavigate();
-  const login = useStore((s) => s.login);
+  const setUser = useStore((s) => s.setUser);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
@@ -28,7 +28,8 @@ export default function Register() {
     setLoading(true);
     try {
       const { data } = await authAPI.register({ name, email, phone, password });
-      login(data.token, data);
+      localStorage.setItem('user', JSON.stringify(data));
+      setUser(data);
       toast.success('تم التسجيل بنجاح!');
       navigate('/');
     } catch (err: any) {
