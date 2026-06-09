@@ -13,38 +13,25 @@ const register = async (req, res) => {
       return res.status(400).json({ message: 'البريد الإلكتروني مسجل بالفعل' });
     }
 
-    const user = await User.create({ name, email, phone, password });
+    const user = await User.create({ name, email, phone, password, isVerified: true });
 
-    const emailOtp = generateOTP(6);
-    const phoneOtp = generateOTP(5);
-
-    await OTP.create({
-      email: user.email,
-      otp: emailOtp,
-      type: 'email',
-      expiresAt: new Date(Date.now() + 2 * 60 * 1000),
-    });
-
-    await OTP.create({
-      email: user.email,
-      otp: phoneOtp,
-      type: 'phone',
-      expiresAt: new Date(Date.now() + 2 * 60 * 1000),
-    });
-
-    await sendEmail(
-      user.email,
-      'رمز التحقق - Book Beacon',
-      `<h2>مرحباً ${user.name}</h2>
-       <p>رمز التحقق الخاص بالبريد الإلكتروني: <strong>${emailOtp}</strong></p>
-       <p>صالح لمدة دقيقتين</p>`
-    );
+    // Commented: OTP verification disabled
+    // const emailOtp = generateOTP(6);
+    // const phoneOtp = generateOTP(5);
+    // await OTP.create({ email: user.email, otp: emailOtp, type: 'email', expiresAt: new Date(Date.now() + 2 * 60 * 1000) });
+    // await OTP.create({ email: user.email, otp: phoneOtp, type: 'phone', expiresAt: new Date(Date.now() + 2 * 60 * 1000) });
+    // await sendEmail(user.email, 'رمز التحقق - Book Beacon', `<h2>مرحباً ${user.name}</h2><p>رمز التحقق الخاص بالبريد الإلكتروني: <strong>${emailOtp}</strong></p><p>صالح لمدة دقيقتين</p>`);
 
     res.status(201).json({
       _id: user._id,
       name: user.name,
       email: user.email,
-      message: 'تم التسجيل بنجاح، يرجى التحقق من بريدك الإلكتروني',
+      role: user.role,
+      phone: user.phone,
+      isVerified: true,
+      loyaltyPoints: user.loyaltyPoints,
+      token: generateToken(user._id, user.role),
+      message: 'تم التسجيل بنجاح',
     });
   } catch (error) {
     res.status(500).json({ message: 'خطأ في التسجيل', error: error.message });

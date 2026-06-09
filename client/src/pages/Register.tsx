@@ -3,11 +3,13 @@ import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Helmet } from 'react-helmet-async';
 import { BookOpen, User, Mail, Phone, Lock, Eye, EyeOff, Sparkles } from 'lucide-react';
+import { useStore } from '../store/useStore';
 import toast from 'react-hot-toast';
 import { authAPI } from '../lib/api';
 
 export default function Register() {
   const navigate = useNavigate();
+  const login = useStore((s) => s.login);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
@@ -25,9 +27,10 @@ export default function Register() {
 
     setLoading(true);
     try {
-      await authAPI.register({ name, email, phone, password });
-      toast.success('تم التسجيل بنجاح! يرجى التحقق من بريدك الإلكتروني');
-      navigate(`/verify-otp?email=${encodeURIComponent(email)}`);
+      const { data } = await authAPI.register({ name, email, phone, password });
+      login(data.token, data);
+      toast.success('تم التسجيل بنجاح!');
+      navigate('/');
     } catch (err: any) {
       toast.error(err.response?.data?.message || 'خطأ في التسجيل');
     } finally { setLoading(false); }

@@ -55,7 +55,7 @@ export default function BookDetail() {
 
   const handleOrder = async () => {
     if (!user) { toast.error('يرجى تسجيل الدخول أولاً'); navigate('/login'); return; }
-    if (!user.isVerified) { toast.error('يرجى التحقق من البريد الإلكتروني أولاً'); navigate('/login'); return; }
+    // if (!user.isVerified) { toast.error('يرجى التحقق من البريد الإلكتروني أولاً'); navigate('/login'); return; }
     if (deliveryMethod === 'delivery' && (!address || !phone || !selectedGov)) { toast.error('يرجى إكمال بيانات التوصيل'); return; }
 
     setOrderLoading(true);
