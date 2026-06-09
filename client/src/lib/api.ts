@@ -1,10 +1,12 @@
 import axios from 'axios';
 
+// Axios instance — baseURL proxies through Vite dev server (/api -> server)
 const API = axios.create({
   baseURL: '/api',
   headers: { 'Content-Type': 'application/json' },
 });
 
+// Attach JWT token from localStorage to every request
 API.interceptors.request.use((config) => {
   const user = localStorage.getItem('user');
   if (user) {
@@ -16,6 +18,7 @@ API.interceptors.request.use((config) => {
   return config;
 });
 
+// On 401 response -> clear stored user + redirect to login
 API.interceptors.response.use(
   (response) => response,
   (error) => {
@@ -29,6 +32,8 @@ API.interceptors.response.use(
 
 export default API;
 
+// ===== API endpoint wrappers =====
+
 export const authAPI = {
   register: (data: { name: string; email: string; phone: string; password: string }) =>
     API.post('/auth/register', data),
@@ -37,6 +42,8 @@ export const authAPI = {
     API.post('/auth/verify-otp', data),
   resendOTP: (data: { email: string; type: string }) => API.post('/auth/resend-otp', data),
   getProfile: () => API.get('/auth/profile'),
+  updateProfile: (data: { email?: string; currentPassword?: string; newPassword?: string }) =>
+    API.put('/auth/profile', data),
 };
 
 export const booksAPI = {
@@ -49,10 +56,13 @@ export const booksAPI = {
   update: (id: string, data: FormData) =>
     API.put(`/books/${id}`, data, { headers: { 'Content-Type': 'multipart/form-data' } }),
   delete: (id: string) => API.delete(`/books/${id}`),
+  lookupBarcode: (barcode: string) => API.get(`/books/barcode/${barcode}`),
+  generateBarcodes: () => API.post('/books/generate-barcodes'),
 };
 
 export const ordersAPI = {
   create: (data: any) => API.post('/orders', data),
+  createInstantSale: (data: any) => API.post('/orders/instant-sale', data),
   getMyOrders: () => API.get('/orders/my-orders'),
   getAll: (params?: any) => API.get('/orders', { params }),
   updateStatus: (id: string, data: any) => API.patch(`/orders/${id}/status`, data),
@@ -61,7 +71,18 @@ export const ordersAPI = {
       headers: { 'Content-Type': 'multipart/form-data' },
     }),
   verifyPayment: (id: string) => API.post(`/orders/${id}/verify-payment`),
+  confirmDelivery: (id: string, data?: any) => API.post(`/orders/${id}/confirm-delivery`, data || {}),
   instantDelivery: (id: string) => API.post(`/orders/${id}/instant-delivery`),
+};
+
+export const activityAPI = {
+  getAll: (params?: any) => API.get('/activity', { params }),
+};
+
+export const inventoryAPI = {
+  getLogs: (params?: any) => API.get('/inventory/logs', { params }),
+  addStock: (id: string, data: any) => API.put(`/inventory/${id}/stock`, data),
+  adjustStock: (id: string, data: any) => API.put(`/inventory/${id}/adjust`, data),
 };
 
 export const usersAPI = {
@@ -69,6 +90,10 @@ export const usersAPI = {
   toggleBlock: (id: string) => API.patch(`/users/${id}/block`),
   getOrders: (id: string) => API.get(`/users/${id}/orders`),
   deleteAll: () => API.delete('/users/delete-all'),
+  getCashiers: () => API.get('/users/cashiers'),
+  createCashier: (data: { name: string; email: string; phone: string; password: string }) =>
+    API.post('/users/cashiers', data),
+  deleteCashier: (id: string) => API.delete(`/users/cashiers/${id}`),
 };
 
 export const deliveryAPI = {

@@ -146,4 +146,31 @@ const getProfile = async (req, res) => {
   }
 };
 
-module.exports = { register, login, verifyOTP, resendOTP, getProfile };
+// Admin updates own email / password
+const updateProfile = async (req, res) => {
+  try {
+    const { email, currentPassword, newPassword } = req.body;
+    const user = await User.findById(req.user._id);
+
+    if (email && email !== user.email) {
+      const exists = await User.findOne({ email });
+      if (exists) return res.status(400).json({ message: 'البريد الإلكتروني مستخدم بالفعل' });
+      user.email = email;
+    }
+
+    if (newPassword) {
+      if (!currentPassword) return res.status(400).json({ message: 'يجب إدخال كلمة المرور الحالية' });
+      const isMatch = await user.matchPassword(currentPassword);
+      if (!isMatch) return res.status(400).json({ message: 'كلمة المرور الحالية غير صحيحة' });
+      user.password = newPassword;
+    }
+
+    await user.save();
+    const updated = await User.findById(user._id).select('-password');
+    res.json({ message: 'تم تحديث البيانات', user: updated });
+  } catch (error) {
+    res.status(500).json({ message: 'خطأ في تحديث البيانات' });
+  }
+};
+
+module.exports = { register, login, verifyOTP, resendOTP, getProfile, updateProfile };

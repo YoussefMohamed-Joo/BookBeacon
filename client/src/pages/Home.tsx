@@ -1,98 +1,196 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-import { BookOpen, Truck, Shield, Star, ArrowLeft } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ArrowLeft } from 'lucide-react';
 import BookCard from '../components/BookCard';
+import AnimatedIcon from '../components/animations/AnimatedIcon';
 import { booksAPI } from '../lib/api';
 
-const features = [
-  { icon: Shield, title: 'دفع آمن', desc: 'طرق دفع آمنة عبر فودافون كاش — متاح في كل مصر' },
-  { icon: Truck, title: 'توصيل سريع', desc: 'بنوصل لكل محافظات مصر بسرعة وفي أمان' },
-  { icon: BookOpen, title: 'كتالوج ضخم', desc: 'أكثر من 500 كتاب لكل الصفوف والمواد' },
-  { icon: Star, title: 'نقاط الولاء', desc: 'اجمع نقاط واستبدلها بخصومات' },
+// Hero slider data
+const slides = [
+  {
+    id: 1,
+    title: 'كتب تالتة ثانوي',
+    subtitle: 'من أفضل الأساتذة في مصر',
+    cta: 'تسوق الآن',
+    badge: '🔥 الأكثر مبيعاً',
+  },
+  {
+    id: 2,
+    title: 'خصم يصل إلى ٣٠٪',
+    subtitle: 'على جميع كتب أولى وتانية ثانوي',
+    cta: 'استفيد دلوقتي',
+    badge: '🎉 عروض حصرية',
+  },
 ];
 
+// Grade categories for quick navigation
 const grades = [
-  { name: 'أولى ثانوي', slug: 'أولى+ثانوي', desc: 'كتب الصف الأول الثانوي' },
-  { name: 'تانية ثانوي', slug: 'تانية+ثانوي', desc: 'كتب الصف الثاني الثانوي' },
-  { name: 'تالتة ثانوي', slug: 'تالتة+ثانوي', desc: 'كتب الصف الثالث الثانوي' },
+  { name: 'أولى ثانوي', slug: 'أولى+ثانوي' },
+  { name: 'تانية ثانوي', slug: 'تانية+ثانوي' },
+  { name: 'تالتة ثانوي', slug: 'تالتة+ثانوي' },
 ];
+
+// Hide scrollbar globally for sliders
+const sliderScrollStyle = `
+  .slider-track::-webkit-scrollbar { display: none; }
+  .slider-track { scrollbar-width: none; -ms-overflow-style: none; }
+`;
 
 export default function Home() {
   const [books, setBooks] = useState<any[]>([]);
+  const [slideIndex, setSlideIndex] = useState(0);
+  const sliderRef = useRef<HTMLDivElement>(null);
 
+  // Fetch books on mount
   useEffect(() => {
     booksAPI.getAll({ limit: 8 }).then((res) => setBooks(res.data.books)).catch(() => {});
   }, []);
 
+  // Hero slider navigation
+  const nextSlide = () => setSlideIndex((prev) => (prev + 1) % slides.length);
+  const prevSlide = () => setSlideIndex((prev) => (prev - 1 + slides.length) % slides.length);
+
+  // Auto-rotate hero slider every 5s
+  useEffect(() => {
+    const timer = setInterval(nextSlide, 5000);
+    return () => clearInterval(timer);
+  }, []);
+
+  // Horizontal scroll for best sellers slider
+  const scrollSlider = (dir: 'left' | 'right') => {
+    if (sliderRef.current) {
+      const amount = 300;
+      sliderRef.current.scrollBy({ left: dir === 'right' ? amount : -amount, behavior: 'smooth' });
+    }
+  };
+
   return (
     <>
       <Helmet>
-        <title>بوكيفاي | منصة كتب الثانوية العامة في مصر</title>
-        <meta name="description" content="أفضل منصة لشراء كتب الثانوية العامة في مصر. كتب أولى وتانية وتالتة ثانوي بأسعار تحفة." />
+        <title>Book Beacon | منصة كتب الثانوية العامة في مصر</title>
+        <meta name="description" content="أفضل منصة لشراء كتب الثانوية العامة في مصر" />
       </Helmet>
 
-      {/* Hero */}
-      <section className="min-h-[80vh] flex items-center pt-20">
-        <div className="page-container w-full">
-          <div className="max-w-2xl mx-auto text-center">
-            <h1 className="text-4xl md:text-5xl lg:text-[3.5rem] font-bold leading-tight mb-4" style={{ color: 'var(--text-primary)' }}>
-              منصة الكتب التعليمية
-              <br />
-              <span style={{ color: 'var(--accent)' }}>الأولى في مصر</span>
-            </h1>
+      <style>{sliderScrollStyle}</style>
 
-            <p className="text-base md:text-lg mb-7 max-w-lg mx-auto" style={{ color: 'var(--muted)' }}>
-              أفضل الكتب الدراسية للثانوية العامة — بنوفرلك كل اللي محتاجه للتفوق، مع أسرع توصيل وأحسن الأسعار
-            </p>
+      {/* Hero Slider Section */}
+      <section className="pt-28 pb-8">
+        <div className="page-container">
+          <div
+            className="relative overflow-hidden rounded-card"
+            style={{
+              background: 'var(--card-bg)',
+              border: '1px solid var(--border)',
+              minHeight: '380px',
+            }}
+          >
+            {/* Decorative background blobs */}
+            <div className="absolute inset-0 overflow-hidden pointer-events-none">
+              <div className="absolute -top-20 -right-20 w-72 h-72 rounded-full opacity-10" style={{ background: 'var(--primary)' }} />
+              <div className="absolute -bottom-20 -left-20 w-56 h-56 rounded-full opacity-10" style={{ background: 'var(--accent)' }} />
+            </div>
 
-            <div className="flex flex-wrap gap-3 justify-center">
-              <Link to="/books" className="btn-primary text-base !py-3 !px-7">
-                تصفح الكتب <ArrowLeft className="w-4 h-4" />
-              </Link>
-              <Link to="/register" className="btn-secondary text-base !py-3 !px-7">
-                إنشاء حساب
-              </Link>
+            {/* Animated book decoration */}
+            <div className="absolute left-8 top-1/2 -translate-y-1/2 hidden lg:block opacity-30 pointer-events-none">
+              <AnimatedIcon src="/animations/book.json" size={160} />
+            </div>
+
+            {/* Slide content */}
+            <div className="relative z-10 p-8 md:p-12 flex items-center" style={{ minHeight: '380px' }}>
+              <div className="max-w-lg">
+                <span
+                  className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold mb-4"
+                  style={{ background: 'rgba(255,216,77,0.15)', color: 'var(--accent)' }}
+                >
+                  {slides[slideIndex].badge}
+                </span>
+                <h2 className="text-3xl md:text-4xl font-bold mb-3 leading-tight">
+                  {slides[slideIndex].title}
+                </h2>
+                <p className="text-base mb-6" style={{ color: 'var(--text-secondary)' }}>
+                  {slides[slideIndex].subtitle}
+                </p>
+                <Link to="/books" className="btn-cta text-base !py-3 !px-8">
+                  {slides[slideIndex].cta} <ArrowLeft className="w-4 h-4" />
+                </Link>
+              </div>
+            </div>
+
+            {/* Slider arrows */}
+            <button onClick={prevSlide} className="slider-arrow absolute right-4 top-1/2 -translate-y-1/2 z-20">
+              <ChevronRight className="w-5 h-5" />
+            </button>
+            <button onClick={nextSlide} className="slider-arrow absolute left-4 top-1/2 -translate-y-1/2 z-20">
+              <ChevronLeft className="w-5 h-5" />
+            </button>
+
+            {/* Slider dots */}
+            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-20">
+              {slides.map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => setSlideIndex(i)}
+                  className="h-2 rounded-full transition-all duration-300"
+                  style={{
+                    background: i === slideIndex ? 'var(--accent)' : 'rgba(255,255,255,0.2)',
+                    width: i === slideIndex ? '24px' : '8px',
+                  }}
+                />
+              ))}
             </div>
           </div>
         </div>
       </section>
 
-      {/* Features */}
-      <section className="py-20 md:py-24">
+      {/* Best Sellers — Horizontal Scrollable Slider */}
+      <section className="py-10">
         <div className="page-container">
-          <div className="text-center mb-10">
-            <h2 className="section-title mb-2">إيه اللي يخلينا مختلفين؟</h2>
-            <p className="section-subtitle max-w-xl mx-auto">احنا مش مجرد منصة كتب — احنا تجربة متكاملة</p>
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="section-title flex items-center gap-2">🔥 الأكثر مبيعاً</h2>
+            <div className="flex gap-2">
+              <button onClick={() => scrollSlider('left')} className="slider-arrow !w-9 !h-9">
+                <ChevronRight className="w-4 h-4" />
+              </button>
+              <button onClick={() => scrollSlider('right')} className="slider-arrow !w-9 !h-9">
+                <ChevronLeft className="w-4 h-4" />
+              </button>
+            </div>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-            {features.map((item) => (
-              <div key={item.title} className="card p-6 text-center">
-                <div className="w-10 h-10 rounded-full mx-auto mb-3 flex items-center justify-center" style={{ background: 'var(--soft)' }}>
-                  <item.icon className="w-5 h-5" style={{ color: 'var(--accent)' }} />
-                </div>
-                <h3 className="font-semibold mb-1" style={{ color: 'var(--text-primary)' }}>{item.title}</h3>
-                <p className="text-sm" style={{ color: 'var(--muted)' }}>{item.desc}</p>
+
+          <div
+            ref={sliderRef}
+            className="slider-track flex gap-4 overflow-x-auto pb-4"
+          >
+            {books.map((book: any, i: number) => (
+              <div key={book._id || i} className="flex-shrink-0" style={{ width: '250px' }}>
+                <BookCard book={book} index={i} />
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Grades */}
-      <section className="py-20 md:py-24" style={{ background: 'var(--soft)' }}>
+      {/* Grade Categories Grid */}
+      <section className="py-10">
         <div className="page-container">
-          <div className="text-center mb-10">
-            <h2 className="section-title mb-2">اختر صفك الدراسي</h2>
-            <p className="section-subtitle max-w-xl mx-auto">صفح الكتب حسب الصف اللي انت فيه</p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <h2 className="section-title mb-6">تصفح حسب الصف الدراسي</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             {grades.map((grade) => (
-              <Link key={grade.name} to={`/books?grade=${grade.slug}`} className="card p-7 text-center block hover:-translate-y-0.5 transition-all duration-200">
-                <h3 className="text-lg font-bold mb-1" style={{ color: 'var(--text-primary)' }}>{grade.name}</h3>
-                <p className="text-sm mb-4" style={{ color: 'var(--muted)' }}>{grade.desc}</p>
-                <span className="text-sm font-medium" style={{ color: 'var(--accent)' }}>
-                  تصفح الكتب <ArrowLeft className="w-3.5 h-3.5 inline mr-1" />
+              <Link
+                key={grade.name}
+                to={`/books?grade=${grade.slug}`}
+                className="card p-7 text-center block hover:-translate-y-1 transition-all duration-300"
+              >
+                <h3 className="text-lg font-bold mb-1">{grade.name}</h3>
+                <p className="text-sm mb-4" style={{ color: 'var(--text-secondary)' }}>
+                  تصفح جميع كتب {grade.name}
+                </p>
+                <span
+                  className="inline-flex items-center gap-1 text-sm font-semibold"
+                  style={{ color: 'var(--accent)' }}
+                >
+                  تسوق الآن <ArrowLeft className="w-3.5 h-3.5" />
                 </span>
               </Link>
             ))}
@@ -100,38 +198,28 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Bestsellers */}
-      <section className="py-20 md:py-24">
+      {/* Books Grid — All Books */}
+      <section className="py-10 pb-24">
         <div className="page-container">
-          <div className="flex items-end justify-between mb-8">
+          <div className="flex items-center justify-between mb-6">
             <div>
-              <h2 className="section-title mb-1">الأكثر مبيعاً</h2>
-              <p className="section-subtitle">أكتر الكتب اللي الطلاب بيثقوا فيها</p>
+              <h2 className="section-title mb-1">الكتب</h2>
+              <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
+                اختر من بين أفضل الكتب الدراسية
+              </p>
             </div>
-            <Link to="/books" className="hidden md:flex items-center gap-1 text-sm font-medium" style={{ color: 'var(--accent)' }}>
+            <Link
+              to="/books"
+              className="hidden md:flex items-center gap-1 text-sm font-medium"
+              style={{ color: 'var(--primary)' }}
+            >
               عرض الكل <ArrowLeft className="w-3.5 h-3.5" />
             </Link>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
             {books.map((book: any, i: number) => (
-              <BookCard key={book._id} book={book} index={i} />
+              <BookCard key={book._id || i} book={book} index={i} />
             ))}
-          </div>
-        </div>
-      </section>
-
-      {/* CTA */}
-      <section className="py-20" style={{ background: 'var(--primary)' }}>
-        <div className="page-container text-center">
-          <h2 className="text-2xl md:text-3xl font-bold text-white mb-3">جهز نفسك للتفوق دلوقتي</h2>
-          <p className="text-white/70 text-base mb-6 max-w-md mx-auto">انضم لآلاف الطلاب اللي بيثقوا في بوكيفاي</p>
-          <div className="flex flex-wrap gap-3 justify-center">
-            <Link to="/register" className="inline-flex items-center gap-2 bg-white font-semibold px-6 py-2.5 rounded-xl text-sm" style={{ color: 'var(--primary)' }}>
-              إنشاء حساب — مجاني
-            </Link>
-            <Link to="/books" className="inline-flex items-center gap-2 border-2 border-white/20 text-white font-medium px-6 py-2.5 rounded-xl text-sm hover:bg-white/10 transition-all">
-              تصفح الكتب
-            </Link>
           </div>
         </div>
       </section>

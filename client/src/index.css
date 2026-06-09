@@ -2,45 +2,58 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Alexandria:wght@300;400;500;600;700;800&family=Roboto:wght@400;500;700&display=swap');
+/* Alexandria font — clean, modern Arabic typeface */
+@import url('https://fonts.googleapis.com/css2?family=Alexandria:wght@300;400;500;600;700;800&display=swap');
 
 @layer base {
+  /* === Dark mode (default) CSS variables === */
   :root {
-    --bg: #fcf8f5;
-    --card: #ffffff;
-    --soft: #f5f0eb;
-    --text: #3a3530;
-    --muted: #8f8174;
-    --primary: #3a3530;
-    --accent: #ff9500;
-    --tan: #dcb29c;
-    --border: #e8e2db;
-    --text-primary: #3a3530;
-    --text-secondary: #8f8174;
-    --card-bg: #ffffff;
-    --border-color: #e8e2db;
+    --bg: #F5F7FA;
+    --bg-gradient: linear-gradient(135deg, #0B1F3A, #122B4A);
+    --card: #132D4B;
+    --card-light: #FFFFFF;
+    --soft: #E8EBF0;
+    --text: #FFFFFF;
+    --text-primary: #FFFFFF;
+    --text-secondary: #AAB3C5;
+    --muted: #7A87A0;
+    --primary: #1E5EFF;
+    --primary-dark: #1545CC;
+    --accent: #FFD84D;
+    --border: rgba(255,255,255,0.06);
+    --danger: #FF6B6B;
+    --card-bg: #132D4B;
+    --border-color: rgba(255,255,255,0.06);
+    --input-bg: rgba(255,255,255,0.05);
   }
 
-  .dark {
-    --bg: #1f1f1f;
-    --card: #2a2a2a;
-    --soft: #333333;
-    --text: #e6e3df;
-    --muted: #a8a29e;
-    --primary: #dcb29c;
-    --accent: #ff9500;
-    --tan: #dcb29c;
-    --border: #3a3a3a;
-    --text-primary: #e6e3df;
-    --text-secondary: #a8a29e;
-    --card-bg: #2a2a2a;
-    --border-color: #3a3a3a;
+  /* === Light mode overrides === */
+  .light {
+    --bg: #F5F7FA;
+    --bg-gradient: none;
+    --card: #FFFFFF;
+    --card-light: #FFFFFF;
+    --soft: #E8EBF0;
+    --text: #222222;
+    --text-primary: #222222;
+    --text-secondary: #666666;
+    --muted: #888888;
+    --primary: #1E5EFF;
+    --primary-dark: #1545CC;
+    --accent: #FFD84D;
+    --border: #E8EBF0;
+    --danger: #FF6B6B;
+    --card-bg: #FFFFFF;
+    --border-color: #E8EBF0;
+    --input-bg: #FFFFFF;
   }
 
   html { scroll-behavior: smooth; }
 
+  /* Global body — dark gradient bg, Alexandria font, RTL */
   body {
     background: var(--bg);
+    background-image: var(--bg-gradient);
     color: var(--text);
     font-family: 'Alexandria', system-ui, sans-serif;
     direction: rtl;
@@ -48,85 +61,105 @@
     -moz-osx-font-smoothing: grayscale;
   }
 
-  ::selection { background: var(--accent); color: white; }
-  ::-webkit-scrollbar { width: 6px; }
-  ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: var(--tan); border-radius: 3px; }
+  .light body, body.light-mode { background: var(--bg); background-image: none; }
 }
 
 @layer components {
+  /* === Primary solid button (blue) === */
   .btn-primary {
     background: var(--primary);
     color: white;
     font-weight: 600;
     padding: 0.6rem 1.5rem;
-    border-radius: 0.75rem;
-    border: 1px solid var(--primary);
+    border-radius: 10px;
+    border: none;
     transition: all 0.25s ease;
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
     font-size: 0.9rem;
+    cursor: pointer;
   }
   .btn-primary:hover {
-    background: var(--accent);
-    border-color: var(--accent);
-    box-shadow: 0 4px 14px rgba(255, 149, 0, 0.25);
+    background: var(--primary-dark);
+    box-shadow: 0 4px 14px rgba(30,94,255,0.3);
   }
 
+  /* === CTA / accent button (yellow) === */
+  .btn-cta {
+    background: var(--accent);
+    color: #0B1F3A;
+    font-weight: 700;
+    padding: 0.6rem 1.5rem;
+    border-radius: 10px;
+    border: none;
+    transition: all 0.25s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    cursor: pointer;
+  }
+  .btn-cta:hover {
+    box-shadow: 0 4px 14px rgba(255,216,77,0.3);
+    transform: translateY(-1px);
+  }
+
+  /* === Outlined secondary button === */
   .btn-secondary {
     background: transparent;
-    color: var(--primary);
+    color: var(--text);
     font-weight: 500;
     padding: 0.6rem 1.5rem;
-    border-radius: 0.75rem;
+    border-radius: 10px;
     border: 1px solid var(--border);
     transition: all 0.25s ease;
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
     font-size: 0.9rem;
+    cursor: pointer;
   }
   .btn-secondary:hover {
-    background: var(--accent);
-    border-color: var(--accent);
-    color: white;
+    border-color: var(--primary);
+    color: var(--primary);
+    background: rgba(30,94,255,0.08);
   }
 
+  /* === Card container with border, hover lift & shadow === */
   .card {
     background: var(--card-bg);
-    border-radius: 1rem;
+    border-radius: 14px;
     border: 1px solid var(--border);
-    transition: all 0.25s ease;
+    transition: all 0.3s ease;
   }
   .card:hover {
-    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(30,94,255,0.12);
   }
 
+  /* === Navbar link pill === */
   .nav-link {
     color: var(--text-secondary);
     font-weight: 500;
     font-size: 0.88rem;
     padding: 0.4rem 0.75rem;
-    border-radius: 0.5rem;
+    border-radius: 8px;
     transition: all 0.25s ease;
   }
   .nav-link:hover {
-    color: var(--primary);
-    background: var(--soft);
+    color: white;
+    background: rgba(255,255,255,0.06);
   }
 
+  /* === Section heading === */
   .section-title {
-    color: var(--text-primary);
-    font-size: 1.75rem;
+    font-size: 1.5rem;
     font-weight: 700;
+    color: var(--text-primary);
   }
 
-  .section-subtitle {
-    color: var(--text-secondary);
-    font-size: 0.95rem;
-  }
-
+  /* === Max-width container with horizontal padding === */
   .page-container {
     max-width: 80rem;
     margin: 0 auto;
@@ -137,37 +170,72 @@
     .page-container { padding: 0 2rem; }
   }
 
+  /* === Form input field === */
   .input-field {
     width: 100%;
     padding: 0.7rem 1rem;
-    border-radius: 0.75rem;
+    border-radius: 10px;
     border: 1.5px solid var(--border);
-    background: var(--card-bg);
+    background: var(--input-bg);
     color: var(--text);
     font-family: 'Alexandria', sans-serif;
     transition: all 0.25s ease;
     outline: none;
     font-size: 0.9rem;
   }
-  .input-field::placeholder { color: var(--muted); }
   .input-field:focus {
-    border-color: var(--accent);
-    box-shadow: 0 0 0 3px rgba(255, 149, 0, 0.12);
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(30,94,255,0.15);
   }
 
-  .icon-btn {
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
-    background: white;
+  /* === Quantity +/- button (small circle) === */
+  .qty-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: all 0.25s ease;
-    box-shadow: 0 2px 8px rgba(246, 219, 205, 0.4);
+    transition: all 0.2s ease;
+    background: rgba(255,255,255,0.06);
+    color: var(--text);
+    border: 1px solid var(--border);
+    cursor: pointer;
+    font-size: 1rem;
   }
-  .icon-btn:hover {
-    border-color: var(--accent);
-    box-shadow: 0 4px 14px rgba(255, 149, 0, 0.2);
+  .qty-btn:hover {
+    background: var(--primary);
+    color: white;
+    border-color: var(--primary);
+  }
+
+  /* === Hero / carousel arrow button === */
+  .slider-arrow {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    color: var(--text-secondary);
+  }
+  .slider-arrow:hover {
+    background: var(--primary);
+    color: white;
+    border-color: var(--primary);
+  }
+
+  /* === Small inline badge / tag === */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.2rem 0.6rem;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 500;
   }
 }

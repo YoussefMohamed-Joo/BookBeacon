@@ -60,12 +60,44 @@ const getDashboardStats = async (req, res) => {
       { $group: { _id: null, total: { $sum: '$profit' } } },
     ]);
 
+    // Low stock alerts
+    const lowStockBooks = await Book.find({
+      $expr: { $lte: ['$stock', '$lowStockThreshold'] },
+    }).select('titleAr stock lowStockThreshold').limit(10);
+
+    // Inventory summary
+    const inventorySummary = await Book.aggregate([
+      { $group: { _id: null, totalStock: { $sum: '$stock' }, totalReserved: { $sum: '$reservedQuantity' }, totalSold: { $sum: '$soldQuantity' } } },
+    ]);
+
+    // Order status breakdown
+    const statusBreakdown = await Order.aggregate([
+      { $group: { _id: '$status', count: { $sum: 1 } } },
+    ]);
+
+    // By order source
+    const orderSourceBreakdown = await Order.aggregate([
+      { $group: { _id: '$orderSource', count: { $sum: 1 } } },
+    ]);
+
+    // Today's stats
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const todayOrders = await Order.countDocuments({ createdAt: { $gte: today } });
+    const todayRevenue = await Transaction.aggregate([
+      { $match: { type: 'income', createdAt: { $gte: today } } },
+      { $group: { _id: null, total: { $sum: '$amount' } } },
+    ]);
+
     res.json({
       totalOrders, pendingOrders, approvedOrders, rejectedOrders, deliveredOrders,
       totalCustomers, totalBooks, blockedUsers, fraudulentOrders,
       totalRevenue, totalExpenses, netProfit, profitMargin,
       totalProfit: totalProfit[0]?.total || 0,
       recentOrders, ordersByGrade, monthlyRevenue,
+      lowStockBooks, inventorySummary: inventorySummary[0] || { totalStock: 0, totalReserved: 0, totalSold: 0 },
+      statusBreakdown, orderSourceBreakdown,
+      todayOrders, todayRevenue: todayRevenue[0]?.total || 0,
     });
   } catch (error) {
     res.status(500).json({ message: 'خطأ في جلب إحصائيات لوحة التحكم' });

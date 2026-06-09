@@ -115,4 +115,29 @@ const getBooksByGrade = async (req, res) => {
   }
 };
 
-module.exports = { getBooks, getBookBySlug, getBookById, createBook, updateBook, deleteBook, getBooksByGrade };
+const lookupByBarcode = async (req, res) => {
+  try {
+    const book = await Book.findOne({ barcode: req.params.barcode, isActive: true });
+    if (!book) return res.status(404).json({ message: 'الكتاب غير موجود بهذا الباركود' });
+    res.json(book);
+  } catch (error) {
+    res.status(500).json({ message: 'خطأ في البحث بالباركود' });
+  }
+};
+
+const generateBarcodes = async (req, res) => {
+  try {
+    const books = await Book.find({ $or: [{ barcode: { $exists: false } }, { barcode: null }] });
+    let count = 0;
+    for (const book of books) {
+      book.barcode = `BB${String(Date.now()).slice(-6)}${String(count).padStart(2, '0')}`;
+      await book.save();
+      count++;
+    }
+    res.json({ message: `تم إنشاء ${count} باركود` });
+  } catch (error) {
+    res.status(500).json({ message: 'خطأ في إنشاء الباركودات' });
+  }
+};
+
+module.exports = { getBooks, getBookBySlug, getBookById, createBook, updateBook, deleteBook, getBooksByGrade, lookupByBarcode, generateBarcodes };

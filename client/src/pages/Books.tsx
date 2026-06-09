@@ -1,13 +1,27 @@
-import { useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { useState, useEffect, useRef } from 'react';
+import { useSearchParams, Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-import { Search, BookOpen, GraduationCap, Filter } from 'lucide-react';
+import { Search, BookOpen, GraduationCap, X, ChevronDown } from 'lucide-react';
 import BookCard from '../components/BookCard';
-import LoadingSpinner from '../components/LoadingSpinner';
-import ScrollReveal from '../components/animations/ScrollReveal';
+import AnimatedIcon from '../components/animations/AnimatedIcon';
 import { booksAPI } from '../lib/api';
 import { GRADES } from '../lib/utils';
+
+// Subjects available for filtering
+const SUBJECTS = [
+  'اللغة العربية', 'اللغة الإنجليزية', 'اللغة الفرنسية', 'الرياضيات',
+  'التاريخ', 'الجغرافيا', 'الفلسفة', 'علم النفس', 'الفيزياء',
+  'الكيمياء', 'الأحياء', 'الجيولوجيا',
+];
+
+// Sorting options
+const SORT_OPTIONS = [
+  { value: '', label: 'الأحدث' },
+  { value: 'price_asc', label: 'السعر: من الأقل للأعلى' },
+  { value: 'price_desc', label: 'السعر: من الأعلى للأقل' },
+  { value: 'sales', label: 'الأكثر مبيعاً' },
+  { value: 'rating', label: 'الأعلى تقييماً' },
+];
 
 export default function Books() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -15,108 +29,177 @@ export default function Books() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState(searchParams.get('search') || '');
   const [gradeFilter, setGradeFilter] = useState(searchParams.get('grade') || '');
+  const [subjectFilter, setSubjectFilter] = useState(searchParams.get('subject') || '');
+  const [sortBy, setSortBy] = useState(searchParams.get('sort') || '');
+  const [showFilters, setShowFilters] = useState(false);
+  const debounceRef = useRef<ReturnType<typeof setTimeout>>();
 
+  // Sync URL params to state on mount
+  useEffect(() => {
+    setSearch(searchParams.get('search') || '');
+    setGradeFilter(searchParams.get('grade') || '');
+    setSubjectFilter(searchParams.get('subject') || '');
+    setSortBy(searchParams.get('sort') || '');
+  }, [searchParams]);
+
+  // Fetch books whenever filters change
   useEffect(() => {
     setLoading(true);
-    const params: any = {};
+    const params: any = { limit: 50 };
     if (search) params.search = search;
     if (gradeFilter) params.grade = gradeFilter;
+    if (subjectFilter) params.subject = subjectFilter;
+    if (sortBy) params.sort = sortBy;
     booksAPI.getAll(params).then((res) => {
-      setBooks(res.data.books);
+      setBooks(res.data.books || []);
       setLoading(false);
     }).catch(() => setLoading(false));
-  }, [search, gradeFilter]);
+  }, [search, gradeFilter, subjectFilter, sortBy]);
 
-  const handleGradeChange = (grade: string) => {
-    setGradeFilter(grade);
-    const params = new URLSearchParams(searchParams);
-    if (grade) params.set('grade', grade);
-    else params.delete('grade');
-    setSearchParams(params);
+  // Debounced search input -> URL params
+  const handleSearchInput = (val: string) => {
+    setSearch(val);
+    clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => {
+      const p = new URLSearchParams(searchParams);
+      if (val) p.set('search', val); else p.delete('search');
+      setSearchParams(p);
+    }, 400);
   };
+
+  // Update URL when a filter changes
+  const applyFilter = (key: string, val: string) => {
+    const p = new URLSearchParams(searchParams);
+    if (val) p.set(key, val); else p.delete(key);
+    setSearchParams(p);
+  };
+
+  // Clear all filters
+  const clearAll = () => {
+    setSearch('');
+    setGradeFilter('');
+    setSubjectFilter('');
+    setSortBy('');
+    setSearchParams({});
+  };
+
+  const hasActiveFilters = gradeFilter || subjectFilter || sortBy;
 
   return (
     <>
       <Helmet>
-        <title>جميع الكتب | Book Beacon - كتب الثانوية العامة</title>
-        <meta name="description" content="تصفح جميع كتب الثانوية العامة في مصر. كتب أولى ثانوي، تانية ثانوي، تالتة ثانوي. أفضل الأسعار والتوصيل لكل مصر." />
+        <title>جميع الكتب | Book Beacon</title>
+        <meta name="description" content="تصفح جميع كتب الثانوية العامة. بحث وفلترة حسب الصف الدراسي والمادة." />
       </Helmet>
 
-      <div className="min-h-screen pt-24 pb-16">
-        {/* Header */}
-        <section className="relative py-12 overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-b from-primary-50/50 to-transparent dark:from-dark-800/30" />
-          <div className="absolute top-0 right-0 w-96 h-96 bg-primary-400/5 rounded-full blur-[100px]" />
+      <div className="min-h-screen pt-28 pb-16">
+        <div className="page-container">
 
-          <div className="relative z-10 max-w-7xl mx-auto px-4">
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-              <div className="flex items-center gap-3 mb-3">
-                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary-500 to-primary-700 flex items-center justify-center shadow-xl shadow-primary-500/20">
-                  <BookOpen className="w-6 h-6 text-white" />
-                </div>
-                <div>
-                  <h1 className="text-3xl md:text-4xl font-bold gradient-text">جميع الكتب</h1>
-                  <p className="text-gray-500 dark:text-gray-400">تصفح جميع كتب الثانوية العامة المتاحة</p>
-                </div>
-              </div>
-            </motion.div>
+          {/* Header */}
+          <div className="mb-6">
+            <h1 className="section-title flex items-center gap-3">
+              <BookOpen className="w-6 h-6" style={{ color: 'var(--primary)' }} />
+              جميع الكتب
+            </h1>
+            <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>
+              {loading ? 'جاري التحميل...' : `تم العثور على ${books.length} كتاب`}
+            </p>
           </div>
-        </section>
 
-        <div className="max-w-7xl mx-auto px-4">
-          {/* Filters */}
-          <div className="flex flex-col md:flex-row gap-4 mb-8">
-            <div className="relative flex-1">
-              <Search className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+          {/* ===== Search & Filters Bar ===== */}
+          <div className="card p-4 mb-6">
+            {/* Search row */}
+            <div className="relative">
+              <Search className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: 'var(--muted)' }} />
               <input
                 type="text"
-                placeholder="ابحث عن اسم الكتاب أو المادة..."
                 value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="input-field pr-12 rounded-2xl border-gray-200 dark:border-dark-700 focus:ring-primary-500/30"
+                onChange={(e) => handleSearchInput(e.target.value)}
+                placeholder="ابحث عن اسم الكتاب، المادة، أو المدرس..."
+                className="w-full py-3 pr-11 pl-4 rounded-xl text-sm outline-none"
+                style={{ background: 'var(--input-bg)', color: 'var(--text)', border: '1px solid var(--border)' }}
               />
-            </div>
-            <div className="flex gap-2 flex-wrap">
-              {['', ...GRADES].map((g) => (
-                <button
-                  key={g || 'all'}
-                  onClick={() => handleGradeChange(g)}
-                  className={`px-5 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${
-                    gradeFilter === g
-                      ? 'bg-primary-500 text-white shadow-lg shadow-primary-500/25'
-                      : 'bg-gray-100 dark:bg-dark-700/50 text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-dark-600 border border-transparent'
-                  }`}
-                >
-                  {g || 'الكل'}
+              {search && (
+                <button onClick={() => { setSearch(''); applyFilter('search', ''); }} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: 'var(--muted)' }}>
+                  <X className="w-4 h-4" />
                 </button>
-              ))}
+              )}
+            </div>
+
+            {/* Filter chips row */}
+            <div className="flex flex-wrap items-center gap-2 mt-3">
+              {/* Grade filter */}
+              <div className="relative">
+                <select
+                  value={gradeFilter}
+                  onChange={(e) => applyFilter('grade', e.target.value)}
+                  className="appearance-none px-3 py-2 rounded-lg text-xs font-medium outline-none cursor-pointer"
+                  style={{ background: gradeFilter ? 'var(--primary)' : 'var(--input-bg)', color: gradeFilter ? 'white' : 'var(--text)', border: '1px solid var(--border)', paddingLeft: '28px' }}
+                >
+                  <option value="">كل الصفوف</option>
+                  {GRADES.map((g) => <option key={g} value={g}>{g}</option>)}
+                </select>
+                <ChevronDown className="absolute left-2 top-1/2 -translate-y-1/2 w-3 h-3 pointer-events-none" style={{ color: gradeFilter ? 'white' : 'var(--muted)' }} />
+              </div>
+
+              {/* Subject filter */}
+              <div className="relative">
+                <select
+                  value={subjectFilter}
+                  onChange={(e) => applyFilter('subject', e.target.value)}
+                  className="appearance-none px-3 py-2 rounded-lg text-xs font-medium outline-none cursor-pointer"
+                  style={{ background: subjectFilter ? 'var(--primary)' : 'var(--input-bg)', color: subjectFilter ? 'white' : 'var(--text)', border: '1px solid var(--border)', paddingLeft: '28px' }}
+                >
+                  <option value="">كل المواد</option>
+                  {SUBJECTS.map((s) => <option key={s} value={s}>{s}</option>)}
+                </select>
+                <ChevronDown className="absolute left-2 top-1/2 -translate-y-1/2 w-3 h-3 pointer-events-none" style={{ color: subjectFilter ? 'white' : 'var(--muted)' }} />
+              </div>
+
+              {/* Sort */}
+              <div className="relative">
+                <select
+                  value={sortBy}
+                  onChange={(e) => applyFilter('sort', e.target.value)}
+                  className="appearance-none px-3 py-2 rounded-lg text-xs font-medium outline-none cursor-pointer"
+                  style={{ background: sortBy ? 'var(--primary)' : 'var(--input-bg)', color: sortBy ? 'white' : 'var(--text)', border: '1px solid var(--border)', paddingLeft: '28px' }}
+                >
+                  <option value="">ترتيب</option>
+                  {SORT_OPTIONS.filter(o => o.value).map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+                </select>
+                <ChevronDown className="absolute left-2 top-1/2 -translate-y-1/2 w-3 h-3 pointer-events-none" style={{ color: sortBy ? 'white' : 'var(--muted)' }} />
+              </div>
+
+              {/* Clear filters */}
+              {hasActiveFilters && (
+                <button onClick={clearAll} className="px-3 py-2 rounded-lg text-xs font-medium transition-all" style={{ background: 'rgba(255,107,107,0.1)', color: 'var(--danger)' }}>
+                  <X className="w-3 h-3 inline ml-1" />مسح
+                </button>
+              )}
             </div>
           </div>
 
-          {/* Results */}
+          {/* ===== Results ===== */}
           {loading ? (
-            <div className="py-20"><LoadingSpinner size="lg" /></div>
+            <div className="flex items-center justify-center py-20">
+              <AnimatedIcon src="/animations/loading.json" size={64} className="mx-auto" />
+            </div>
           ) : books.length === 0 ? (
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center py-20">
-              <div className="w-20 h-20 mx-auto mb-4 rounded-2xl bg-gray-50 dark:bg-dark-800 flex items-center justify-center">
-                <GraduationCap className="w-10 h-10 text-gray-300" />
-              </div>
-              <p className="text-lg font-medium text-gray-400 mb-1">لا توجد كتب متاحة</p>
-              <p className="text-sm text-gray-400">حاول تغيير معايير البحث</p>
-            </motion.div>
+            <div className="text-center py-20">
+              <AnimatedIcon src="/animations/empty.json" size={120} className="mx-auto mb-4" />
+
+              <h3 className="text-lg font-semibold mb-1">لا توجد كتب متاحة</h3>
+              <p className="text-sm mb-4" style={{ color: 'var(--text-secondary)' }}>حاول تغيير معايير البحث أو إزالة الفلاتر</p>
+              {hasActiveFilters && (
+                <button onClick={clearAll} className="btn-secondary text-sm">مسح جميع الفلاتر</button>
+              )}
+            </div>
           ) : (
-            <>
-              <div className="flex items-center justify-between mb-4">
-                <p className="text-sm text-gray-400">{books.length} نتيجة</p>
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                {books.map((book: any, i: number) => (
-                  <ScrollReveal key={book._id} delay={i * 0.03}>
-                    <BookCard book={book} index={i} />
-                  </ScrollReveal>
-                ))}
-              </div>
-            </>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+              {books.map((book: any, i: number) => (
+                <BookCard key={book._id} book={book} index={i} />
+              ))}
+            </div>
           )}
         </div>
       </div>

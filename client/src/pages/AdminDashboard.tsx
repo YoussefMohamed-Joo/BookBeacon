@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Helmet } from 'react-helmet-async';
 import { useStore } from '../store/useStore';
-import { dashboardAPI, ordersAPI, usersAPI, booksAPI, deliveryAPI, accountingAPI, aiAPI, blogAPI, reviewsAPI } from '../lib/api';
+import { authAPI, dashboardAPI, ordersAPI, usersAPI, booksAPI, deliveryAPI, accountingAPI, aiAPI, blogAPI, reviewsAPI, activityAPI, inventoryAPI } from '../lib/api';
+import BarcodeScanner from '../components/BarcodeScanner';
 import { formatPrice, getStatusColor, getStatusText, getDeliveryMethodText, EGYPTIAN_GOVERNORATES, GRADES } from '../lib/utils';
 import toast from 'react-hot-toast';
 import {
@@ -10,18 +11,19 @@ import {
   Search, X, Check, Plus, Edit2, Trash2, Shield, TrendingUp, DollarSign, AlertTriangle,
   Package, Phone, MapPin, Hash, Upload, Image as ImageIcon, RefreshCw, Ban, Zap,
   ArrowUpDown, Filter, Clock, ChevronLeft, ChevronRight, Download, Eye, MessageSquare, Send, Calculator,
-  Store, QrCode, Barcode, ClipboardList
+  Scan, Store, QrCode, Barcode, ClipboardList, UserCog, Settings, Key, Mail, Lock, UserPlus, UserX, EyeOff,
+  Warehouse
 } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line, AreaChart, Area } from 'recharts';
 
 const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4', '#f97316'];
 
-type Tab = 'dashboard' | 'orders' | 'customers' | 'books' | 'delivery' | 'pickup' | 'accounting' | 'ai' | 'reviews';
+type Tab = 'dashboard' | 'orders' | 'customers' | 'books' | 'delivery' | 'pickup' | 'instant' | 'inventory' | 'accounting' | 'ai' | 'reviews' | 'staff' | 'settings';
 
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState<Tab>('dashboard');
   const [sidebarOpen, setSidebarOpen] = useState(true);
-  const { user, logout } = useStore();
+  const { user } = useStore();
 
   const isCashier = user?.role === 'cashier';
 
@@ -33,21 +35,23 @@ export default function AdminDashboard() {
     { id: 'dashboard', icon: LayoutDashboard, label: 'لوحة المعلومات' },
     { id: 'orders', icon: ShoppingBag, label: 'الطلبات' },
     { id: 'customers', icon: Users, label: 'العملاء' },
+    { id: 'pickup', icon: Store, label: 'حجوزات المنفذ' },
+    { id: 'instant', icon: Zap, label: 'الاستلام الفوري' },
     { id: 'books', icon: BookOpen, label: 'الكتب' },
     { id: 'delivery', icon: Truck, label: 'التوصيل' },
-    { id: 'pickup', icon: Store, label: 'حجوزات المنفذ' },
+    { id: 'inventory', icon: Warehouse, label: 'المخزون' },
     { id: 'accounting', icon: Wallet, label: 'المحاسبة' },
     { id: 'ai', icon: Brain, label: 'الذكاء الاصطناعي' },
     { id: 'reviews', icon: Star, label: 'التقييمات' },
+    { id: 'staff', icon: UserCog, label: 'الموظفين' },
+    { id: 'settings', icon: Settings, label: 'الإعدادات' },
   ] as const;
 
-  const cashierTabs = ['orders', 'customers'] as const;
+  const cashierTabs = ['orders', 'customers', 'pickup', 'instant'] as const;
   const tabs = isCashier ? allTabs.filter(t => cashierTabs.includes(t.id as any)) : allTabs;
 
   useEffect(() => {
-    if (isCashier && !['orders', 'customers'].includes(activeTab)) {
-      setActiveTab('orders');
-    }
+    if (isCashier && !['orders', 'customers', 'pickup', 'instant'].includes(activeTab)) setActiveTab('orders');
   }, [isCashier, activeTab]);
 
   useEffect(() => {
@@ -57,12 +61,13 @@ export default function AdminDashboard() {
           case '1': e.preventDefault(); setActiveTab('dashboard'); break;
           case '2': e.preventDefault(); setActiveTab('orders'); break;
           case '3': e.preventDefault(); setActiveTab('customers'); break;
-          case '4': e.preventDefault(); setActiveTab('books'); break;
-          case '5': e.preventDefault(); setActiveTab('delivery'); break;
-          case '6': e.preventDefault(); setActiveTab('pickup'); break;
-          case '7': e.preventDefault(); setActiveTab('accounting'); break;
-          case '8': e.preventDefault(); setActiveTab('ai'); break;
-          case '9': e.preventDefault(); setActiveTab('reviews'); break;
+          case '4': e.preventDefault(); setActiveTab('pickup'); break;
+          case '5': e.preventDefault(); setActiveTab('instant'); break;
+          case '6': e.preventDefault(); setActiveTab('books'); break;
+          case '7': e.preventDefault(); setActiveTab('inventory'); break;
+          case '8': e.preventDefault(); setActiveTab('accounting'); break;
+          case '9': e.preventDefault(); setActiveTab('ai'); break;
+          case '0': e.preventDefault(); setActiveTab('reviews'); break;
           case 'b': e.preventDefault(); setSidebarOpen(p => !p); break;
         }
       }
@@ -96,9 +101,6 @@ export default function AdminDashboard() {
                 </button>
               ))}
             </div>
-            <div className={`mt-4 pt-4 border-t border-gray-100 dark:border-dark-700 ${sidebarOpen ? '' : 'hidden'}`}>
-              <p className="text-[10px] text-gray-400 px-3">Ctrl+B: إخفاء الشريط</p>
-            </div>
           </div>
         </aside>
 
@@ -109,10 +111,14 @@ export default function AdminDashboard() {
             {activeTab === 'customers' && <CustomersPanel />}
             {!isCashier && activeTab === 'books' && <BooksPanel />}
             {!isCashier && activeTab === 'delivery' && <DeliveryPanel />}
-            {!isCashier && activeTab === 'pickup' && <PickupPanel />}
+            {activeTab === 'pickup' && <PickupPanel />}
+            {activeTab === 'instant' && <InstantPickupPanel />}
+            {!isCashier && activeTab === 'inventory' && <InventoryPanel />}
             {!isCashier && activeTab === 'accounting' && <AccountingPanel />}
             {!isCashier && activeTab === 'ai' && <AIPanel />}
             {!isCashier && activeTab === 'reviews' && <ReviewsPanel />}
+            {!isCashier && activeTab === 'staff' && <StaffPanel />}
+            {!isCashier && activeTab === 'settings' && <SettingsPanel />}
           </div>
         </main>
       </div>
@@ -120,6 +126,9 @@ export default function AdminDashboard() {
   </>);
 }
 
+// -----------------------------------------------------------------------
+// DASHBOARD PANEL
+// -----------------------------------------------------------------------
 function DashboardPanel() {
   const [stats, setStats] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -149,6 +158,8 @@ function DashboardPanel() {
     { label: 'طلبات معلقة', value: stats.pendingOrders, icon: AlertTriangle, color: 'from-amber-500 to-amber-600' },
     { label: 'تم التوصيل', value: stats.deliveredOrders || 0, icon: Truck, color: 'from-green-500 to-green-600' },
     { label: 'العملاء', value: stats.totalCustomers, icon: Users, color: 'from-pink-500 to-pink-600' },
+    { label: 'المخزون', value: stats.inventorySummary?.totalStock || 0, icon: Warehouse, color: 'from-purple-500 to-purple-600' },
+    { label: 'اليوم', value: `${stats.todayOrders || 0} طلبات`, icon: Clock, color: 'from-cyan-500 to-cyan-600' },
   ];
 
   const monthlyData = (stats.monthlyRevenue || []).reverse().map((m: any) => ({
@@ -169,13 +180,29 @@ function DashboardPanel() {
         </button>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+      {stats.lowStockBooks?.length > 0 && (
+        <div className="card p-4 border-red-300 dark:border-red-700 bg-red-50 dark:bg-red-900/10">
+          <div className="flex items-center gap-2 text-red-600 mb-2">
+            <AlertTriangle className="w-5 h-5" />
+            <span className="font-bold">تنبيه مخزون منخفض</span>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {stats.lowStockBooks.map((b: any) => (
+              <span key={b._id} className="text-xs px-2 py-1 bg-red-100 dark:bg-red-900/20 text-red-600 rounded-lg">
+                {b.titleAr}: {b.stock} (الحد: {b.lowStockThreshold})
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <div className="grid grid-cols-2 sm:grid-cols-4 xl:grid-cols-8 gap-3">
         {cards.map((card, i) => (
           <motion.div key={card.label} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
             className={`stat-card bg-gradient-to-br ${card.color}`}>
-            <card.icon className="w-6 h-6 opacity-80 mb-2" />
-            <p className="text-xs opacity-80">{card.label}</p>
-            <p className="text-xl font-bold">{card.value}</p>
+            <card.icon className="w-5 h-5 opacity-80 mb-1" />
+            <p className="text-[10px] opacity-80">{card.label}</p>
+            <p className="text-lg font-bold">{card.value}</p>
           </motion.div>
         ))}
       </div>
@@ -224,7 +251,10 @@ function DashboardPanel() {
                   <p className="text-xs text-gray-400">{order.user?.name} • {formatPrice(order.totalPrice)}</p>
                 </div>
               </div>
-              <span className={`text-xs ${getStatusColor(order.status)}`}>{getStatusText(order.status)}</span>
+              <div className="flex items-center gap-2">
+                {order.orderId && <span className="text-xs text-gray-400">{order.orderId}</span>}
+                <span className={`text-xs ${getStatusColor(order.status)}`}>{getStatusText(order.status)}</span>
+              </div>
             </div>
           ))}
         </div>
@@ -254,7 +284,7 @@ function DashboardPanel() {
                   <div className="confirm-step"><p className="font-medium">الخطوة 3: تأكيد نهائي</p><p className="text-sm text-gray-500">اكتب "RESET DATA" لتأكيد المسح</p>
                     <input type="text" value={resetInput} onChange={(e) => setResetInput(e.target.value)} className="input-field mt-2 text-sm" placeholder="RESET DATA" />
                   </div>
-                  <button onClick={handleReset} disabled={resetInput !== 'RESET DATA'} className="btn-danger w-full" title={resetInput !== 'RESET DATA' ? 'اكتب RESET DATA' : ''}>تأكيد المسح النهائي</button>
+                  <button onClick={handleReset} disabled={resetInput !== 'RESET DATA'} className="btn-danger w-full">تأكيد المسح النهائي</button>
                   <button onClick={() => { setResetStep(1); setShowReset(false); }} className="btn-secondary w-full">إلغاء</button>
                 </div>
               )}
@@ -266,12 +296,16 @@ function DashboardPanel() {
   );
 }
 
+// -----------------------------------------------------------------------
+// ORDERS PANEL
+// -----------------------------------------------------------------------
 function OrdersPanel() {
   const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [deliveryFilter, setDeliveryFilter] = useState('');
+  const [sourceFilter, setSourceFilter] = useState('');
   const [selectedOrder, setSelectedOrder] = useState<any>(null);
   const [page, setPage] = useState(1);
 
@@ -281,19 +315,28 @@ function OrdersPanel() {
     if (search) params.search = search;
     if (statusFilter) params.status = statusFilter;
     if (deliveryFilter) params.deliveryStatus = deliveryFilter;
+    if (sourceFilter) params.orderSource = sourceFilter;
     ordersAPI.getAll(params).then((res) => { setOrders(res.data.orders); setLoading(false); }).catch(() => setLoading(false));
   };
 
-  useEffect(() => { fetchOrders(); }, [statusFilter, deliveryFilter, page]);
+  useEffect(() => { fetchOrders(); }, [statusFilter, deliveryFilter, sourceFilter, page]);
 
   const handleStatusUpdate = async (id: string, data: any) => {
-    try { await ordersAPI.updateStatus(id, data); toast.success('تم تحديث الطلب'); fetchOrders(); setSelectedOrder(null); }
-    catch { toast.error('حدث خطأ'); }
+    try { await ordersAPI.updateStatus(id, data); toast.success('تم تحديث الطلب'); fetchOrders(); setSelectedOrder(null); } catch { toast.error('حدث خطأ'); }
   };
 
   const handleInstantDelivery = async (id: string) => {
-    try { await ordersAPI.instantDelivery(id); toast.success('تم التوصيل الفوري وإضافة الأرباح'); fetchOrders(); setSelectedOrder(null); }
-    catch { toast.error('حدث خطأ'); }
+    try { await ordersAPI.instantDelivery(id); toast.success('تم التوصيل الفوري'); fetchOrders(); setSelectedOrder(null); } catch { toast.error('حدث خطأ'); }
+  };
+
+  const handleConfirmDelivery = async (id: string, receivedAmount?: number) => {
+    try {
+      const payload: any = {};
+      if (receivedAmount) payload.receivedAmount = receivedAmount;
+      await ordersAPI.confirmDelivery(id, payload);
+      toast.success('تم تأكيد التوصيل مع التحصيل');
+      fetchOrders(); setSelectedOrder(null);
+    } catch { toast.error('حدث خطأ'); }
   };
 
   return (
@@ -303,20 +346,21 @@ function OrdersPanel() {
       <div className="flex flex-col md:flex-row gap-3">
         <div className="relative flex-1">
           <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-          <input type="text" placeholder="بحث..." value={search} onChange={(e) => setSearch(e.target.value)} className="input-field pr-10 py-2 text-sm" />
+          <input type="text" placeholder="بحث برقم الطلب أو اسم العميل..." value={search} onChange={(e) => setSearch(e.target.value)} className="input-field pr-10 py-2 text-sm" onKeyDown={(e) => e.key === 'Enter' && fetchOrders()} />
         </div>
         <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="input-field py-2 text-sm w-auto">
           <option value="">كل الحالات</option>
           <option value="pending">قيد الانتظار</option>
+          <option value="payment_review">مراجعة الدفع</option>
           <option value="approved">تم الموافقة</option>
+          <option value="ready_for_pickup">جاهز للاستلام</option>
+          <option value="delivered">تم التوصيل</option>
           <option value="rejected">مرفوض</option>
         </select>
-        <select value={deliveryFilter} onChange={(e) => setDeliveryFilter(e.target.value)} className="input-field py-2 text-sm w-auto">
-          <option value="">كل التوصيل</option>
-          <option value="not_started">لم يبدأ</option>
-          <option value="preparing">قيد التجهيز</option>
-          <option value="out_for_delivery">خرج للتوصيل</option>
-          <option value="delivered">تم التوصيل</option>
+        <select value={sourceFilter} onChange={(e) => setSourceFilter(e.target.value)} className="input-field py-2 text-sm w-auto">
+          <option value="">كل المصادر</option>
+          <option value="online">اونلاين</option>
+          <option value="store">المتجر</option>
         </select>
       </div>
 
@@ -328,46 +372,48 @@ function OrdersPanel() {
             <motion.div key={order._id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
               className="order-card cursor-pointer" onClick={() => setSelectedOrder(order)}>
               <div className="flex flex-col lg:flex-row lg:items-center gap-4">
-                <div className="flex-1 grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
-                  <div><p className="text-xs text-gray-400 mb-1"><Hash className="w-3 h-3 inline" /> رقم الطلب</p><p className="text-sm font-medium">#{order._id.slice(-6)}</p></div>
-                  <div><p className="text-xs text-gray-400 mb-1"><Users className="w-3 h-3 inline" /> العميل</p><p className="text-sm font-medium truncate">{order.user?.name || 'N/A'}</p></div>
+                <div className="flex-1 grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
+                  <div><p className="text-xs text-gray-400 mb-1">{order.orderId || `#${order._id.slice(-6)}`}</p><p className="text-xs text-gray-500">{order.orderSource === 'store' ? 'متجر' : 'اونلاين'} • {order.deliveryType === 'pickup' ? 'استلام' : 'توصيل'}</p></div>
+                  <div><p className="text-xs text-gray-400 mb-1"><Users className="w-3 h-3 inline" /> العميل</p><p className="text-sm font-medium truncate">{order.customerName || order.user?.name || 'N/A'}</p></div>
                   <div><p className="text-xs text-gray-400 mb-1"><Phone className="w-3 h-3 inline" /> الهاتف</p><p className="text-sm" dir="ltr">{order.user?.phone || order.deliveryDetails?.phone || 'N/A'}</p></div>
                   <div><p className="text-xs text-gray-400 mb-1"><BookOpen className="w-3 h-3 inline" /> الكتاب</p><p className="text-sm font-medium truncate">{order.book?.titleAr || 'N/A'}</p></div>
-                  <div><p className="text-xs text-gray-400 mb-1"><MapPin className="w-3 h-3 inline" /> الصف</p><p className="text-sm">{order.grade || 'N/A'}</p></div>
-                  <div><p className="text-xs text-gray-400 mb-1"><DollarSign className="w-3 h-3 inline" /> السعر</p><p className="text-sm font-medium text-primary-500">{formatPrice(order.totalPrice)}</p></div>
+                  <div><p className="text-xs text-gray-400 mb-1">الكمية</p><p className="text-sm">{order.quantity}</p></div>
+                  <div><p className="text-xs text-gray-400 mb-1"><DollarSign className="w-3 h-3 inline" /> الإجمالي</p><p className="text-sm font-medium text-primary-500">{formatPrice(order.totalPrice)}</p></div>
+                  <div><p className="text-xs text-gray-400 mb-1">المدفوع / المتبقي</p><p className="text-xs text-green-500">{formatPrice(order.paidAmount)}</p><p className={`text-xs ${order.remainingAmount > 0 ? 'text-amber-500' : 'text-gray-400'}`}>{order.remainingAmount > 0 ? formatPrice(order.remainingAmount) : 'كامل'}</p></div>
                 </div>
                 <div className="flex flex-wrap items-center gap-2 lg:shrink-0">
                   <span className={`text-xs ${getStatusColor(order.status)}`}>{getStatusText(order.status)}</span>
-                  <span className={`text-xs ${getStatusColor(order.deliveryStatus)}`}>{getStatusText(order.deliveryStatus)}</span>
                   {order.isFraudFlagged && <span className="badge-danger text-xs"><AlertTriangle className="w-3 h-3 inline" /> احتيال</span>}
                 </div>
               </div>
 
-              {order.deliveryMethod === 'delivery' && (
-                <div className="mt-3 pt-3 border-t border-gray-100 dark:border-dark-700 flex flex-wrap gap-4 text-xs text-gray-400">
-                  <span><MapPin className="w-3 h-3 inline" /> {order.deliveryDetails?.governorate}</span>
-                  <span>{order.deliveryDetails?.address}</span>
-                </div>
-              )}
-
-              <div className="mt-3 pt-3 border-t border-gray-100 dark:border-dark-700 flex gap-2" onClick={(e) => e.stopPropagation()}>
+              <div className="mt-3 pt-3 border-t border-gray-100 dark:border-dark-700 flex gap-2 flex-wrap" onClick={(e) => e.stopPropagation()}>
                 {order.status === 'pending' && (
                   <>
-                    <button onClick={() => handleStatusUpdate(order._id, { status: 'approved' })} className="btn-success text-xs !py-1.5 !px-3"><Check className="w-3 h-3 inline ml-1" /> موافقة</button>
+                    <button onClick={() => handleStatusUpdate(order._id, { status: 'payment_review' })} className="btn-primary text-xs !py-1.5 !px-3"><Eye className="w-3 h-3 inline ml-1" /> مراجعة الدفع</button>
                     <button onClick={() => handleStatusUpdate(order._id, { status: 'rejected' })} className="btn-danger text-xs !py-1.5 !px-3"><X className="w-3 h-3 inline ml-1" /> رفض</button>
                   </>
                 )}
-                {order.status === 'approved' && order.deliveryStatus !== 'delivered' && (
+                {order.status === 'payment_review' && (
                   <>
-                    <select onChange={(e) => handleStatusUpdate(order._id, { deliveryStatus: e.target.value })} className="input-field text-xs !py-1.5 w-auto" value={order.deliveryStatus}>
-                      <option value="not_started">لم يبدأ</option>
-                      <option value="preparing">قيد التجهيز</option>
-                      <option value="out_for_delivery">خرج للتوصيل</option>
-                      <option value="delivered">تم التوصيل</option>
-                    </select>
-                    <button onClick={() => handleInstantDelivery(order._id)} className="btn-primary text-xs !py-1.5 !px-3 flex items-center gap-1">
-                      <Zap className="w-3 h-3" /> توصيل فوري
-                    </button>
+                    <button onClick={() => handleStatusUpdate(order._id, { status: 'approved' })} className="btn-success text-xs !py-1.5 !px-3"><Check className="w-3 h-3 inline ml-1" /> موافقة وخصم المخزون</button>
+                    <button onClick={() => handleStatusUpdate(order._id, { status: 'rejected' })} className="btn-danger text-xs !py-1.5 !px-3"><X className="w-3 h-3 inline ml-1" /> رفض</button>
+                  </>
+                )}
+                {order.status === 'approved' && order.deliveryType === 'pickup' && (
+                  <button onClick={() => handleStatusUpdate(order._id, { status: 'ready_for_pickup' })} className="btn-info text-xs !py-1.5 !px-3"><Store className="w-3 h-3 inline ml-1" /> جاهز للاستلام</button>
+                )}
+                {order.status === 'approved' && order.deliveryType !== 'pickup' && (
+                  <button onClick={() => handleInstantDelivery(order._id)} className="btn-primary text-xs !py-1.5 !px-3 flex items-center gap-1">
+                    <Zap className="w-3 h-3" /> توصيل فوري
+                  </button>
+                )}
+                {order.status === 'ready_for_pickup' && (
+                  <>
+                    <button onClick={() => handleConfirmDelivery(order._id)} className="btn-success text-xs !py-1.5 !px-3"><Check className="w-3 h-3 inline ml-1" /> تأكيد الاستلام</button>
+                    {order.remainingAmount > 0 && (
+                      <span className="text-xs text-amber-500 flex items-center"><AlertTriangle className="w-3 h-3 ml-1" /> باقي {formatPrice(order.remainingAmount)}</span>
+                    )}
                   </>
                 )}
               </div>
@@ -381,25 +427,28 @@ function OrdersPanel() {
           <div className="modal-overlay" onClick={() => setSelectedOrder(null)}>
             <div className="modal-content" onClick={(e) => e.stopPropagation()}>
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-bold">تفاصيل الطلب #{selectedOrder._id.slice(-6)}</h3>
+                <h3 className="text-lg font-bold">تفاصيل الطلب {selectedOrder.orderId || `#${selectedOrder._id.slice(-6)}`}</h3>
                 <button onClick={() => setSelectedOrder(null)} className="p-1 hover:bg-gray-100 dark:hover:bg-dark-700 rounded-lg"><X className="w-5 h-5" /></button>
               </div>
               <div className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="p-3 bg-gray-50 dark:bg-dark-700/50 rounded-xl"><p className="text-xs text-gray-400">العميل</p><p className="font-medium">{selectedOrder.user?.name}</p><p className="text-xs text-gray-400">{selectedOrder.user?.email}</p></div>
+                  <div className="p-3 bg-gray-50 dark:bg-dark-700/50 rounded-xl"><p className="text-xs text-gray-400">العميل</p><p className="font-medium">{selectedOrder.customerName || selectedOrder.user?.name}</p><p className="text-xs text-gray-400">{selectedOrder.user?.email}</p></div>
                   <div className="p-3 bg-gray-50 dark:bg-dark-700/50 rounded-xl"><p className="text-xs text-gray-400">الهاتف</p><p className="font-medium" dir="ltr">{selectedOrder.user?.phone || selectedOrder.deliveryDetails?.phone || 'N/A'}</p></div>
                   <div className="p-3 bg-gray-50 dark:bg-dark-700/50 rounded-xl"><p className="text-xs text-gray-400">الكتاب</p><p className="font-medium">{selectedOrder.book?.titleAr}</p></div>
-                  <div className="p-3 bg-gray-50 dark:bg-dark-700/50 rounded-xl"><p className="text-xs text-gray-400">الإجمالي</p><p className="font-medium text-primary-500">{formatPrice(selectedOrder.totalPrice)}</p></div>
+                  <div className="p-3 bg-gray-50 dark:bg-dark-700/50 rounded-xl"><p className="text-xs text-gray-400">الإجمالي / المدفوع / المتبقي</p><p className="font-medium text-primary-500">{formatPrice(selectedOrder.totalPrice)}</p><p className="text-xs text-green-500">{formatPrice(selectedOrder.paidAmount)} / <span className={selectedOrder.remainingAmount > 0 ? 'text-amber-500' : 'text-gray-400'}>{formatPrice(selectedOrder.remainingAmount)}</span></p></div>
                   <div className="p-3 bg-gray-50 dark:bg-dark-700/50 rounded-xl"><p className="text-xs text-gray-400">الكمية</p><p className="font-medium">{selectedOrder.quantity}</p></div>
-                  <div className="p-3 bg-gray-50 dark:bg-dark-700/50 rounded-xl"><p className="text-xs text-gray-400">الحالة</p><span className={`text-xs ${getStatusColor(selectedOrder.status)}`}>{getStatusText(selectedOrder.status)}</span><br/><span className={`text-xs ${getStatusColor(selectedOrder.deliveryStatus)}`}>{getStatusText(selectedOrder.deliveryStatus)}</span></div>
+                  <div className="p-3 bg-gray-50 dark:bg-dark-700/50 rounded-xl"><p className="text-xs text-gray-400">الحالة</p><span className={`text-xs ${getStatusColor(selectedOrder.status)}`}>{getStatusText(selectedOrder.status)}</span></div>
+                  <div className="p-3 bg-gray-50 dark:bg-dark-700/50 rounded-xl"><p className="text-xs text-gray-400">المصدر / التوصيل</p><p className="text-xs">{selectedOrder.orderSource === 'store' ? 'المتجر' : 'اونلاين'} • {selectedOrder.deliveryType === 'pickup' ? 'استلام' : 'توصيل'}</p></div>
+                  {selectedOrder.orderSource === 'store' && selectedOrder.customerName && (
+                    <div className="p-3 bg-gray-50 dark:bg-dark-700/50 rounded-xl"><p className="text-xs text-gray-400">اسم العميل (متجر)</p><p className="font-medium">{selectedOrder.customerName}</p></div>
+                  )}
                 </div>
 
-                {selectedOrder.deliveryMethod === 'delivery' && (
+                {selectedOrder.deliveryDetails?.governorate && (
                   <div className="p-3 bg-gray-50 dark:bg-dark-700/50 rounded-xl">
                     <p className="text-xs text-gray-400 mb-2">بيانات التوصيل</p>
-                    <p className="text-sm"><MapPin className="w-4 h-4 inline ml-1" />{selectedOrder.deliveryDetails?.governorate} - {selectedOrder.deliveryDetails?.center}</p>
-                    <p className="text-sm">{selectedOrder.deliveryDetails?.address}</p>
-                    <p className="text-sm"><Phone className="w-4 h-4 inline ml-1" />{selectedOrder.deliveryDetails?.phone}</p>
+                    <p className="text-sm"><MapPin className="w-4 h-4 inline ml-1" />{selectedOrder.deliveryDetails.governorate} - {selectedOrder.deliveryDetails.center}</p>
+                    <p className="text-sm">{selectedOrder.deliveryDetails.address}</p>
                   </div>
                 )}
 
@@ -407,19 +456,32 @@ function OrdersPanel() {
                   <div><p className="text-xs text-gray-400 mb-2">إيصال الدفع</p><img src={selectedOrder.paymentProof.imageUrl} alt="receipt" className="w-full rounded-xl border border-gray-100 dark:border-dark-700" /></div>
                 )}
 
+                {selectedOrder.paymentProof?.senderPhone && (
+                  <div className="p-3 bg-gray-50 dark:bg-dark-700/50 rounded-xl"><p className="text-xs text-gray-400">رقم المحول</p><p className="font-medium">{selectedOrder.paymentProof.senderPhone}</p></div>
+                )}
+
                 {selectedOrder.isFraudFlagged && (
                   <div className="p-3 bg-red-50 dark:bg-red-900/10 rounded-xl flex items-center gap-2 text-sm text-red-600"><AlertTriangle className="w-4 h-4" />{selectedOrder.fraudReason}</div>
                 )}
 
-                <div className="flex gap-2">
+                <div className="flex gap-2 flex-wrap">
                   {selectedOrder.status === 'pending' && (
+                    <>
+                      <button onClick={() => handleStatusUpdate(selectedOrder._id, { status: 'payment_review' })} className="flex-1 btn-primary text-sm"><Eye className="w-4 h-4 inline ml-1" />مراجعة الدفع</button>
+                      <button onClick={() => handleStatusUpdate(selectedOrder._id, { status: 'rejected' })} className="flex-1 btn-danger text-sm"><X className="w-4 h-4 inline ml-1" />رفض</button>
+                    </>
+                  )}
+                  {selectedOrder.status === 'payment_review' && (
                     <>
                       <button onClick={() => handleStatusUpdate(selectedOrder._id, { status: 'approved' })} className="flex-1 btn-success text-sm"><Check className="w-4 h-4 inline ml-1" />موافقة</button>
                       <button onClick={() => handleStatusUpdate(selectedOrder._id, { status: 'rejected' })} className="flex-1 btn-danger text-sm"><X className="w-4 h-4 inline ml-1" />رفض</button>
                     </>
                   )}
-                  {selectedOrder.status === 'approved' && selectedOrder.deliveryStatus !== 'delivered' && (
-                    <button onClick={() => handleInstantDelivery(selectedOrder._id)} className="flex-1 btn-primary text-sm"><Zap className="w-4 h-4 inline ml-1" />توصيل فوري</button>
+                  {selectedOrder.status === 'approved' && selectedOrder.deliveryType === 'pickup' && (
+                    <button onClick={() => { handleStatusUpdate(selectedOrder._id, { status: 'ready_for_pickup' }); }} className="flex-1 btn-info text-sm"><Store className="w-4 h-4 inline ml-1" />جاهز للاستلام</button>
+                  )}
+                  {selectedOrder.status === 'ready_for_pickup' && (
+                    <button onClick={() => handleConfirmDelivery(selectedOrder._id)} className="flex-1 btn-success text-sm"><Check className="w-4 h-4 inline ml-1" />تأكيد الاستلام</button>
                   )}
                 </div>
               </div>
@@ -431,6 +493,9 @@ function OrdersPanel() {
   );
 }
 
+// -----------------------------------------------------------------------
+// CUSTOMERS PANEL
+// -----------------------------------------------------------------------
 function CustomersPanel() {
   const [users, setUsers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -514,6 +579,9 @@ function CustomersPanel() {
   );
 }
 
+// -----------------------------------------------------------------------
+// BOOKS PANEL (same as before)
+// -----------------------------------------------------------------------
 function BooksPanel() {
   const [books, setBooks] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -522,6 +590,8 @@ function BooksPanel() {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [form, setForm] = useState({ title: '', titleAr: '', grade: 'أولى ثانوي', subject: '', teacher: '', price: 250, costPrice: 0, stock: 50, description: '', descriptionAr: '', keywords: '' });
+  const [bookSearch, setBookSearch] = useState('');
+  const [bookGradeFilter, setBookGradeFilter] = useState('');
 
   const fetchBooks = () => { setLoading(true); booksAPI.getAll({ limit: 100 }).then((res) => { setBooks(res.data.books); setLoading(false); }).catch(() => setLoading(false)); };
   useEffect(() => { fetchBooks(); }, []);
@@ -543,7 +613,6 @@ function BooksPanel() {
       const fd = new FormData();
       Object.entries(form).forEach(([k, v]) => fd.append(k, String(v)));
       if (selectedFile) fd.append('image', selectedFile);
-
       if (editBook) { await booksAPI.update(editBook._id, fd); toast.success('تم تحديث الكتاب'); }
       else { await booksAPI.create(fd); toast.success('تم إنشاء الكتاب'); }
       setShowForm(false); setEditBook(null); setSelectedFile(null); setImagePreview(null);
@@ -564,7 +633,54 @@ function BooksPanel() {
     <div className="space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div><h1 className="text-2xl md:text-3xl font-bold">الكتب</h1><p className="text-gray-400 text-sm">إدارة الكتب والمخزون</p></div>
-        <button onClick={() => { setEditBook(null); setForm({ title: '', titleAr: '', grade: 'أولى ثانوي', subject: '', teacher: '', price: 250, costPrice: 0, stock: 50, description: '', descriptionAr: '', keywords: '' }); setImagePreview(null); setSelectedFile(null); setShowForm(true); }} className="btn-primary text-sm"><Plus className="w-4 h-4 inline ml-1" />إضافة كتاب</button>
+        <div className="flex gap-2">
+          <button onClick={async () => { try { await booksAPI.generateBarcodes(); toast.success('تم إنشاء الباركودات'); fetchBooks(); } catch { toast.error('خطأ'); } }} className="btn-secondary text-sm"><Barcode className="w-4 h-4 inline ml-1" />باركود</button>
+          <button onClick={() => { setEditBook(null); setForm({ title: '', titleAr: '', grade: 'أولى ثانوي', subject: '', teacher: '', price: 250, costPrice: 0, stock: 50, description: '', descriptionAr: '', keywords: '' }); setImagePreview(null); setSelectedFile(null); setShowForm(true); }} className="btn-primary text-sm"><Plus className="w-4 h-4 inline ml-1" />إضافة كتاب</button>
+        </div>
+      </div>
+
+      <div className="flex flex-wrap gap-3 items-center">
+        <div className="relative flex-1 min-w-[200px]">
+          <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+          <input type="text" value={bookSearch} onChange={(e) => setBookSearch(e.target.value)} placeholder="ابحث باسم الكتاب، المادة، أو المدرس..." className="input-field pr-10 text-sm" />
+        </div>
+        <select value={bookGradeFilter} onChange={(e) => setBookGradeFilter(e.target.value)} className="input-field text-sm w-auto">
+          <option value="">كل الصفوف</option>
+          {GRADES.map((g) => <option key={g} value={g}>{g}</option>)}
+        </select>
+      </div>
+
+      <div className="card overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="admin-table">
+            <thead><tr><th>الكتاب</th><th>المدرس</th><th>الصف</th><th>سعر البيع</th><th>التكلفة</th><th>المخزون</th><th>محجوز</th><th>تم البيع</th><th>المبيعات</th><th>الباركود</th><th>إجراءات</th></tr></thead>
+            <tbody>
+              {books.filter((b) => {
+                if (bookGradeFilter && b.grade !== bookGradeFilter) return false;
+                if (bookSearch) {
+                  const q = bookSearch.toLowerCase();
+                  if (!(b.titleAr || '').includes(q) && !(b.subject || '').toLowerCase().includes(q) && !(b.teacher || '').toLowerCase().includes(q)) return false;
+                }
+                return true;
+              }).map((b: any) => (
+                <tr key={b._id}>
+                  <td><p className="font-medium">{b.titleAr}</p><span className="text-xs text-gray-400">{b.subject}</span></td>
+                  <td className="text-xs">{b.teacher || '-'}</td>
+                  <td className="text-xs">{b.grade}</td>
+                  <td className="text-green-500 font-medium text-xs">{formatPrice(b.price)}</td>
+                  <td className="text-red-400 text-xs">{b.costPrice ? formatPrice(b.costPrice) : '-'}</td>
+                  <td><span className={`text-xs font-medium ${(b.stock - (b.reservedQuantity || 0)) <= (b.lowStockThreshold || 5) ? 'text-red-500' : 'text-green-500'}`}>{b.stock}</span></td>
+                  <td className="text-amber-500 text-xs">{b.reservedQuantity || 0}</td>
+                  <td className="text-xs">{b.soldQuantity || 0}</td>
+                  <td>{b.salesCount}</td>
+                  <td className="text-xs font-mono" dir="ltr">{b.barcode || <span className="text-gray-300">—</span>}</td>
+                  <td><div className="flex gap-2"><button onClick={() => openEdit(b)} className="text-blue-500 hover:underline text-xs"><Edit2 className="w-3 h-3 inline" /></button><button onClick={() => handleDelete(b._id)} className="text-red-500 hover:underline text-xs"><Trash2 className="w-3 h-3 inline" /></button></div></td>
+                </tr>
+              ))}
+              {books.length === 0 && <tr><td colSpan={11} className="text-center text-gray-400 py-8">لا توجد كتب</td></tr>}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       <AnimatePresence>
@@ -590,11 +706,10 @@ function BooksPanel() {
                 <input type="text" placeholder="المادة" value={form.subject} onChange={(e) => setForm({ ...form, subject: e.target.value })} className="input-field text-sm" required />
                 <input type="text" placeholder="اسم المدرس" value={form.teacher} onChange={(e) => setForm({ ...form, teacher: e.target.value })} className="input-field text-sm" />
                 <input type="number" placeholder="سعر البيع" value={form.price} onChange={(e) => setForm({ ...form, price: Number(e.target.value) })} className="input-field text-sm" required />
-                {form.price > 0 && <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-amber-50 dark:bg-amber-900/10 text-amber-600 text-sm"><span>المقدم (١٠٪): {Math.round(form.price * 0.1)} ج.م</span></div>}
                 <input type="number" placeholder="سعر التكلفة" value={form.costPrice} onChange={(e) => setForm({ ...form, costPrice: Number(e.target.value) })} className="input-field text-sm" />
                 <input type="number" placeholder="المخزون" value={form.stock} onChange={(e) => setForm({ ...form, stock: Number(e.target.value) })} className="input-field text-sm" />
-                <div className="md:col-span-2"><textarea placeholder="الوصف بالعربي" value={form.descriptionAr} onChange={(e) => setForm({ ...form, descriptionAr: e.target.value })} className="input-field text-sm" rows={2} /></div>
-                <div className="md:col-span-2"><input type="text" placeholder="كلمات مفتاحية (SEO)" value={form.keywords} onChange={(e) => setForm({ ...form, keywords: e.target.value })} className="input-field text-sm" /></div>
+                <div className="md:col-span-2"><textarea placeholder="الوصف" value={form.descriptionAr} onChange={(e) => setForm({ ...form, descriptionAr: e.target.value })} className="input-field text-sm" rows={2} /></div>
+                <div className="md:col-span-2"><input type="text" placeholder="كلمات مفتاحية" value={form.keywords} onChange={(e) => setForm({ ...form, keywords: e.target.value })} className="input-field text-sm" /></div>
                 <div className="md:col-span-2 flex gap-2">
                   <button type="submit" className="flex-1 btn-primary text-sm">{editBook ? 'تحديث' : 'إضافة'}</button>
                   <button type="button" onClick={() => { setShowForm(false); setSelectedFile(null); setImagePreview(null); }} className="flex-1 btn-secondary text-sm">إلغاء</button>
@@ -604,38 +719,13 @@ function BooksPanel() {
           </div>
         )}
       </AnimatePresence>
-
-      <div className="card overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="admin-table">
-            <thead><tr><th>الكتاب</th><th>المدرس</th><th>الصف</th><th>المقدم</th><th>سعر البيع</th><th>التكلفة</th><th>الربح</th><th>المخزون</th><th>المبيعات</th><th>إجراءات</th></tr></thead>
-            <tbody>
-              {books.map((b: any) => {
-                const profit = b.price - (b.costPrice || 0);
-                return (
-                  <tr key={b._id}>
-                    <td><p className="font-medium">{b.titleAr}</p><span className="text-xs text-gray-400">{b.subject}</span></td>
-                    <td className="text-xs">{b.teacher || '-'}</td>
-                    <td className="text-xs">{b.grade}</td>
-                    <td className="text-amber-500 text-xs">{formatPrice(b.deposit || Math.round(b.price * 0.1))}</td>
-                    <td className="text-green-500 font-medium">{formatPrice(b.price)}</td>
-                    <td className="text-red-400">{b.costPrice ? formatPrice(b.costPrice) : '-'}</td>
-                    <td className={profit > 0 ? 'text-emerald-500 font-medium' : 'text-gray-400'}>{profit > 0 ? formatPrice(profit) : '-'}</td>
-                    <td><span className={b.stock > 10 ? 'text-green-500' : b.stock > 0 ? 'text-yellow-500' : 'text-red-500'}>{b.stock}</span></td>
-                    <td>{b.salesCount}</td>
-                    <td><div className="flex gap-2"><button onClick={() => openEdit(b)} className="text-blue-500 hover:underline text-xs"><Edit2 className="w-3 h-3 inline" /></button><button onClick={() => handleDelete(b._id)} className="text-red-500 hover:underline text-xs"><Trash2 className="w-3 h-3 inline" /></button></div></td>
-                  </tr>
-                );
-              })}
-              {books.length === 0 && <tr><td colSpan={10} className="text-center text-gray-400 py-8">لا توجد كتب</td></tr>}
-            </tbody>
-          </table>
-        </div>
-      </div>
     </div>
   );
 }
 
+// -----------------------------------------------------------------------
+// DELIVERY PANEL
+// -----------------------------------------------------------------------
 function DeliveryPanel() {
   const [prices, setPrices] = useState<any[]>([]);
   const [governorate, setGovernorate] = useState('');
@@ -647,9 +737,7 @@ function DeliveryPanel() {
   useEffect(() => { fetchPrices(); }, []);
 
   const handleSubmit = async (e: React.FormEvent) => { e.preventDefault(); if (!governorate) return; try { await deliveryAPI.setPrice({ governorate, price }); toast.success('تم'); fetchPrices(); setGovernorate(''); } catch { toast.error('خطأ'); } };
-
   const handleEdit = async (id: string) => { try { await deliveryAPI.setPrice({ governorate: prices.find((p) => p._id === id)?.governorate, price: editPrice }); toast.success('تم التحديث'); setEditId(null); fetchPrices(); } catch { toast.error('خطأ'); } };
-
   const handleDelete = async (id: string) => { try { await deliveryAPI.delete(id); fetchPrices(); } catch { toast.error('خطأ'); } };
 
   const minPrice = prices.length > 0 ? Math.min(...prices.map((p) => p.price)) : 0;
@@ -658,18 +746,10 @@ function DeliveryPanel() {
   return (
     <div className="space-y-6">
       <div><h1 className="text-2xl md:text-3xl font-bold">أسعار التوصيل</h1><p className="text-gray-400 text-sm">إدارة أسعار التوصيل حسب المحافظة</p></div>
-
       <div className="card p-4 bg-gradient-to-l from-primary-50 to-blue-50 dark:from-primary-900/10 dark:to-blue-900/10 border-primary-200 dark:border-primary-800">
-        <div className="flex items-center gap-2 text-primary-600 dark:text-primary-400">
-          <Truck className="w-5 h-5" />
-          <span className="font-medium">توصيل أسرع داخل بني سويف</span>
-        </div>
-        <div className="flex gap-4 mt-2 text-sm text-gray-500">
-          <span>أقل سعر: {formatPrice(minPrice)}</span>
-          <span>أعلى سعر: {formatPrice(maxPrice)}</span>
-        </div>
+        <div className="flex items-center gap-2 text-primary-600 dark:text-primary-400"><Truck className="w-5 h-5" /><span className="font-medium">توصيل أسرع داخل بني سويف</span></div>
+        <div className="flex gap-4 mt-2 text-sm text-gray-500"><span>أقل سعر: {formatPrice(minPrice)}</span><span>أعلى سعر: {formatPrice(maxPrice)}</span></div>
       </div>
-
       <form onSubmit={handleSubmit} className="flex gap-3 flex-wrap">
         <select value={governorate} onChange={(e) => setGovernorate(e.target.value)} className="input-field text-sm flex-1 min-w-[200px]">
           <option value="">اختر المحافظة</option>
@@ -678,7 +758,6 @@ function DeliveryPanel() {
         <input type="number" value={price} onChange={(e) => setPrice(Number(e.target.value))} className="input-field text-sm w-24" min="0" />
         <button type="submit" className="btn-primary text-sm"><Plus className="w-4 h-4 inline ml-1" />إضافة</button>
       </form>
-
       <div className="card overflow-hidden">
         <div className="overflow-x-auto">
           <table className="admin-table">
@@ -687,23 +766,14 @@ function DeliveryPanel() {
               {prices.map((p: any) => (
                 <tr key={p._id}>
                   <td className="font-medium">{p.governorate}</td>
-                  <td>
-                    {editId === p._id ? (
-                      <div className="flex gap-2 items-center">
-                        <input type="number" value={editPrice} onChange={(e) => setEditPrice(Number(e.target.value))} className="input-field text-sm w-20 !py-1" />
-                        <button onClick={() => handleEdit(p._id)} className="text-green-500 text-xs hover:underline">حفظ</button>
-                        <button onClick={() => setEditId(null)} className="text-gray-400 text-xs hover:underline">إلغاء</button>
-                      </div>
-                    ) : (
-                      <span>{formatPrice(p.price)}</span>
-                    )}
-                  </td>
-                  <td>
-                    <div className="flex gap-2">
-                      <button onClick={() => { setEditId(p._id); setEditPrice(p.price); }} className="text-blue-500 hover:underline text-xs"><Edit2 className="w-3 h-3 inline" /></button>
-                      <button onClick={() => handleDelete(p._id)} className="text-red-500 hover:underline text-xs"><Trash2 className="w-3 h-3 inline" /></button>
+                  <td>{editId === p._id ? (
+                    <div className="flex gap-2 items-center">
+                      <input type="number" value={editPrice} onChange={(e) => setEditPrice(Number(e.target.value))} className="input-field text-sm w-20 !py-1" />
+                      <button onClick={() => handleEdit(p._id)} className="text-green-500 text-xs hover:underline">حفظ</button>
+                      <button onClick={() => setEditId(null)} className="text-gray-400 text-xs hover:underline">إلغاء</button>
                     </div>
-                  </td>
+                  ) : <span>{formatPrice(p.price)}</span>}</td>
+                  <td><div className="flex gap-2"><button onClick={() => { setEditId(p._id); setEditPrice(p.price); }} className="text-blue-500 hover:underline text-xs"><Edit2 className="w-3 h-3 inline" /></button><button onClick={() => handleDelete(p._id)} className="text-red-500 hover:underline text-xs"><Trash2 className="w-3 h-3 inline" /></button></div></td>
                 </tr>
               ))}
               {prices.length === 0 && <tr><td colSpan={3} className="text-center text-gray-400 py-8">لا توجد أسعار توصيل</td></tr>}
@@ -715,50 +785,50 @@ function DeliveryPanel() {
   );
 }
 
+// -----------------------------------------------------------------------
+// PICKUP PANEL (Unified: shows all pickup orders from orders)
+// -----------------------------------------------------------------------
 function PickupPanel() {
-  const [pickups, setPickups] = useState<any[]>([]);
+  const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
 
   const fetchPickups = async () => {
+    setLoading(true);
     try {
-      const res = await deliveryAPI.getPickups();
-      setPickups(res.data);
+      const res = await ordersAPI.getAll({ deliveryType: 'pickup', limit: 200 });
+      setOrders(res.data.orders);
     } catch { toast.error('خطأ في جلب الحجوزات'); }
     finally { setLoading(false); }
   };
 
   useEffect(() => { fetchPickups(); }, []);
 
-  const handleStatus = async (id: string, status: string) => {
-    try {
-      await deliveryAPI.updatePickupStatus(id, status);
-      toast.success('تم تحديث حالة الحجز');
-      fetchPickups();
-    } catch { toast.error('خطأ في التحديث'); }
+  const handleStatusUpdate = async (id: string, data: any) => {
+    try { await ordersAPI.updateStatus(id, data); toast.success('تم التحديث'); fetchPickups(); }
+    catch { toast.error('حدث خطأ'); }
   };
 
-  const filtered = pickups.filter((o: any) => {
-    if (statusFilter !== 'all' && o.deliveryStatus !== statusFilter) return false;
+  const handleConfirmDelivery = async (id: string) => {
+    try {
+      await ordersAPI.confirmDelivery(id);
+      toast.success('تم تأكيد الاستلام');
+      fetchPickups();
+    } catch { toast.error('حدث خطأ'); }
+  };
+
+  const filtered = orders.filter((o: any) => {
+    if (statusFilter !== 'all' && o.status !== statusFilter) return false;
     if (searchTerm) {
       const q = searchTerm.toLowerCase();
-      const user = o.user || {};
-      const book = o.book || {};
-      if ((user.name || '').toLowerCase().includes(q)) return true;
-      if ((user.phone || '').includes(q)) return true;
-      if ((book.titleAr || '').includes(q)) return true;
+      const name = (o.customerName || o.user?.name || '').toLowerCase();
+      const phone = (o.user?.phone || '').toLowerCase();
+      const book = (o.book?.titleAr || '').toLowerCase();
+      if (!name.includes(q) && !phone.includes(q) && !book.includes(q)) return false;
     }
     return true;
   });
-
-  const statusOptions = [
-    { value: 'all', label: 'الكل' },
-    { value: 'not_started', label: 'قيد المراجعة' },
-    { value: 'preparing', label: 'قيد التجهيز' },
-    { value: 'out_for_delivery', label: 'جاهز للاستلام' },
-    { value: 'delivered', label: 'تم الاستلام' },
-  ];
 
   if (loading) return <LoadingPanel />;
 
@@ -767,7 +837,7 @@ function PickupPanel() {
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div>
           <h1 className="text-2xl md:text-3xl font-bold">حجوزات المنفذ</h1>
-          <p className="text-gray-400 text-sm">إدارة حجوزات الاستلام من المنفذ — بني سويف، الاباصيري الجديد، خلف كازيون</p>
+          <p className="text-gray-400 text-sm">جميع طلبات الاستلام (اونلاين + المتجر)</p>
         </div>
       </div>
 
@@ -782,12 +852,14 @@ function PickupPanel() {
       <div className="flex flex-wrap gap-3 items-center">
         <div className="relative flex-1 min-w-[200px]">
           <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-          <input type="text" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="بحث باسم العميل، رقم الهاتف، أو الكتاب..."
-            className="input-field pr-10 text-sm" />
+          <input type="text" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} placeholder="بحث..." className="input-field pr-10 text-sm" />
         </div>
         <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="input-field text-sm w-auto">
-          {statusOptions.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+          <option value="all">الكل</option>
+          <option value="pending">قيد الانتظار</option>
+          <option value="approved">تمت الموافقة</option>
+          <option value="ready_for_pickup">جاهز للاستلام</option>
+          <option value="delivered">تم الاستلام</option>
         </select>
       </div>
 
@@ -796,101 +868,469 @@ function PickupPanel() {
           <table className="admin-table">
             <thead>
               <tr>
+                <th>رقم الطلب</th>
                 <th>العميل</th>
-                <th>الهاتف</th>
                 <th>الكتاب</th>
-                <th>المبلغ</th>
+                <th>الكمية</th>
+                <th>المدفوع</th>
                 <th>المتبقي</th>
-                <th>إثبات الدفع</th>
+                <th>المصدر</th>
                 <th>الحالة</th>
                 <th>إجراءات</th>
               </tr>
             </thead>
             <tbody>
-              {filtered.map((order: any) => {
-                const deposit = Math.round(order.totalPrice * 0.1);
-                const remaining = order.totalPrice - deposit;
-                return (
-                  <tr key={order._id}>
-                    <td className="font-medium">{order.user?.name || '—'}</td>
-                    <td className="text-xs" dir="ltr">{order.user?.phone || '—'}</td>
-                    <td>{order.book?.titleAr || order.book?.title || '—'}</td>
-                    <td>{order.totalPrice} ج.م</td>
-                    <td className="text-amber-600 font-medium">{remaining} ج.م</td>
-                    <td>
-                      {order.paymentProof?.imageUrl ? (
-                        <a href={order.paymentProof.imageUrl} target="_blank" rel="noopener noreferrer"
-                          className="text-primary-500 hover:underline text-xs flex items-center gap-1">
-                          <ImageIcon className="w-3 h-3" /> عرض الإثبات
-                        </a>
-                      ) : (
-                        <span className="text-gray-400 text-xs">—</span>
+              {filtered.map((order: any) => (
+                <tr key={order._id}>
+                  <td className="text-xs font-medium">{order.orderId || `#${order._id.slice(-6)}`}</td>
+                  <td className="font-medium text-sm">{order.customerName || order.user?.name || '—'}</td>
+                  <td className="text-sm">{order.book?.titleAr || '—'}</td>
+                  <td>{order.quantity}</td>
+                  <td className="text-green-500 text-xs">{formatPrice(order.paidAmount)}</td>
+                  <td className={`text-xs ${order.remainingAmount > 0 ? 'text-amber-500 font-medium' : 'text-gray-400'}`}>{order.remainingAmount > 0 ? formatPrice(order.remainingAmount) : '—'}</td>
+                  <td><span className={`text-xs ${order.orderSource === 'store' ? 'text-purple-500' : 'text-blue-500'}`}>{order.orderSource === 'store' ? 'متجر' : 'اونلاين'}</span></td>
+                  <td><span className={`text-xs ${getStatusColor(order.status)}`}>{getStatusText(order.status)}</span></td>
+                  <td>
+                    <div className="flex gap-1.5 flex-wrap">
+                      {order.status === 'approved' && (
+                        <button onClick={() => handleStatusUpdate(order._id, { status: 'ready_for_pickup' })}
+                          className="text-xs px-2 py-1 rounded-lg bg-blue-100 text-blue-700 hover:bg-blue-200 dark:bg-blue-900/20 dark:text-blue-400 transition-colors">جاهز للاستلام</button>
                       )}
+                      {order.status === 'ready_for_pickup' && (
+                        <button onClick={() => handleConfirmDelivery(order._id)}
+                          className="text-xs px-2 py-1 rounded-lg bg-green-100 text-green-700 hover:bg-green-200 dark:bg-green-900/20 dark:text-green-400 transition-colors">تأكيد الاستلام</button>
+                      )}
+                      {order.status === 'delivered' && (
+                        <span className="text-xs text-green-600 flex items-center gap-1"><Check className="w-3 h-3" /> تم</span>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              ))}
+              {filtered.length === 0 && <tr><td colSpan={9} className="text-center text-gray-400 py-12">لا توجد حجوزات</td></tr>}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// -----------------------------------------------------------------------
+// INSTANT PICKUP PANEL (NEW)
+// -----------------------------------------------------------------------
+function InstantPickupPanel() {
+  const [books, setBooks] = useState<any[]>([]);
+  const [selectedBookId, setSelectedBookId] = useState('');
+  const [quantity, setQuantity] = useState(1);
+  const [customerName, setCustomerName] = useState('');
+  const [paidAmount, setPaidAmount] = useState<number>(0);
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
+  const [showScanner, setShowScanner] = useState(false);
+
+  useEffect(() => {
+    booksAPI.getAll({ limit: 200 }).then((res) => {
+      setBooks(res.data.books);
+      setLoading(false);
+    }).catch(() => setLoading(false));
+  }, []);
+
+  const selectedBook = books.find(b => b._id === selectedBookId);
+  const totalPrice = selectedBook ? selectedBook.price * quantity : 0;
+
+  useEffect(() => {
+    if (selectedBook && paidAmount === 0) setPaidAmount(totalPrice);
+  }, [selectedBookId, quantity]);
+
+  const handleScan = async (barcode: string) => {
+    try {
+      const res = await booksAPI.lookupBarcode(barcode);
+      const book = res.data;
+      setSelectedBookId(book._id);
+      toast.success(`تم العثور على: ${book.titleAr}`);
+    } catch {
+      toast.error('لم يتم العثور على كتاب بهذا الباركود');
+    }
+    setShowScanner(false);
+  };
+
+  const handleSubmit = async () => {
+    if (!selectedBookId) { toast.error('اختر كتاباً'); return; }
+    if (paidAmount < 0) { toast.error('المبلغ يجب أن يكون 0 أو أكثر'); return; }
+    if (paidAmount > totalPrice) { toast.error('المبلغ المدفوع لا يمكن أن يتجاوز الإجمالي'); return; }
+    setSubmitting(true);
+    try {
+      await ordersAPI.createInstantSale({
+        bookId: selectedBookId,
+        quantity,
+        customerName: customerName || undefined,
+        paidAmount: paidAmount > 0 ? paidAmount : undefined,
+      });
+      toast.success(`تم بيع ${quantity} نسخة من ${selectedBook?.titleAr}`);
+      setQuantity(1);
+      setCustomerName('');
+      setPaidAmount(0);
+      setSelectedBookId('');
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || 'حدث خطأ');
+    }
+    setSubmitting(false);
+  };
+
+  if (loading) return <LoadingPanel />;
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-2xl md:text-3xl font-bold">الاستلام الفوري</h1>
+        <p className="text-gray-400 text-sm">بيع مباشر للعملاء الذين يحضرون إلى المنفذ بدون طلب مسبق</p>
+      </div>
+
+      <div className="card p-4 bg-gradient-to-l from-emerald-50 to-green-50 dark:from-emerald-900/10 dark:to-green-900/10 border-emerald-200 dark:border-emerald-800">
+        <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400">
+          <Zap className="w-5 h-5" />
+          <span className="font-medium">سيتم إنشاء الطلب، تسجيل الإيراد، وتحديث المخزون فوراً</span>
+        </div>
+      </div>
+
+      <div className="max-w-lg mx-auto space-y-4">
+        <div>
+          <label className="block text-sm font-medium mb-1">اختر الكتاب</label>
+          <div className="flex gap-2">
+            <select value={selectedBookId} onChange={(e) => setSelectedBookId(e.target.value)} className="input-field text-sm flex-1" required>
+              <option value="">-- اختر كتاباً --</option>
+              {books.filter(b => b.isActive !== false).map((b) => {
+                const available = b.stock - (b.reservedQuantity || 0);
+                return (
+                  <option key={b._id} value={b._id} disabled={available < 1}>
+                    {b.titleAr} — {formatPrice(b.price)} ({available >= 1 ? `${available} متاح` : 'نفد'}) {b.barcode ? `[${b.barcode}]` : ''}
+                  </option>
+                );
+              })}
+            </select>
+            <button onClick={() => setShowScanner(true)} className="btn-primary text-sm !px-3 flex items-center gap-1 shrink-0">
+              <Scan className="w-4 h-4" /> مسح
+            </button>
+          </div>
+        </div>
+
+        {showScanner && <BarcodeScanner onScan={handleScan} onClose={() => setShowScanner(false)} />}
+
+        {selectedBook && (
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium mb-1">الكمية</label>
+              <input type="number" min="1" max={selectedBook.stock - (selectedBook.reservedQuantity || 0)} value={quantity}
+                onChange={(e) => setQuantity(Math.min(Number(e.target.value), selectedBook.stock - (selectedBook.reservedQuantity || 0)))}
+                className="input-field text-sm" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">الإجمالي</label>
+              <div className="input-field text-sm bg-gray-50 dark:bg-dark-700 flex items-center font-bold text-primary-500">
+                {formatPrice(totalPrice)}
+              </div>
+            </div>
+          </div>
+        )}
+
+        <div>
+          <label className="block text-sm font-medium mb-1">اسم العميل (اختياري)</label>
+          <input type="text" value={customerName} onChange={(e) => setCustomerName(e.target.value)}
+            placeholder="مثال: أحمد علي" className="input-field text-sm" />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium mb-1">المبلغ المدفوع</label>
+          <input type="number" min="0" max={totalPrice} value={paidAmount} onChange={(e) => setPaidAmount(Number(e.target.value))} className="input-field text-sm" />
+          {paidAmount < totalPrice && (
+            <p className="text-xs text-amber-500 mt-1">المتبقي: {formatPrice(totalPrice - paidAmount)}</p>
+          )}
+        </div>
+
+        <button onClick={handleSubmit} disabled={!selectedBookId || submitting}
+          className="btn-success w-full text-sm !py-3 flex items-center justify-center gap-2">
+          {submitting ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Zap className="w-4 h-4" />}
+          {submitting ? 'جاري البيع...' : 'إتمام البيع'}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// -----------------------------------------------------------------------
+// INVENTORY PANEL (NEW)
+// -----------------------------------------------------------------------
+function InventoryPanel() {
+  const [books, setBooks] = useState<any[]>([]);
+  const [logs, setLogs] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [showAddStock, setShowAddStock] = useState<any>(null);
+  const [addQty, setAddQty] = useState(1);
+  const [addReason, setAddReason] = useState('');
+
+  const fetchData = async () => {
+    setLoading(true);
+    try {
+      const [booksRes, logsRes] = await Promise.all([
+        booksAPI.getAll({ limit: 200 }),
+        inventoryAPI.getLogs({ limit: 50 }),
+      ]);
+      setBooks(booksRes.data.books);
+      setLogs(logsRes.data.logs);
+    } catch { toast.error('خطأ في جلب البيانات'); }
+    setLoading(false);
+  };
+
+  useEffect(() => { fetchData(); }, []);
+
+  const handleAddStock = async (bookId: string) => {
+    if (addQty < 1) { toast.error('الكمية يجب أن تكون 1 على الأقل'); return; }
+    try {
+      await inventoryAPI.addStock(bookId, { quantity: addQty, reason: addReason });
+      toast.success('تم إضافة المخزون');
+      setShowAddStock(null); setAddQty(1); setAddReason('');
+      fetchData();
+    } catch { toast.error('خطأ'); }
+  };
+
+  if (loading) return <LoadingPanel />;
+
+  return (
+    <div className="space-y-6">
+      <div><h1 className="text-2xl md:text-3xl font-bold">المخزون</h1><p className="text-gray-400 text-sm">إدارة المخزون وتتبع حركة الكتب</p></div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="card p-4 border-blue-300"><p className="text-xs text-gray-400">إجمالي المخزون</p><p className="text-2xl font-bold text-blue-500">{books.reduce((s, b) => s + (b.stock || 0), 0)}</p></div>
+        <div className="card p-4 border-amber-300"><p className="text-xs text-gray-400">محجوز</p><p className="text-2xl font-bold text-amber-500">{books.reduce((s, b) => s + (b.reservedQuantity || 0), 0)}</p></div>
+        <div className="card p-4 border-green-300"><p className="text-xs text-gray-400">تم البيع</p><p className="text-2xl font-bold text-green-500">{books.reduce((s, b) => s + (b.soldQuantity || 0), 0)}</p></div>
+      </div>
+
+      <div className="card overflow-hidden">
+        <div className="p-4 border-b border-gray-100 dark:border-dark-700">
+          <h3 className="font-semibold">حالة المخزون</h3>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="admin-table">
+            <thead><tr><th>الكتاب</th><th>المخزون</th><th>متاح</th><th>محجوز</th><th>تم البيع</th><th>الحد الأدنى</th><th>الحالة</th><th>إجراءات</th></tr></thead>
+            <tbody>
+              {books.map((b: any) => {
+                const available = b.stock - (b.reservedQuantity || 0);
+                const isLow = available <= (b.lowStockThreshold || 5);
+                return (
+                  <tr key={b._id}>
+                    <td className="font-medium text-sm">{b.titleAr}</td>
+                    <td>{b.stock}</td>
+                    <td className={available <= 0 ? 'text-red-500 font-bold' : isLow ? 'text-amber-500' : 'text-green-500'}>{available}</td>
+                    <td className="text-amber-500">{b.reservedQuantity || 0}</td>
+                    <td>{b.soldQuantity || 0}</td>
+                    <td className="text-xs text-gray-400">{b.lowStockThreshold || 5}</td>
+                    <td>
+                      {available <= 0 ? <span className="badge-danger text-xs">نفد</span> :
+                       isLow ? <span className="badge-warning text-xs">منخفض</span> :
+                       <span className="badge-success text-xs">جيد</span>}
                     </td>
                     <td>
-                      <span className={`text-xs px-2 py-1 rounded-full font-medium ${
-                        order.deliveryStatus === 'delivered' ? 'bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-400' :
-                        order.deliveryStatus === 'out_for_delivery' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400' :
-                        order.deliveryStatus === 'preparing' ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/20 dark:text-amber-400' :
-                        'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400'
-                      }`}>
-                        {order.deliveryStatus === 'not_started' ? 'قيد المراجعة' :
-                         order.deliveryStatus === 'preparing' ? 'قيد التجهيز' :
-                         order.deliveryStatus === 'out_for_delivery' ? 'جاهز للاستلام' :
-                         order.deliveryStatus === 'delivered' ? 'تم الاستلام' : order.deliveryStatus}
-                      </span>
-                    </td>
-                    <td>
-                      <div className="flex gap-1.5 flex-wrap">
-                        {order.deliveryStatus === 'not_started' && (
-                          <button onClick={() => handleStatus(order._id, 'preparing')}
-                            className="text-xs px-2 py-1 rounded-lg bg-amber-100 text-amber-700 hover:bg-amber-200 dark:bg-amber-900/20 dark:text-amber-400 transition-colors">
-                            بدء التجهيز
-                          </button>
-                        )}
-                        {order.deliveryStatus === 'preparing' && (
-                          <button onClick={() => handleStatus(order._id, 'out_for_delivery')}
-                            className="text-xs px-2 py-1 rounded-lg bg-blue-100 text-blue-700 hover:bg-blue-200 dark:bg-blue-900/20 dark:text-blue-400 transition-colors">
-                            جاهز للاستلام
-                          </button>
-                        )}
-                        {order.deliveryStatus === 'out_for_delivery' && (
-                          <button onClick={() => handleStatus(order._id, 'delivered')}
-                            className="text-xs px-2 py-1 rounded-lg bg-green-100 text-green-700 hover:bg-green-200 dark:bg-green-900/20 dark:text-green-400 transition-colors">
-                            تأكيد الاستلام
-                          </button>
-                        )}
-                        {order.deliveryStatus === 'delivered' && (
-                          <span className="text-xs text-green-600 flex items-center gap-1">
-                            <Check className="w-3 h-3" /> تم
-                          </span>
-                        )}
-                      </div>
+                      <button onClick={() => { setShowAddStock(b._id); setAddQty(1); setAddReason(''); }}
+                        className="text-primary-500 hover:underline text-xs flex items-center gap-1">
+                        <Plus className="w-3 h-3" /> إضافة مخزون
+                      </button>
                     </td>
                   </tr>
                 );
               })}
-              {filtered.length === 0 && (
-                <tr><td colSpan={8} className="text-center text-gray-400 py-12">لا توجد حجوزات</td></tr>
-              )}
             </tbody>
           </table>
         </div>
       </div>
 
       <div className="card p-4">
-        <h3 className="font-semibold mb-2">إجراءات الاستلام</h3>
-        <ol className="text-sm text-gray-500 space-y-1 list-decimal list-inside">
-          <li>العميل يحضر إلى المنفذ: بني سويف — الاباصيري الجديد — خلف كازيون</li>
-          <li>تأكد من إثبات الدفع (الصورة ورقم الهاتف)</li>
-          <li>استلام المبلغ المتبقي نقداً</li>
-          <li>اضغط "تأكيد الاستلام" لإكمال العملية</li>
-        </ol>
+        <h3 className="font-semibold mb-3">آخر حركات المخزون</h3>
+        <div className="space-y-2 max-h-64 overflow-y-auto">
+          {logs.map((log: any) => (
+            <div key={log._id} className="flex items-center justify-between p-2 bg-gray-50 dark:bg-dark-700/50 rounded-xl text-sm">
+              <div>
+                <span className={`text-xs font-medium ${log.action === 'stock_added' ? 'text-green-500' : log.action === 'manual_adjustment' ? 'text-amber-500' : 'text-blue-500'}`}>
+                  {log.action === 'stock_added' ? 'إضافة' : log.action === 'manual_adjustment' ? 'تعديل' : log.action === 'stock_sold' ? 'بيع' : log.action}
+                </span>
+                <span className="text-gray-400 mr-2">{log.book?.titleAr || ''}</span>
+                <span className="text-xs text-gray-400">({log.quantity > 0 ? '+' : ''}{log.quantity})</span>
+                {log.reason && <span className="text-xs text-gray-400 mr-2">— {log.reason}</span>}
+              </div>
+              <span className="text-xs text-gray-400">{new Date(log.createdAt).toLocaleDateString('ar-EG')}</span>
+            </div>
+          ))}
+          {logs.length === 0 && <p className="text-sm text-gray-400 text-center py-4">لا توجد حركات</p>}
+        </div>
+      </div>
+
+      <AnimatePresence>
+        {showAddStock && (
+          <div className="modal-overlay" onClick={() => setShowAddStock(null)}>
+            <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+              <h3 className="text-lg font-bold mb-4">إضافة مخزون</h3>
+              <div className="space-y-3">
+                <div><label className="block text-sm font-medium mb-1">الكمية</label><input type="number" min="1" value={addQty} onChange={(e) => setAddQty(Number(e.target.value))} className="input-field text-sm" /></div>
+                <div><label className="block text-sm font-medium mb-1">السبب (اختياري)</label><input type="text" value={addReason} onChange={(e) => setAddReason(e.target.value)} placeholder="مثال: شحنة جديدة" className="input-field text-sm" /></div>
+                <div className="flex gap-2">
+                  <button onClick={() => handleAddStock(showAddStock)} className="flex-1 btn-primary text-sm">إضافة</button>
+                  <button onClick={() => setShowAddStock(null)} className="flex-1 btn-secondary text-sm">إلغاء</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
+// -----------------------------------------------------------------------
+// STAFF PANEL (NEW)
+// -----------------------------------------------------------------------
+function StaffPanel() {
+  const [cashiers, setCashiers] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [showForm, setShowForm] = useState(false);
+  const [form, setForm] = useState({ name: '', email: '', phone: '', password: '' });
+
+  const fetchCashiers = () => {
+    setLoading(true);
+    usersAPI.getCashiers().then((res) => { setCashiers(res.data.cashiers); setLoading(false); }).catch(() => setLoading(false));
+  };
+
+  useEffect(() => { fetchCashiers(); }, []);
+
+  const handleCreate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try { await usersAPI.createCashier(form); toast.success('تم إضافة الكاشير'); setShowForm(false); setForm({ name: '', email: '', phone: '', password: '' }); fetchCashiers(); }
+    catch { toast.error('حدث خطأ'); }
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!confirm('هل أنت متأكد من حذف هذا الكاشير؟')) return;
+    try { await usersAPI.deleteCashier(id); toast.success('تم الحذف'); fetchCashiers(); }
+    catch { toast.error('حدث خطأ'); }
+  };
+
+  if (loading) return <LoadingPanel />;
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between flex-wrap gap-3">
+        <div><h1 className="text-2xl md:text-3xl font-bold">الموظفين</h1><p className="text-gray-400 text-sm">إدارة الكاشير والموظفين</p></div>
+        <button onClick={() => setShowForm(true)} className="btn-primary text-sm"><UserPlus className="w-4 h-4 inline ml-1" />إضافة كاشير</button>
+      </div>
+
+      <div className="card overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="admin-table">
+            <thead><tr><th>الاسم</th><th>البريد</th><th>الهاتف</th><th>الدور</th><th>تاريخ الإضافة</th><th>إجراءات</th></tr></thead>
+            <tbody>
+              {cashiers.map((c: any) => (
+                <tr key={c._id}>
+                  <td className="font-medium">{c.name}</td>
+                  <td className="text-xs text-gray-400">{c.email}</td>
+                  <td className="text-xs" dir="ltr">{c.phone}</td>
+                  <td><span className="text-xs px-2 py-1 rounded-full bg-purple-100 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400">كاشير</span></td>
+                  <td className="text-xs text-gray-400">{new Date(c.createdAt).toLocaleDateString('ar-EG')}</td>
+                  <td><button onClick={() => handleDelete(c._id)} className="text-red-500 hover:underline text-xs"><Trash2 className="w-3 h-3 inline" /> حذف</button></td>
+                </tr>
+              ))}
+              {cashiers.length === 0 && <tr><td colSpan={6} className="text-center text-gray-400 py-8">لا يوجد كاشير</td></tr>}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <AnimatePresence>
+        {showForm && (
+          <div className="modal-overlay" onClick={() => setShowForm(false)}>
+            <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+              <h3 className="text-lg font-bold mb-4">إضافة كاشير جديد</h3>
+              <form onSubmit={handleCreate} className="space-y-3">
+                <input type="text" placeholder="الاسم" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="input-field text-sm" required />
+                <input type="email" placeholder="البريد الإلكتروني" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} className="input-field text-sm" required />
+                <input type="tel" placeholder="رقم الهاتف" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} className="input-field text-sm" required />
+                <input type="password" placeholder="كلمة المرور" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} className="input-field text-sm" required />
+                <div className="flex gap-2">
+                  <button type="submit" className="flex-1 btn-primary text-sm">إضافة</button>
+                  <button type="button" onClick={() => setShowForm(false)} className="flex-1 btn-secondary text-sm">إلغاء</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
+// -----------------------------------------------------------------------
+// SETTINGS PANEL (NEW)
+// -----------------------------------------------------------------------
+function SettingsPanel() {
+  const [email, setEmail] = useState('');
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    authAPI.getProfile().then((res) => {
+      setEmail(res.data.email || '');
+      setLoading(false);
+    }).catch(() => setLoading(false));
+  }, []);
+
+  const handleUpdate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSaving(true);
+    try {
+      const data: any = {};
+      if (email) data.email = email;
+      if (newPassword) { data.currentPassword = currentPassword; data.newPassword = newPassword; }
+      await authAPI.updateProfile(data);
+      toast.success('تم تحديث البيانات');
+      setCurrentPassword(''); setNewPassword('');
+    } catch { toast.error('حدث خطأ'); }
+    setSaving(false);
+  };
+
+  if (loading) return <LoadingPanel />;
+
+  return (
+    <div className="space-y-6">
+      <div><h1 className="text-2xl md:text-3xl font-bold">الإعدادات</h1><p className="text-gray-400 text-sm">تحديث بيانات المشرف</p></div>
+
+      <div className="card max-w-lg mx-auto p-6">
+        <form onSubmit={handleUpdate} className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium mb-1"><Mail className="w-4 h-4 inline ml-1" /> البريد الإلكتروني</label>
+            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="input-field text-sm" required />
+          </div>
+          <hr className="border-gray-100 dark:border-dark-700" />
+          <div>
+            <label className="block text-sm font-medium mb-1"><Lock className="w-4 h-4 inline ml-1" /> كلمة المرور الحالية</label>
+            <input type="password" value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} className="input-field text-sm" placeholder="أدخل كلمة المرور الحالية" />
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-1"><Key className="w-4 h-4 inline ml-1" /> كلمة المرور الجديدة</label>
+            <input type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} className="input-field text-sm" placeholder="أدخل كلمة المرور الجديدة" />
+          </div>
+          <button type="submit" disabled={saving} className="btn-primary w-full text-sm">
+            {saving ? <RefreshCw className="w-4 h-4 animate-spin inline ml-1" /> : null}
+            حفظ التغييرات
+          </button>
+        </form>
       </div>
     </div>
   );
 }
 
+// -----------------------------------------------------------------------
+// ACCOUNTING PANEL
+// -----------------------------------------------------------------------
 function AccountingPanel() {
   const [overview, setOverview] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -898,8 +1338,6 @@ function AccountingPanel() {
   const [txForm, setTxForm] = useState({ type: 'income', amount: 0, category: '', description: '' });
   const [calcDisplay, setCalcDisplay] = useState('');
   const [calcResult, setCalcResult] = useState('');
-  const [calcOp, setCalcOp] = useState('');
-  const [calcPrev, setCalcPrev] = useState('');
 
   const handleCalcBtn = (btn: string) => {
     if (btn === '=') {
@@ -909,11 +1347,8 @@ function AccountingPanel() {
         setCalcResult(result.toString());
         setCalcDisplay(result.toString());
       } catch { setCalcResult('خطأ'); }
-    } else if (['+', '-', '×', '÷'].includes(btn)) {
-      setCalcDisplay(prev => prev + ' ' + btn + ' ');
-    } else {
-      setCalcDisplay(prev => prev + btn);
-    }
+    } else if (['+', '-', '×', '÷'].includes(btn)) setCalcDisplay(prev => prev + ' ' + btn + ' ');
+    else setCalcDisplay(prev => prev + btn);
   };
 
   const fetchData = () => { setLoading(true); accountingAPI.getOverview().then((res) => { setOverview(res.data); setLoading(false); }).catch(() => setLoading(false)); };
@@ -940,7 +1375,6 @@ function AccountingPanel() {
         <div className="card p-5 border-purple-500/30"><p className="text-sm text-gray-400 mb-1">هامش الربح</p><p className="text-2xl font-bold text-purple-400">{margin}%</p></div>
       </div>
 
-      {/* Accounting Calculator */}
       <div className="card p-6">
         <h3 className="font-semibold mb-4 flex items-center gap-2"><Calculator className="w-5 h-5 text-primary-500" /> الآلة الحاسبة</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -950,77 +1384,29 @@ function AccountingPanel() {
               <div className="grid grid-cols-4 gap-2">
                 {['7','8','9','÷','4','5','6','×','1','2','3','-','0','.','=','+'].map((btn) => (
                   <button key={btn} onClick={() => handleCalcBtn(btn)}
-                    className={`p-3 rounded-xl text-lg font-bold transition-all ${
-                      ['÷','×','-','+','='].includes(btn)
-                        ? 'bg-primary-500 text-white hover:bg-primary-600 shadow-md'
-                        : btn === '0' ? 'col-span-2 bg-gray-200 dark:bg-dark-600 hover:bg-gray-300 dark:hover:bg-dark-500'
-                        : 'bg-gray-200 dark:bg-dark-600 hover:bg-gray-300 dark:hover:bg-dark-500'
-                    }`}
-                  >{btn}</button>
+                    className={`p-3 rounded-xl text-lg font-bold transition-all ${['÷','×','-','+','='].includes(btn) ? 'bg-primary-500 text-white hover:bg-primary-600 shadow-md' : btn === '0' ? 'col-span-2 bg-gray-200 dark:bg-dark-600 hover:bg-gray-300 dark:hover:bg-dark-500' : 'bg-gray-200 dark:bg-dark-600 hover:bg-gray-300 dark:hover:bg-dark-500'}`}>{btn}</button>
                 ))}
-                <button onClick={() => { setCalcDisplay(''); setCalcResult(''); setCalcOp(''); setCalcPrev(''); }} className="col-span-4 p-2 rounded-xl bg-red-50 dark:bg-red-900/20 text-red-500 text-sm font-medium hover:bg-red-100 dark:hover:bg-red-900/30 transition-all">مسح</button>
+                <button onClick={() => { setCalcDisplay(''); setCalcResult(''); }} className="col-span-4 p-2 rounded-xl bg-red-50 dark:bg-red-900/20 text-red-500 text-sm font-medium hover:bg-red-100 dark:hover:bg-red-900/30 transition-all">مسح</button>
               </div>
             </div>
           </div>
           <div>
             <h4 className="text-sm font-medium mb-3">حسابات سريعة</h4>
             <div className="space-y-2">
-              <div className="p-3 bg-gray-50 dark:bg-dark-800/50 rounded-xl flex items-center justify-between">
-                <span className="text-sm">متوسط سعر الكتاب</span>
-                <span className="font-bold text-primary-500">{overview?.totalBooks > 0 ? formatPrice(Math.round((overview?.totalRevenue || 0) / overview?.totalBooks)) : '-'}</span>
-              </div>
-              <div className="p-3 bg-gray-50 dark:bg-dark-800/50 rounded-xl flex items-center justify-between">
-                <span className="text-sm">متوسط الربح لكل طلب</span>
-                <span className="font-bold text-emerald-500">{overview?.totalOrders > 0 ? formatPrice(Math.round((overview?.netProfit || 0) / overview?.totalOrders)) : '-'}</span>
-              </div>
-              <div className="p-3 bg-gray-50 dark:bg-dark-800/50 rounded-xl flex items-center justify-between">
-                <span className="text-sm">نسبة المصروفات</span>
-                <span className="font-bold text-amber-500">{overview?.totalRevenue > 0 ? `${((overview?.totalExpenses || 0) / overview?.totalRevenue * 100).toFixed(1)}%` : '-'}</span>
-              </div>
+              <div className="p-3 bg-gray-50 dark:bg-dark-800/50 rounded-xl flex items-center justify-between"><span className="text-sm">متوسط سعر الكتاب</span><span className="font-bold text-primary-500">{overview?.totalBooks > 0 ? formatPrice(Math.round((overview?.totalRevenue || 0) / overview?.totalBooks)) : '-'}</span></div>
+              <div className="p-3 bg-gray-50 dark:bg-dark-800/50 rounded-xl flex items-center justify-between"><span className="text-sm">متوسط الربح لكل طلب</span><span className="font-bold text-emerald-500">{overview?.totalOrders > 0 ? formatPrice(Math.round((overview?.netProfit || 0) / overview?.totalOrders)) : '-'}</span></div>
+              <div className="p-3 bg-gray-50 dark:bg-dark-800/50 rounded-xl flex items-center justify-between"><span className="text-sm">نسبة المصروفات</span><span className="font-bold text-amber-500">{overview?.totalRevenue > 0 ? `${((overview?.totalExpenses || 0) / overview?.totalRevenue * 100).toFixed(1)}%` : '-'}</span></div>
             </div>
           </div>
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="card p-6">
-          <h3 className="font-semibold mb-4">الربح على الوقت</h3>
-          <ResponsiveContainer width="100%" height={300}>
-            <AreaChart data={profitData}>
-              <defs><linearGradient id="profitGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3}/><stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/></linearGradient></defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="#374151" opacity={0.3} />
-              <XAxis dataKey="name" stroke="#9ca3af" fontSize={12} />
-              <YAxis stroke="#9ca3af" fontSize={12} />
-              <Tooltip />
-              <Area type="monotone" dataKey="profit" stroke="#3b82f6" strokeWidth={2} fill="url(#profitGrad)" />
-            </AreaChart>
-          </ResponsiveContainer>
-        </div>
-
-        <div className="card p-6">
-          <h3 className="font-semibold mb-4">المصروفات حسب الفئة</h3>
-          <ResponsiveContainer width="100%" height={300}>
-            <PieChart>
-              <Pie data={(overview?.profitByCategory || []).filter((c: any) => c._id !== null && c.total > 0)} dataKey="total" nameKey="_id" cx="50%" cy="50%" outerRadius={90} label={({ _id, total }) => `${_id} (${total})`}>
-                {(overview?.profitByCategory || []).map((_: any, i: number) => (<Cell key={i} fill={COLORS[i % COLORS.length]} />))}
-              </Pie>
-              <Tooltip />
-            </PieChart>
-          </ResponsiveContainer>
-        </div>
+        <div className="card p-6"><h3 className="font-semibold mb-4">الربح على الوقت</h3><ResponsiveContainer width="100%" height={300}><AreaChart data={profitData}><defs><linearGradient id="profitGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3}/><stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/></linearGradient></defs><CartesianGrid strokeDasharray="3 3" stroke="#374151" opacity={0.3} /><XAxis dataKey="name" stroke="#9ca3af" fontSize={12} /><YAxis stroke="#9ca3af" fontSize={12} /><Tooltip /><Area type="monotone" dataKey="profit" stroke="#3b82f6" strokeWidth={2} fill="url(#profitGrad)" /></AreaChart></ResponsiveContainer></div>
+        <div className="card p-6"><h3 className="font-semibold mb-4">المصروفات حسب الفئة</h3><ResponsiveContainer width="100%" height={300}><PieChart><Pie data={(overview?.profitByCategory || []).filter((c: any) => c._id !== null && c.total > 0)} dataKey="total" nameKey="_id" cx="50%" cy="50%" outerRadius={90} label={({ _id, total }) => `${_id} (${total})`}>{(overview?.profitByCategory || []).map((_: any, i: number) => (<Cell key={i} fill={COLORS[i % COLORS.length]} />))}</Pie><Tooltip /></PieChart></ResponsiveContainer></div>
       </div>
 
-      <div className="card p-6">
-        <h3 className="font-semibold mb-4">آخر الحركات المالية</h3>
-        <div className="space-y-2">
-          {overview?.recentTransactions?.slice(0, 10).map((tx: any) => (
-            <div key={tx._id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-dark-700/50 rounded-xl">
-              <div><p className="text-sm font-medium">{tx.description || tx.category}</p><p className="text-xs text-gray-400">{tx.category} • {new Date(tx.createdAt).toLocaleDateString('ar-EG')}</p></div>
-              <span className={`text-sm font-bold ${tx.type === 'income' ? 'text-emerald-500' : 'text-red-400'}`}>{tx.type === 'income' ? '+' : '-'}{tx.amount} جنيه</span>
-            </div>
-          ))}
-        </div>
-      </div>
+      <div className="card p-6"><h3 className="font-semibold mb-4">آخر الحركات المالية</h3><div className="space-y-2">{overview?.recentTransactions?.slice(0, 10).map((tx: any) => (<div key={tx._id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-dark-700/50 rounded-xl"><div><p className="text-sm font-medium">{tx.description || tx.category}</p><p className="text-xs text-gray-400">{tx.category} • {new Date(tx.createdAt).toLocaleDateString('ar-EG')}</p></div><span className={`text-sm font-bold ${tx.type === 'income' ? 'text-emerald-500' : 'text-red-400'}`}>{tx.type === 'income' ? '+' : '-'}{tx.amount} جنيه</span></div>))}</div></div>
 
       <AnimatePresence>
         {showForm && (
@@ -1042,6 +1428,9 @@ function AccountingPanel() {
   );
 }
 
+// -----------------------------------------------------------------------
+// AI PANEL
+// -----------------------------------------------------------------------
 function AIPanel() {
   const [insights, setInsights] = useState<any>(null);
   const [accInsights, setAccInsights] = useState<any>(null);
@@ -1066,26 +1455,17 @@ function AIPanel() {
     try {
       const res = await aiAPI.adminQuery(question);
       setMessages(prev => [...prev, { role: 'ai', text: res.data.reply }]);
-    } catch {
-      setMessages(prev => [...prev, { role: 'ai', text: 'عذراً، حدث خطأ في معالجة السؤال' }]);
-    }
+    } catch { setMessages(prev => [...prev, { role: 'ai', text: 'عذراً، حدث خطأ في معالجة السؤال' }]); }
     setQueryLoading(false);
     setQuestion('');
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleAsk(); }
-  };
+  const handleKeyDown = (e: React.KeyboardEvent) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleAsk(); } };
 
   const suggestedQuestions = [
-    'ما هي أفضل الكتب مبيعاً؟',
-    'كم عدد الطلبات المعلقة؟',
-    'ما هو صافي الربح؟',
-    'ما الكتب الأقل مبيعاً؟',
-    'عاوز اعرف ربح كتاب معين',
-    'كم كتاب عندي في المخزون؟',
-    'عاوز تقرير كامل عن المتجر',
-    'ايه الكتب اللي مخزونها قليل؟',
+    'ما هي أفضل الكتب مبيعاً؟', 'كم عدد الطلبات المعلقة؟', 'ما هو صافي الربح؟',
+    'ما الكتب الأقل مبيعاً؟', 'عاوز اعرف ربح كتاب معين', 'كم كتاب عندي في المخزون؟',
+    'عاوز تقرير كامل عن المتجر', 'ايه الكتب اللي مخزونها قليل؟',
   ];
 
   if (loading) return <LoadingPanel />;
@@ -1094,59 +1474,37 @@ function AIPanel() {
     <div className="space-y-6">
       <h1 className="text-2xl md:text-3xl font-bold">الذكاء الاصطناعي</h1>
 
-      {/* AI Chat Box */}
       <div className="card p-4 md:p-6">
         <h3 className="font-semibold mb-4 flex items-center gap-2"><Brain className="w-5 h-5 text-primary-500" /> اسأل المساعد الذكي</h3>
         <div className="h-[400px] overflow-y-auto mb-4 space-y-3 p-3 bg-gray-50 dark:bg-dark-800/50 rounded-2xl">
           {messages.map((msg, i) => (
             <div key={i} className={`flex ${msg.role === 'user' ? 'justify-start' : 'justify-end'}`}>
-              <div className={`max-w-[85%] p-3.5 rounded-2xl text-sm leading-relaxed ${
-                msg.role === 'user'
-                  ? 'bg-primary-500 text-white rounded-tr-sm'
-                  : 'bg-white dark:bg-dark-700 shadow-sm rounded-tl-sm border border-gray-100 dark:border-dark-600'
-              }`}>
-                {msg.text.split('\n').map((line, j) => (
-                  <p key={j} className={j > 0 ? 'mt-1.5' : ''}>{line || '\u00A0'}</p>
-                ))}
+              <div className={`max-w-[85%] p-3.5 rounded-2xl text-sm leading-relaxed ${msg.role === 'user' ? 'bg-primary-500 text-white rounded-tr-sm' : 'bg-white dark:bg-dark-700 shadow-sm rounded-tl-sm border border-gray-100 dark:border-dark-600'}`}>
+                {msg.text.split('\n').map((line, j) => (<p key={j} className={j > 0 ? 'mt-1.5' : ''}>{line || '\u00A0'}</p>))}
               </div>
             </div>
           ))}
           {queryLoading && (
             <div className="flex justify-end">
               <div className="bg-white dark:bg-dark-700 shadow-sm rounded-2xl rounded-tl-sm p-4 border border-gray-100 dark:border-dark-600">
-                <div className="flex gap-1.5">
-                  <div className="w-2 h-2 bg-primary-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                  <div className="w-2 h-2 bg-primary-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                  <div className="w-2 h-2 bg-primary-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
-                </div>
+                <div className="flex gap-1.5"><div className="w-2 h-2 bg-primary-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} /><div className="w-2 h-2 bg-primary-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} /><div className="w-2 h-2 bg-primary-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} /></div>
               </div>
             </div>
           )}
         </div>
 
-        {/* Suggested Questions */}
         <div className="flex flex-wrap gap-2 mb-3">
           {suggestedQuestions.map((sq, i) => (
-            <button key={i} onClick={() => { setQuestion(sq); }} className="text-xs px-3 py-1.5 rounded-xl bg-gray-100 dark:bg-dark-700 text-gray-500 dark:text-gray-400 hover:bg-primary-50 hover:text-primary-500 dark:hover:bg-primary-900/20 dark:hover:text-primary-400 transition-all border border-gray-200 dark:border-dark-600">
-              {sq}
-            </button>
+            <button key={i} onClick={() => setQuestion(sq)} className="text-xs px-3 py-1.5 rounded-xl bg-gray-100 dark:bg-dark-700 text-gray-500 dark:text-gray-400 hover:bg-primary-50 hover:text-primary-500 dark:hover:bg-primary-900/20 dark:hover:text-primary-400 transition-all border border-gray-200 dark:border-dark-600">{sq}</button>
           ))}
         </div>
 
         <div className="flex gap-2">
-          <input
-            type="text" value={question} onChange={(e) => setQuestion(e.target.value)} onKeyDown={handleKeyDown}
-            placeholder="اسأل عن الكتب، المبيعات، الأرباح، المخزون..."
-            className="input-field flex-1 rounded-2xl"
-            disabled={queryLoading}
-          />
-          <button onClick={handleAsk} disabled={queryLoading || !question.trim()} className="btn-primary rounded-2xl px-5">
-            {queryLoading ? <RefreshCw className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
-          </button>
+          <input type="text" value={question} onChange={(e) => setQuestion(e.target.value)} onKeyDown={handleKeyDown} placeholder="اسأل عن الكتب، المبيعات، الأرباح، المخزون..." className="input-field flex-1 rounded-2xl" disabled={queryLoading} />
+          <button onClick={handleAsk} disabled={queryLoading || !question.trim()} className="btn-primary rounded-2xl px-5">{queryLoading ? <RefreshCw className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}</button>
         </div>
       </div>
 
-      {/* Dashboard Insights */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="card p-6">
           <h3 className="font-semibold mb-4 flex items-center gap-2"><TrendingUp className="w-5 h-5 text-primary-500" /> تحليلات المبيعات</h3>
@@ -1157,9 +1515,7 @@ function AIPanel() {
             <div className="p-3 bg-gray-50 dark:bg-dark-700/50 rounded-xl"><p className="text-xs text-gray-400">معلقة</p><p className="font-bold text-yellow-500">{insights?.pendingOrders}</p></div>
           </div>
           <h4 className="font-medium text-sm mb-2">أفضل الكتب مبيعاً</h4>
-          {insights?.bestSellers?.map((b: any, i: number) => (
-            <div key={i} className="flex justify-between text-sm p-2 bg-gray-50 dark:bg-dark-700/50 rounded-lg mb-1"><span>{i + 1}. {b.titleAr}</span><span className="text-gray-400">{b.salesCount} مبيعات</span></div>
-          ))}
+          {insights?.bestSellers?.map((b: any, i: number) => (<div key={i} className="flex justify-between text-sm p-2 bg-gray-50 dark:bg-dark-700/50 rounded-lg mb-1"><span>{i + 1}. {b.titleAr}</span><span className="text-gray-400">{b.salesCount} مبيعات</span></div>))}
         </div>
 
         <div className="card p-6">
@@ -1169,18 +1525,14 @@ function AIPanel() {
             <div className="p-3 bg-gray-50 dark:bg-dark-700/50 rounded-xl text-center"><p className="text-xs text-gray-400">المصروفات</p><p className="font-bold text-red-400 text-sm">{formatPrice(accInsights?.totalExpenses || 0)}</p></div>
             <div className="p-3 bg-gray-50 dark:bg-dark-700/50 rounded-xl text-center"><p className="text-xs text-gray-400">الهامش</p><p className="font-bold text-sm">{accInsights?.profitMargin || 0}%</p></div>
           </div>
-          {accInsights?.expenseCategories?.map((c: any, i: number) => (
-            <div key={i} className="flex justify-between text-sm p-2 bg-gray-50 dark:bg-dark-700/50 rounded-lg mb-1"><span>{c._id}</span><span className="text-gray-400">{c.total} جنيه</span></div>
-          ))}
+          {accInsights?.expenseCategories?.map((c: any, i: number) => (<div key={i} className="flex justify-between text-sm p-2 bg-gray-50 dark:bg-dark-700/50 rounded-lg mb-1"><span>{c._id}</span><span className="text-gray-400">{c.total} جنيه</span></div>))}
         </div>
       </div>
 
       <div className="card p-6">
         <h3 className="font-semibold mb-4 flex items-center gap-2"><Shield className="w-5 h-5 text-primary-500" /> كشف الاحتيال</h3>
         {fraudData?.fraudAlerts?.length > 0 ? (
-          <div className="space-y-2">{fraudData.fraudAlerts.map((alert: any, i: number) => (
-            <div key={i} className="p-3 bg-red-50 dark:bg-red-900/10 rounded-xl flex items-center gap-2 text-sm"><AlertTriangle className="w-4 h-4 text-red-500 shrink-0" />{alert.reason}<span className={`text-xs ${alert.severity === 'high' ? 'text-red-500' : 'text-yellow-500'}`}>{alert.severity === 'high' ? 'عالي' : 'متوسط'}</span></div>
-          ))}</div>
+          <div className="space-y-2">{fraudData.fraudAlerts.map((alert: any, i: number) => (<div key={i} className="p-3 bg-red-50 dark:bg-red-900/10 rounded-xl flex items-center gap-2 text-sm"><AlertTriangle className="w-4 h-4 text-red-500 shrink-0" />{alert.reason}<span className={`text-xs ${alert.severity === 'high' ? 'text-red-500' : 'text-yellow-500'}`}>{alert.severity === 'high' ? 'عالي' : 'متوسط'}</span></div>))}</div>
         ) : <p className="text-sm text-gray-400">لا توجد تنبيهات احتيال حالياً ✓</p>}
         <p className="text-xs text-gray-400 mt-2">آخر فحص: {fraudData?.totalChecked || 0} طلب</p>
       </div>
@@ -1188,6 +1540,9 @@ function AIPanel() {
   );
 }
 
+// -----------------------------------------------------------------------
+// REVIEWS PANEL
+// -----------------------------------------------------------------------
 function ReviewsPanel() {
   const [reviews, setReviews] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -1222,6 +1577,9 @@ function ReviewsPanel() {
   );
 }
 
+// -----------------------------------------------------------------------
+// LOADING PANEL
+// -----------------------------------------------------------------------
 function LoadingPanel() {
   return <div className="flex items-center justify-center h-64"><div className="w-10 h-10 border-4 border-primary-200 border-t-primary-500 rounded-full animate-spin" /></div>;
 }

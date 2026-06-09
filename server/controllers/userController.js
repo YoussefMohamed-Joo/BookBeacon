@@ -69,4 +69,43 @@ const deleteAllCustomers = async (req, res) => {
   }
 };
 
-module.exports = { getUsers, toggleBlockUser, getUserOrderHistory, deleteAllCustomers };
+// ===== Cashier management =====
+
+const getCashiers = async (req, res) => {
+  try {
+    const cashiers = await User.find({ role: 'cashier' }).select('-password').sort({ createdAt: -1 });
+    res.json({ cashiers });
+  } catch (error) {
+    res.status(500).json({ message: 'خطأ في جلب الكاشير' });
+  }
+};
+
+const createCashier = async (req, res) => {
+  try {
+    const { name, email, phone, password } = req.body;
+    if (!name || !email || !phone || !password) {
+      return res.status(400).json({ message: 'جميع الحقول مطلوبة' });
+    }
+    const exists = await User.findOne({ email });
+    if (exists) return res.status(400).json({ message: 'البريد الإلكتروني مستخدم بالفعل' });
+    const cashier = await User.create({ name, email, phone, password, role: 'cashier', isVerified: true });
+    const data = await User.findById(cashier._id).select('-password');
+    res.status(201).json({ message: 'تم إضافة الكاشير', user: data });
+  } catch (error) {
+    res.status(500).json({ message: 'خطأ في إضافة الكاشير' });
+  }
+};
+
+const deleteCashier = async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id);
+    if (!user) return res.status(404).json({ message: 'المستخدم غير موجود' });
+    if (user.role !== 'cashier') return res.status(400).json({ message: 'ليس كاشير' });
+    await User.findByIdAndDelete(req.params.id);
+    res.json({ message: 'تم حذف الكاشير' });
+  } catch (error) {
+    res.status(500).json({ message: 'خطأ في حذف الكاشير' });
+  }
+};
+
+module.exports = { getUsers, toggleBlockUser, getUserOrderHistory, deleteAllCustomers, getCashiers, createCashier, deleteCashier };

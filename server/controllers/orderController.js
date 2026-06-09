@@ -3,58 +3,175 @@ const Book = require('../models/Book');
 const User = require('../models/User');
 const Transaction = require('../models/Transaction');
 const { createNotification } = require('./notificationController');
+const { logActivity } = require('./activityController');
+
+// Helper: sync inventory when order status changes
+async function syncInventory(order, prevStatus) {
+  const book = await Book.findById(order.book);
+  if (!book) return;
+
+  // Order created -> reserve stock
+  if (order.status === 'pending' && prevStatus === 'pending') {
+    book.reservedQuantity = (book.reservedQuantity || 0) + order.quantity;
+  }
+
+  // Approved -> deduct stock, release reserve
+  if (order.status === 'approved' && prevStatus === 'pending' || order.status === 'approved' && prevStatus === 'payment_review') {
+    book.reservedQuantity = Math.max(0, (book.reservedQuantity || 0) - order.quantity);
+    book.stock = Math.max(0, book.stock - order.quantity);
+  }
+
+  // Delivered -> increment sold count
+  if (order.status === 'delivered') {
+    book.soldQuantity = (book.soldQuantity || 0) + order.quantity;
+    book.salesCount = (book.salesCount || 0) + order.quantity;
+  }
+
+  // Rejected -> release reserved stock
+  if (order.status === 'rejected' && prevStatus !== 'rejected') {
+    book.reservedQuantity = Math.max(0, (book.reservedQuantity || 0) - order.quantity);
+  }
+
+  await book.save();
+}
+
+// Helper: create accounting transactions
+async function accountOrder(order) {
+  if (order.accounted) return;
+  const book = await Book.findById(order.book);
+  const title = book?.titleAr || '';
+
+  await Transaction.create({
+    type: 'income',
+    amount: order.paidAmount || order.totalPrice,
+    category: 'مبيعات كتب',
+    description: `طلب ${order.orderId || ''}: ${title}`,
+    order: order._id,
+  });
+
+  if (order.costPrice > 0) {
+    await Transaction.create({
+      type: 'expense',
+      amount: order.costPrice,
+      category: 'تكلفة كتب',
+      description: `تكلفة ${order.orderId || ''}: ${title}`,
+      order: order._id,
+    });
+  }
+
+  // Award loyalty points
+  const points = Math.floor((order.paidAmount || order.totalPrice) * 0.1);
+  await User.findByIdAndUpdate(order.user, { $inc: { loyaltyPoints: points, totalOrders: 1 } });
+
+  order.accounted = true;
+}
+
+// ===================== CONTROLLERS =====================
 
 const createOrder = async (req, res) => {
   try {
-    const { bookId, grade, subject, quantity, deliveryMethod, deliveryDetails, senderPhone } = req.body;
+    // Admin and cashier cannot place orders
+    if (req.user.role === 'admin' || req.user.role === 'cashier') {
+      return res.status(403).json({ message: 'المشرفين والكاشير لا يمكنهم تقديم طلبات' });
+    }
+
+    const { bookId, grade, subject, quantity, deliveryType, deliveryDetails, senderPhone } = req.body;
 
     const book = await Book.findById(bookId);
-    if (!book || !book.isActive) {
-      return res.status(404).json({ message: 'الكتاب غير موجود' });
-    }
-
-    if (book.stock < quantity) {
-      return res.status(400).json({ message: 'الكتاب غير متوفر بالكمية المطلوبة' });
-    }
+    if (!book || !book.isActive) return res.status(404).json({ message: 'الكتاب غير موجود' });
+    if (book.stock - (book.reservedQuantity || 0) < quantity) return res.status(400).json({ message: 'الكتاب غير متوفر بالكمية المطلوبة' });
 
     const booksTotal = book.price * quantity;
-    const deliveryCost = deliveryMethod === 'delivery' ? (deliveryDetails?.deliveryPrice || 0) : 0;
+    const deliveryCost = deliveryType === 'delivery' ? (deliveryDetails?.deliveryPrice || 0) : 0;
     const totalPrice = booksTotal + deliveryCost;
     const totalCost = (book.costPrice || 0) * quantity;
     const profit = totalPrice - totalCost;
+    const deposit = Math.round(totalPrice * 0.1);
 
     const order = await Order.create({
       user: req.user._id,
       book: bookId,
-      grade,
-      subject,
-      quantity,
+      grade, subject, quantity,
       booksTotal,
       deliveryPrice: deliveryCost,
       totalPrice,
-      deliveryMethod,
-      deliveryDetails: deliveryMethod === 'delivery' ? deliveryDetails : {},
-      paymentProof: {
-        senderPhone: senderPhone || '',
-      },
+      paidAmount: deposit,
+      remainingAmount: totalPrice - deposit,
+      deliveryType: deliveryType || 'delivery',
+      orderSource: 'online',
+      deliveryDetails: deliveryType === 'delivery' ? deliveryDetails : {},
+      paymentProof: { senderPhone: senderPhone || '' },
       costPrice: totalCost,
       profit,
+      status: 'pending',
     });
 
-    book.stock -= quantity;
-    book.salesCount += quantity;
+    // Reserve inventory
+    book.reservedQuantity = (book.reservedQuantity || 0) + quantity;
     await book.save();
 
-    createNotification({ user: req.user._id, type: 'order_created', title: 'تم إنشاء الطلب', message: `تم إنشاء طلب ${book.titleAr} بنجاح`, link: '/orders' });
-    createNotification({ type: 'order_created', title: 'طلب جديد', message: `طلب جديد من ${req.user.name} - ${book.titleAr}`, link: '/admin', isAdminNotification: true });
+    // Notifications
+    createNotification({ user: req.user._id, type: 'order_created', title: 'تم إنشاء الطلب', message: `تم إنشاء طلب ${book.titleAr}`, link: '/orders' });
+    createNotification({ type: 'order_created', title: 'طلب جديد', message: `طلب جديد من ${req.user.name}: ${book.titleAr}`, link: '/admin', isAdminNotification: true });
 
-    if (book.stock <= 5) {
-      createNotification({ type: 'low_stock', title: 'مخزون منخفض', message: `مخزون ${book.titleAr} أصبح ${book.stock} فقط`, link: '/admin', isAdminNotification: true });
-    }
+    // Activity log
+    logActivity({ action: 'order_created', order: order._id, details: { orderId: order.orderId, book: book.titleAr, totalPrice } });
 
     res.status(201).json(order);
   } catch (error) {
     res.status(500).json({ message: 'خطأ في إنشاء الطلب', error: error.message });
+  }
+};
+
+// Store walk-in instant sale
+const createInstantSale = async (req, res) => {
+  try {
+    const { bookId, quantity = 1, customerName = '', paidAmount } = req.body;
+
+    const book = await Book.findById(bookId);
+    if (!book || !book.isActive) return res.status(404).json({ message: 'الكتاب غير موجود' });
+    if (book.stock < quantity) return res.status(400).json({ message: 'الكتاب غير متوفر' });
+
+    const totalPrice = book.price * quantity;
+    const totalCost = (book.costPrice || 0) * quantity;
+    const paid = paidAmount || totalPrice;
+
+    const order = await Order.create({
+      user: req.user._id,
+      book: bookId,
+      grade: book.grade,
+      subject: book.subject,
+      quantity,
+      booksTotal: totalPrice,
+      deliveryPrice: 0,
+      totalPrice,
+      paidAmount: paid,
+      remainingAmount: totalPrice - paid,
+      orderSource: 'store',
+      deliveryType: 'pickup',
+      customerName,
+      costPrice: totalCost,
+      profit: paid - totalCost,
+      status: 'delivered',
+      deliveryStatus: 'delivered',
+      accounted: false,
+      deliveredAt: new Date(),
+    });
+
+    // Immediately account the sale
+    await accountOrder(order);
+
+    // Deduct stock immediately
+    book.stock = Math.max(0, book.stock - quantity);
+    book.soldQuantity = (book.soldQuantity || 0) + quantity;
+    book.salesCount = (book.salesCount || 0) + quantity;
+    await book.save();
+
+    logActivity({ action: 'order_delivered', admin: req.user._id, order: order._id, details: { type: 'instant_sale', book: book.titleAr, totalPrice: paid, customerName } });
+
+    res.status(201).json({ message: 'تم البيع', order });
+  } catch (error) {
+    res.status(500).json({ message: 'خطأ في البيع', error: error.message });
   }
 };
 
@@ -71,33 +188,41 @@ const getUserOrders = async (req, res) => {
 
 const getAllOrders = async (req, res) => {
   try {
-    const { status, deliveryStatus, page = 1, limit = 20, search } = req.query;
+    const { status, deliveryStatus, page = 1, limit = 20, search, orderSource } = req.query;
     const query = {};
 
     if (status) query.status = status;
     if (deliveryStatus) query.deliveryStatus = deliveryStatus;
+    if (orderSource) query.orderSource = orderSource;
+
     if (search) {
       query.$or = [
-        { grade: { $regex: search, $options: 'i' } },
-        { subject: { $regex: search, $options: 'i' } },
+        { orderId: { $regex: search, $options: 'i' } },
+        { customerName: { $regex: search, $options: 'i' } },
       ];
+
+      // Also search by user name/phone via lookup
+      const users = await User.find({
+        $or: [
+          { name: { $regex: search, $options: 'i' } },
+          { phone: { $regex: search, $options: 'i' } },
+        ],
+      }).select('_id');
+      if (users.length > 0) {
+        query.$or.push({ user: { $in: users.map(u => u._id) } });
+      }
     }
 
     const orders = await Order.find(query)
       .populate('user', 'name email phone')
-      .populate('book', 'title titleAr price')
+      .populate('book', 'title titleAr price costPrice stock')
       .sort({ createdAt: -1 })
       .skip((page - 1) * limit)
       .limit(parseInt(limit));
 
     const total = await Order.countDocuments(query);
 
-    res.json({
-      orders,
-      page: parseInt(page),
-      pages: Math.ceil(total / limit),
-      total,
-    });
+    res.json({ orders, page: parseInt(page), pages: Math.ceil(total / limit), total });
   } catch (error) {
     res.status(500).json({ message: 'خطأ في جلب الطلبات' });
   }
@@ -105,80 +230,61 @@ const getAllOrders = async (req, res) => {
 
 const updateOrderStatus = async (req, res) => {
   try {
-    const { status, deliveryStatus } = req.body;
+    const { status, deliveryStatus, paidAmount } = req.body;
     const order = await Order.findById(req.params.id).populate('book').populate('user');
-
     if (!order) return res.status(404).json({ message: 'الطلب غير موجود' });
 
     const prevStatus = order.status;
 
+    // Update status
     if (status) order.status = status;
     if (deliveryStatus) order.deliveryStatus = deliveryStatus;
 
-    if (status === 'approved' && !order.accounted) {
-      const pointsEarned = Math.floor(order.totalPrice * 0.1);
-      await User.findByIdAndUpdate(order.user._id, {
-        $inc: { loyaltyPoints: pointsEarned, totalOrders: 1 },
-      });
-
-      await Transaction.create({
-        type: 'income',
-        amount: order.totalPrice,
-        category: 'مبيعات كتب',
-        description: `طلب كتاب ${order.book?.titleAr || ''}`,
-        order: order._id,
-      });
-
-      if (order.costPrice > 0) {
-        await Transaction.create({
-          type: 'expense',
-          amount: order.costPrice,
-          category: 'تكلفة كتب',
-          description: `تكلفة طلب كتاب ${order.book?.titleAr || ''}`,
-          order: order._id,
-        });
-      }
-
-      order.accounted = true;
+    // Track payment if admin records a paid amount
+    if (paidAmount !== undefined && req.user) {
+      order.paidAmount = Math.min(paidAmount, order.totalPrice);
+      order.remainingAmount = order.totalPrice - order.paidAmount;
     }
 
-    if (status === 'delivered' || deliveryStatus === 'delivered') {
-      order.deliveryStatus = 'delivered';
-      order.status = 'approved';
-      if (!order.accounted) {
-        await Transaction.create({
-          type: 'income',
-          amount: order.totalPrice,
-          category: 'مبيعات كتب',
-          description: `طلب كتاب ${order.book?.titleAr || ''}`,
-          order: order._id,
-        });
-        if (order.costPrice > 0) {
-          await Transaction.create({
-            type: 'expense',
-            amount: order.costPrice,
-            category: 'تكلفة كتب',
-            description: `تكلفة طلب كتاب ${order.book?.titleAr || ''}`,
-            order: order._id,
-          });
-        }
-        order.accounted = true;
-      }
+    // Approved: account revenue, sync inventory
+    if (status === 'approved' && prevStatus !== 'approved') {
+      await accountOrder(order);
+      order.approvedAt = new Date();
+      createNotification({ user: order.user._id, type: 'order_approved', title: 'تم الموافقة', message: `تمت الموافقة على طلب ${order.book?.titleAr || ''}`, link: '/orders' });
     }
 
-    if ((status === 'rejected' || prevStatus === 'pending' && status === 'rejected') && order.book) {
-      order.book.stock += order.quantity;
+    // Ready for pickup
+    if (status === 'ready_for_pickup') {
+      createNotification({ user: order.user._id, type: 'general', title: 'الطلب جاهز', message: `طلب ${order.book?.titleAr || ''} جاهز للاستلام`, link: '/orders' });
+    }
+
+    // Delivered: finalize
+    if (status === 'delivered' && prevStatus !== 'delivered') {
+      if (!order.accounted) await accountOrder(order);
+      order.deliveredAt = new Date();
+      order.remainingAmount = 0;
+      order.paidAmount = order.totalPrice;
+    }
+
+    // Rejected: release reserved stock
+    if (status === 'rejected' && prevStatus !== 'rejected' && order.book) {
+      order.book.reservedQuantity = Math.max(0, (order.book.reservedQuantity || 0) - order.quantity);
       await order.book.save();
+      createNotification({ user: order.user._id, type: 'order_rejected', title: 'تم رفض الطلب', message: `تم رفض طلب ${order.book?.titleAr || ''}`, link: '/orders' });
     }
+
+    // Sync inventory based on status transition
+    await syncInventory(order, prevStatus);
 
     await order.save();
 
-    if (status === 'approved') {
-      createNotification({ user: order.user._id, type: 'order_approved', title: 'تم الموافقة على الطلب', message: `تمت الموافقة على طلب ${order.book?.titleAr || ''}`, link: '/orders' });
-    }
-    if (status === 'rejected') {
-      createNotification({ user: order.user._id, type: 'order_rejected', title: 'تم رفض الطلب', message: `تم رفض طلب ${order.book?.titleAr || ''}`, link: '/orders' });
-    }
+    // Log activity
+    logActivity({
+      action: status === 'delivered' ? 'order_delivered' : status === 'approved' ? 'order_approved' : status === 'rejected' ? 'order_rejected' : 'order_status_changed',
+      admin: req.user?._id,
+      order: order._id,
+      details: { from: prevStatus, to: status || deliveryStatus, paidAmount },
+    });
 
     res.json(order);
   } catch (error) {
@@ -191,16 +297,16 @@ const uploadPaymentProof = async (req, res) => {
     const order = await Order.findById(req.params.id);
     if (!order) return res.status(404).json({ message: 'الطلب غير موجود' });
 
-    if (req.file) {
-      order.paymentProof.imageUrl = `/uploads/${req.file.filename}`;
-    }
-    if (req.body.senderPhone) {
-      order.paymentProof.senderPhone = req.body.senderPhone;
-    }
+    if (req.file) order.paymentProof.imageUrl = `/uploads/${req.file.filename}`;
+    if (req.body.senderPhone) order.paymentProof.senderPhone = req.body.senderPhone;
+
+    // Move to payment_review
+    if (order.status === 'pending') order.status = 'payment_review';
 
     await order.save();
 
-    createNotification({ type: 'payment_uploaded', title: 'تم رفع إثبات دفع', message: `قام ${order.user?.name || 'مستخدم'} برفع إثبات دفع للطلب`, link: '/admin', isAdminNotification: true });
+    createNotification({ type: 'payment_uploaded', title: 'إثبات دفع', message: `تم رفع إثبات دفع للطلب ${order.orderId}`, link: '/admin', isAdminNotification: true });
+    logActivity({ action: 'payment_uploaded', order: order._id, details: { senderPhone: req.body.senderPhone } });
 
     res.json(order);
   } catch (error) {
@@ -214,39 +320,50 @@ const verifyPayment = async (req, res) => {
     if (!order) return res.status(404).json({ message: 'الطلب غير موجود' });
 
     order.paymentProof.verified = true;
+    order.paymentProof.verifiedBy = req.user._id;
+    order.paymentProof.verifiedAt = new Date();
     order.status = 'approved';
+    order.paidAmount = order.totalPrice;
+    order.remainingAmount = 0;
+    order.approvedAt = new Date();
 
-    if (!order.accounted) {
-      const pointsEarned = Math.floor(order.totalPrice * 0.1);
-      await User.findByIdAndUpdate(order.user._id, {
-        $inc: { loyaltyPoints: pointsEarned, totalOrders: 1 },
-      });
+    if (!order.accounted) await accountOrder(order);
+    await syncInventory(order, 'pending');
+    await order.save();
 
-      await Transaction.create({
-        type: 'income',
-        amount: order.totalPrice,
-        category: 'مبيعات كتب',
-        description: `طلب معتمد: ${order.book?.titleAr || ''}`,
-        order: order._id,
-      });
+    logActivity({ action: 'payment_verified', admin: req.user._id, order: order._id });
 
-      if (order.costPrice > 0) {
-        await Transaction.create({
-          type: 'expense',
-          amount: order.costPrice,
-          category: 'تكلفة كتب',
-          description: `تكلفة: ${order.book?.titleAr || ''}`,
-          order: order._id,
-        });
-      }
+    res.json({ message: 'تم التحقق من الدفع' });
+  } catch (error) {
+    res.status(500).json({ message: 'خطأ في التحقق' });
+  }
+};
 
-      order.accounted = true;
+const confirmDelivery = async (req, res) => {
+  try {
+    const { receivedAmount } = req.body;
+    const order = await Order.findById(req.params.id).populate('book');
+    if (!order) return res.status(404).json({ message: 'الطلب غير موجود' });
+
+    if (order.remainingAmount > 0 && (!receivedAmount || receivedAmount < order.remainingAmount)) {
+      return res.status(400).json({ message: `المبلغ المتبقي ${order.remainingAmount} جنيه يجب تحصيله كاملاً` });
     }
 
+    order.paidAmount = order.totalPrice;
+    order.remainingAmount = 0;
+    order.status = 'delivered';
+    order.deliveryStatus = 'delivered';
+    order.deliveredAt = new Date();
+
+    if (!order.accounted) await accountOrder(order);
+    await syncInventory(order, 'pending');
     await order.save();
-    res.json({ message: 'تم التحقق من الدفع بنجاح' });
+
+    logActivity({ action: 'order_delivered', admin: req.user._id, order: order._id, details: { receivedAmount } });
+
+    res.json({ message: 'تم تأكيد التوصيل', order });
   } catch (error) {
-    res.status(500).json({ message: 'خطأ في التحقق من الدفع' });
+    res.status(500).json({ message: 'خطأ في تأكيد التوصيل' });
   }
 };
 
@@ -255,42 +372,25 @@ const instantDelivery = async (req, res) => {
     const order = await Order.findById(req.params.id).populate('book').populate('user');
     if (!order) return res.status(404).json({ message: 'الطلب غير موجود' });
 
-    order.status = 'approved';
+    order.status = 'delivered';
     order.deliveryStatus = 'delivered';
     order.deliveredAt = new Date();
+    order.paidAmount = order.totalPrice;
+    order.remainingAmount = 0;
 
-    if (!order.accounted) {
-      const pointsEarned = Math.floor(order.totalPrice * 0.1);
-      await User.findByIdAndUpdate(order.user._id, {
-        $inc: { loyaltyPoints: pointsEarned, totalOrders: 1 },
-      });
-
-      await Transaction.create({
-        type: 'income',
-        amount: order.totalPrice,
-        category: 'مبيعات كتب',
-        description: `توصيل فوري: ${order.book?.titleAr || ''}`,
-        order: order._id,
-      });
-
-      if (order.costPrice > 0) {
-        await Transaction.create({
-          type: 'expense',
-          amount: order.costPrice,
-          category: 'تكلفة كتب',
-          description: `تكلفة توصيل فوري: ${order.book?.titleAr || ''}`,
-          order: order._id,
-        });
-      }
-
-      order.accounted = true;
-    }
-
+    if (!order.accounted) await accountOrder(order);
+    await syncInventory(order, 'pending');
     await order.save();
-    res.json({ message: 'تم التوصيل الفوري وإضافة الأرباح', order });
+
+    logActivity({ action: 'instant_delivery', admin: req.user._id, order: order._id });
+
+    res.json({ message: 'تم التوصيل الفوري', order });
   } catch (error) {
     res.status(500).json({ message: 'خطأ في التوصيل الفوري', error: error.message });
   }
 };
 
-module.exports = { createOrder, getUserOrders, getAllOrders, updateOrderStatus, uploadPaymentProof, verifyPayment, instantDelivery };
+module.exports = {
+  createOrder, createInstantSale, getUserOrders, getAllOrders,
+  updateOrderStatus, uploadPaymentProof, verifyPayment, confirmDelivery, instantDelivery,
+};

@@ -3,8 +3,8 @@ import { Routes, Route, useLocation } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useStore } from './store/useStore';
 import Navbar from './components/Navbar';
+import TopBar from './components/TopBar';
 import Footer from './components/Footer';
-// import CursorFollower from './components/CursorFollower';
 import LoadingScreen from './components/LoadingScreen';
 import Home from './pages/Home';
 import Books from './pages/Books';
@@ -25,6 +25,7 @@ import DeliveryPolicy from './pages/DeliveryPolicy';
 import MyPickups from './pages/MyPickups';
 import ChatBot from './components/ChatBot';
 
+// Page transition animation variants
 const pageVariants = {
   initial: { opacity: 0, y: 8 },
   in: { opacity: 1, y: 0 },
@@ -36,6 +37,7 @@ const pageTransition = {
   ease: [0.25, 0.1, 0.25, 1],
 };
 
+// Wraps each page with a fade/slide animation
 function AnimatedPage({ children }: { children: React.ReactNode }) {
   return (
     <motion.div initial="initial" animate="in" exit="out" variants={pageVariants} transition={pageTransition}>
@@ -48,18 +50,20 @@ function App() {
   const { isDarkMode } = useStore();
   const location = useLocation();
 
+  // Sync dark mode class on <html>
   useEffect(() => {
     document.documentElement.classList.toggle('dark', isDarkMode);
   }, [isDarkMode]);
 
+  // Scroll to top on route change
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [location.pathname]);
 
   return (
-    <div className="min-h-screen bg-surface-50 dark:bg-dark-950 text-gray-900 dark:text-gray-100 font-sans">
+    <div className="min-h-screen" style={{ background: 'var(--bg)', backgroundImage: 'var(--bg-gradient)', color: 'var(--text)' }}>
       <LoadingScreen />
-      {/* <CursorFollower /> */}
+      <TopBar />
       <Navbar />
       <AnimatePresence mode="wait">
         <Routes location={location} key={location.pathname}>
@@ -80,7 +84,7 @@ function App() {
           <Route path="/payment-methods" element={<AnimatedPage><PaymentMethods /></AnimatedPage>} />
           <Route path="/delivery-policy" element={<AnimatedPage><DeliveryPolicy /></AnimatedPage>} />
           <Route path="/my-pickups" element={<AnimatedPage><MyPickups /></AnimatedPage>} />
-          <Route path="*" element={<AnimatedPage><div className="min-h-screen flex items-center justify-center pt-16"><div className="text-center"><h1 className="text-6xl font-bold text-gray-300 mb-4">404</h1><p className="text-gray-500">الصفحة غير موجودة</p></div></div></AnimatedPage>} />
+          <Route path="*" element={<AnimatedPage><div className="min-h-screen flex items-center justify-center"><div className="text-center"><h1 className="text-6xl font-bold opacity-20 mb-4">404</h1><p className="opacity-50">الصفحة غير موجودة</p></div></div></AnimatedPage>} />
         </Routes>
       </AnimatePresence>
       <ChatBot />

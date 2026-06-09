@@ -55,7 +55,7 @@ export default function BookDetail() {
 
   const handleOrder = async () => {
     if (!user) { toast.error('يرجى تسجيل الدخول أولاً'); navigate('/login'); return; }
-    // if (!user.isVerified) { toast.error('يرجى التحقق من البريد الإلكتروني أولاً'); navigate('/login'); return; }
+    if (user.role === 'admin' || user.role === 'cashier') { toast.error('المشرفين والكاشير لا يمكنهم تقديم طلبات — هذه الخدمة للعملاء فقط'); return; }
     if (deliveryMethod === 'delivery' && (!address || !phone || !selectedGov)) { toast.error('يرجى إكمال بيانات التوصيل'); return; }
 
     setOrderLoading(true);
@@ -280,17 +280,23 @@ export default function BookDetail() {
                   )}
                 </div>
 
-                <motion.button onClick={handleOrder} disabled={orderLoading}
-                  whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.99 }}
-                  className="w-full py-3.5 rounded-2xl bg-gradient-to-l from-primary-600 to-primary-500 text-white font-bold text-base shadow-xl shadow-primary-500/25 hover:shadow-primary-500/40 transition-all disabled:opacity-70"
-                >
-                  {orderLoading ? (
-                    <span className="flex items-center justify-center gap-2">
-                      <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                      جاري إنشاء الطلب...
-                    </span>
-                  ) : 'تأكيد الطلب'}
-                </motion.button>
+                {user?.role === 'admin' || user?.role === 'cashier' ? (
+                  <div className="w-full py-3.5 rounded-2xl bg-gray-100 dark:bg-dark-700 text-gray-400 text-center font-bold text-base cursor-not-allowed">
+                    المشرفين لا يمكنهم تقديم طلبات
+                  </div>
+                ) : (
+                  <motion.button onClick={handleOrder} disabled={orderLoading}
+                    whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.99 }}
+                    className="w-full py-3.5 rounded-2xl bg-gradient-to-l from-primary-600 to-primary-500 text-white font-bold text-base shadow-xl shadow-primary-500/25 hover:shadow-primary-500/40 transition-all disabled:opacity-70"
+                  >
+                    {orderLoading ? (
+                      <span className="flex items-center justify-center gap-2">
+                        <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                        جاري إنشاء الطلب...
+                      </span>
+                    ) : 'تأكيد الطلب'}
+                  </motion.button>
+                )}
               </div>
 
               {/* Reviews */}

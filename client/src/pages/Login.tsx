@@ -9,11 +9,14 @@ import { authAPI } from '../lib/api';
 export default function Login() {
   const navigate = useNavigate();
   const { setUser } = useStore();
+
+  // Form state
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  // Submit -> call API, store user, redirect based on role
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !password) { toast.error('يرجى إدخال البريد الإلكتروني وكلمة المرور'); return; }
@@ -31,7 +34,7 @@ export default function Login() {
 
   return (
     <>
-      <Helmet><title>تسجيل الدخول | بوكيفاي</title></Helmet>
+      <Helmet><title>تسجيل الدخول | بوك بيكون</title></Helmet>
       <div className="min-h-screen flex items-center justify-center pt-20 pb-12 px-4">
         <div className="w-full max-w-sm">
           <div className="text-center mb-7">
@@ -39,6 +42,7 @@ export default function Login() {
             <p className="mt-1 text-sm" style={{ color: 'var(--muted)' }}>مرحباً بك مرة أخرى</p>
           </div>
 
+          {/* Login form card */}
           <form onSubmit={handleSubmit} className="card p-6 space-y-4">
             <div>
               <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--text-primary)' }}>البريد الإلكتروني</label>
@@ -53,6 +57,7 @@ export default function Login() {
               <div className="relative">
                 <Lock className="absolute right-3.5 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: 'var(--muted)' }} />
                 <input type={showPassword ? 'text' : 'password'} value={password} onChange={(e) => setPassword(e.target.value)} className="input-field pr-10 pl-10" placeholder="••••••" />
+                {/* Toggle password visibility */}
                 <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: 'var(--muted)' }}>
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>

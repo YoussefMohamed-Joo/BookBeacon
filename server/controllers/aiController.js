@@ -14,12 +14,12 @@ async function callOpenRouter(systemPrompt, userMessage) {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'mistralai/mistral-7b-instruct',
+        model: 'openai/gpt-4o-mini',
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userMessage },
         ],
-        max_tokens: 300,
+        max_tokens: 600,
       }),
     });
     const data = await response.json();
@@ -36,7 +36,7 @@ const aiChat = async (req, res) => {
     if (!message) return res.json({ reply: 'مرحباً! كيف يمكنني مساعدتك؟' });
 
     const aiReply = await callOpenRouter(
-      'You are a helpful assistant for Book Beacon bookstore in Egypt. Answer questions about books, ordering, delivery, and payment. Be concise and friendly in Arabic.',
+      'أنت مساعد متجر Book Beacon للكتب المدرسية في مصر. أجب فقط عن أسئلة تتعلق بـ: الكتب المتاحة، الأسعار، الصفوف الدراسية، المواد، المدرسين، طريقة الطلب، التوصيل، الدفع. ممنوع تماماً الإجابة عن أي أسئلة تقنية عن البرمجة، تصميم المواقع، السيرفرات، قواعد البيانات، أو أي شيء خارج محتوى المتجر. إذا سأل المستخدم عن شيء خارج نطاق المتجر، اعتذر بلطف وقل أنك هنا فقط للإجابة عن أسئلة المتجر.',
       message
     );
 
@@ -350,11 +350,13 @@ ${gradesList.map(g => `${g}: ${booksByGrade[g].count} كتب, ${booksByGrade[g].
 ${allBooks.map(b => `${b.titleAr} (${b.grade}) — ${b.subject || ''} — مدرس: ${b.teacher || 'لا يوجد'} — سعر ${b.price} ج.م — تكلفة ${b.costPrice || 0} ج.م — مبيعات ${b.salesCount || 0} — مخزون ${b.stock}`).join('\n')}
 `;
 
-    const systemPrompt = `أنت مساعد ذكي لإدارة متجر Book Beacon للمكتبات المدرسية في مصر. لديك إمكانية الوصول الكامل إلى بيانات المخزن والمبيعات والمحاسبة.
+    const systemPrompt = `أنت مساعد ذكي شامل لإدارة متجر Book Beacon للمكتبات المدرسية في مصر. لديك صلاحية الإجابة عن أي سؤال يطرحه المدير، سواء كان عن إدارة المتجر، البرمجة، التصميم، التسويق، أو أي موضوع آخر.
 
-أجب على أسئلة المدير بدقة ووضوح باللغة العربية الفصحى. قدم أرقاماً وتفاصيل دقيقة من البيانات المتاحة. إذا سأل عن كتاب معين، اذكر سعره وتكلفته وربحه ومبيعاته ومخزونه. إذا سأل عن الربح، قدم تفاصيل الإيرادات والمصروفات وصافي الربح.
+عند السؤال عن المتجر: أجب بدقة ووضوح باللغة العربية الفصحى. قدم أرقاماً وتفاصيل دقيقة من البيانات المتاحة. إذا سأل عن كتاب معين، اذكر سعره وتكلفته وربحه ومبيعاته ومخزونه. إذا سأل عن الربح، قدم تفاصيل الإيرادات والمصروفات وصافي الربح.
 
-كن موجزاً ومفيداً. استخدم تنسيقاً جميلاً مع عناوين ونقاط.`;
+استخدم تنسيقاً جميلاً مع عناوين ونقاط. قدم نصائح واستنتاجات مفيدة.
+
+لديك أيضاً القدرة على الإجابة عن أي أسئلة تقنية أو عامة أو استشارية يطرحها المدير.`;
 
     const aiReply = await callOpenRouter(systemPrompt, `سؤال المدير: ${question}\n\nبيانات المتجر الحالية:\n${context}\n\nيرجى الإجابة على سؤال المدير باستخدام البيانات أعلاه.`);
     if (aiReply) return res.json({ reply: aiReply, context });

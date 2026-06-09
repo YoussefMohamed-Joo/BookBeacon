@@ -148,6 +148,9 @@ const blogRoutes = require('./routes/blogs');
 const reviewRoutes = require('./routes/reviews');
 const dashboardRoutes = require('./routes/dashboard');
 const notificationRoutes = require('./routes/notifications');
+const activityRoutes = require('./routes/activity');
+const transactionRoutes = require('./routes/transactionRoutes');
+const inventoryRoutes = require('./routes/inventoryRoutes');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/books', bookRoutes);
@@ -160,6 +163,9 @@ app.use('/api/blogs', blogRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/notifications', notificationRoutes);
+app.use('/api/activity', activityRoutes);
+app.use('/api/transactions', transactionRoutes);
+app.use('/api/inventory', inventoryRoutes);
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', message: 'Book Beacon API is running', timestamp: new Date() });

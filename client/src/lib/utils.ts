@@ -1,7 +1,9 @@
+// Format price as "XXX جنيه"
 export const formatPrice = (price: number): string => {
   return `${price.toFixed(0)} جنيه`;
 };
 
+// Tailwind classes for grade badges
 export const getGradeColor = (grade: string): string => {
   switch (grade) {
     case 'أولى ثانوي':
@@ -15,12 +17,17 @@ export const getGradeColor = (grade: string): string => {
   }
 };
 
+// Tailwind classes for order status badges
 export const getStatusColor = (status: string): string => {
   switch (status) {
     case 'pending':
       return 'badge-warning';
+    case 'payment_review':
+      return 'badge-info';
     case 'approved':
       return 'badge-success';
+    case 'ready_for_pickup':
+      return 'badge-info';
     case 'rejected':
       return 'badge-danger';
     case 'not_started':
@@ -36,10 +43,13 @@ export const getStatusColor = (status: string): string => {
   }
 };
 
+// Arabic display text for order statuses
 export const getStatusText = (status: string): string => {
   const map: Record<string, string> = {
     pending: 'قيد الانتظار',
+    payment_review: 'مراجعة الدفع',
     approved: 'تم الموافقة',
+    ready_for_pickup: 'جاهز للاستلام',
     rejected: 'مرفوض',
     not_started: 'لم يبدأ',
     preparing: 'قيد التجهيز',
@@ -49,10 +59,12 @@ export const getStatusText = (status: string): string => {
   return map[status] || status;
 };
 
+// Arabic display text for delivery methods
 export const getDeliveryMethodText = (method: string): string => {
   return method === 'pickup' ? 'استلام يد بيد' : 'توصيل';
 };
 
+// Simple Arabic-safe slug conversion
 export const slugify = (text: string): string => {
   return text
     .toLowerCase()
@@ -62,6 +74,7 @@ export const slugify = (text: string): string => {
     .trim();
 };
 
+// All 27 Egyptian governorates for delivery dropdowns
 export const EGYPTIAN_GOVERNORATES = [
   'القاهرة', 'الجيزة', 'الإسكندرية', 'الدقهلية', 'الشرقية',
   'القليوبية', 'الغربية', 'المنوفية', 'البحيرة', 'كفر الشيخ',
