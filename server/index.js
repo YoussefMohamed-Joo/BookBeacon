@@ -119,9 +119,13 @@ const orderLimiter = rateLimit({
 });
 app.use('/api/orders', orderLimiter);
 
-// 10. Uploads directory
+// 10. Uploads directory (try/catch for serverless read-only fs)
 const uploadsDir = path.join(__dirname, 'uploads');
-if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
+try {
+  if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
+} catch (e) {
+  console.log('Could not create uploads directory (serverless mode):', e.message);
+}
 
 // 11. Serve uploads securely - only image types
 app.use('/uploads', (req, res, next) => {
@@ -195,9 +199,15 @@ if (fs.existsSync(clientDist)) {
       else res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
     },
   }));
-  app.get('*', (req, res) => {
+  app.get('*', (req, res, next) => {
     if (!req.path.startsWith('/api/') && !req.path.startsWith('/uploads/')) {
-      res.sendFile(path.join(clientDist, 'index.html'));
+      try {
+        res.sendFile(path.join(clientDist, 'index.html'));
+      } catch (e) {
+        next(e);
+      }
+    } else {
+      next();
     }
   });
   console.log('Serving client from dist/');
