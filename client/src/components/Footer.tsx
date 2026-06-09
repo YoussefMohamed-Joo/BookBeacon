@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
-import { BookOpen, MapPin, Phone, Mail, Clock, Facebook, Twitter, Youtube, Instagram } from 'lucide-react';
+import { MapPin, Phone, Mail, Clock, Facebook, Twitter, Youtube, Instagram } from 'lucide-react';
+import Logo from './Logo';
 
 const footerLinks = {
   خدمات: [
@@ -33,9 +34,7 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 lg:gap-8">
           <div className="lg:col-span-2">
             <Link to="/" className="flex items-center gap-3 mb-5">
-              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary-500 to-primary-700 flex items-center justify-center shadow-xl shadow-primary-500/20">
-                <BookOpen className="w-6 h-6 text-white" />
-              </div>
+              <Logo size={52} />
               <div>
                 <span className="text-2xl font-bold gradient-text">Book Beacon</span>
                 <p className="text-xs text-gray-500">بوك بيكون — منصة الكتب التعليمية</p>

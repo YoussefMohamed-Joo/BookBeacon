@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Moon, Sun, Menu, X, LogOut, ShoppingCart, LayoutDashboard, BookOpen, User, ChevronDown, Sparkles } from 'lucide-react';
+import { Moon, Sun, Menu, X, LogOut, ShoppingCart, LayoutDashboard, User, ChevronDown, Sparkles } from 'lucide-react';
 import { useStore } from '../store/useStore';
 import NotificationBell from './NotificationBell';
+import Logo from './Logo';
 
 export default function Navbar() {
   const { user, isDarkMode, toggleDarkMode, logout } = useStore();
@@ -39,8 +40,8 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 md:h-20">
           <Link to="/" className="flex items-center gap-2.5 group">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary-500 to-primary-700 flex items-center justify-center shadow-lg shadow-primary-500/25 group-hover:shadow-primary-500/40 transition-all duration-300 group-hover:scale-105">
-              <BookOpen className="w-5 h-5 text-white" />
+            <div className="transition-all duration-300 group-hover:scale-105 group-hover:-translate-y-0.5">
+              <Logo size={42} />
             </div>
             <div className="flex flex-col">
               <span className="text-lg font-bold leading-none gradient-text">Book Beacon</span>

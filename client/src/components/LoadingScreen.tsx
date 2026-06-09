@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { BookOpen } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import Logo from './Logo';
 
 export default function LoadingScreen() {
   const [isLoading, setIsLoading] = useState(true);
@@ -25,11 +25,14 @@ export default function LoadingScreen() {
               animate={{ scale: 1, opacity: 1 }}
               transition={{ duration: 0.4, ease: [0.25, 0.1, 0.25, 1] }}
             >
-              <div className="relative mb-8 mx-auto w-20 h-20">
-                <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-primary-400 to-primary-600 opacity-20 blur-xl animate-pulse-soft" />
-                <div className="relative w-20 h-20 rounded-2xl bg-gradient-to-br from-primary-500 to-primary-700 flex items-center justify-center shadow-2xl shadow-primary-500/30">
-                  <BookOpen className="w-10 h-10 text-white" />
-                </div>
+              <div className="relative mb-8 mx-auto">
+                <div className="absolute inset-0 bg-gradient-to-br from-primary-400 to-primary-600 opacity-20 blur-3xl animate-pulse-soft rounded-full" />
+                <motion.div
+                  animate={{ rotate: [0, 5, -5, 0], scale: [1, 1.05, 1] }}
+                  transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+                >
+                  <Logo size={90} />
+                </motion.div>
               </div>
             </motion.div>
 
