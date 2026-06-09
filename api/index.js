@@ -1,11 +1,15 @@
-const { app, startServer } = require('../server/index');
+const { app, connectDB } = require('../server/index');
 
-// Initialize connection on cold start
+let connected = false;
+
 const handler = async (req, res) => {
-  try {
-    await startServer();
-  } catch (err) {
-    console.error('Serverless init error:', err.message);
+  if (!connected) {
+    try {
+      await connectDB();
+      connected = true;
+    } catch (err) {
+      console.error('MongoDB connection error:', err.message);
+    }
   }
   return app(req, res);
 };

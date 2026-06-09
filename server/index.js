@@ -223,7 +223,6 @@ async function startServer() {
     });
   } catch (err) {
     console.error('MongoDB connection error:', err.message);
-    process.exit(1);
   }
 }
 
@@ -232,4 +231,4 @@ if (require.main === module) {
   startServer();
 }
 
-module.exports = { app, startServer };
+module.exports = { app, connectDB };
