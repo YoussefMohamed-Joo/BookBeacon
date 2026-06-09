@@ -75,6 +75,9 @@ export const deliveryAPI = {
   getAll: () => API.get('/delivery'),
   setPrice: (data: { governorate: string; price: number }) => API.post('/delivery', data),
   delete: (id: string) => API.delete(`/delivery/${id}`),
+  getPickups: () => API.get('/delivery/pickups'),
+  getMyPickups: () => API.get('/delivery/pickups/my'),
+  updatePickupStatus: (id: string, deliveryStatus: string) => API.put(`/delivery/pickups/${id}/status`, { deliveryStatus }),
 };
 
 export const accountingAPI = {

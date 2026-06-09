@@ -9,13 +9,14 @@ import {
   LayoutDashboard, ShoppingBag, Users, BookOpen, Truck, BarChart3, Brain, Wallet, Star,
   Search, X, Check, Plus, Edit2, Trash2, Shield, TrendingUp, DollarSign, AlertTriangle,
   Package, Phone, MapPin, Hash, Upload, Image as ImageIcon, RefreshCw, Ban, Zap,
-  ArrowUpDown, Filter, Clock, ChevronLeft, ChevronRight, Download, Eye, MessageSquare, Send, Calculator
+  ArrowUpDown, Filter, Clock, ChevronLeft, ChevronRight, Download, Eye, MessageSquare, Send, Calculator,
+  Store, QrCode, Barcode, ClipboardList
 } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line, AreaChart, Area } from 'recharts';
 
 const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4', '#f97316'];
 
-type Tab = 'dashboard' | 'orders' | 'customers' | 'books' | 'delivery' | 'accounting' | 'ai' | 'reviews';
+type Tab = 'dashboard' | 'orders' | 'customers' | 'books' | 'delivery' | 'pickup' | 'accounting' | 'ai' | 'reviews';
 
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState<Tab>('dashboard');
@@ -34,6 +35,7 @@ export default function AdminDashboard() {
     { id: 'customers', icon: Users, label: 'العملاء' },
     { id: 'books', icon: BookOpen, label: 'الكتب' },
     { id: 'delivery', icon: Truck, label: 'التوصيل' },
+    { id: 'pickup', icon: Store, label: 'حجوزات المنفذ' },
     { id: 'accounting', icon: Wallet, label: 'المحاسبة' },
     { id: 'ai', icon: Brain, label: 'الذكاء الاصطناعي' },
     { id: 'reviews', icon: Star, label: 'التقييمات' },
@@ -57,9 +59,10 @@ export default function AdminDashboard() {
           case '3': e.preventDefault(); setActiveTab('customers'); break;
           case '4': e.preventDefault(); setActiveTab('books'); break;
           case '5': e.preventDefault(); setActiveTab('delivery'); break;
-          case '6': e.preventDefault(); setActiveTab('accounting'); break;
-          case '7': e.preventDefault(); setActiveTab('ai'); break;
-          case '8': e.preventDefault(); setActiveTab('reviews'); break;
+          case '6': e.preventDefault(); setActiveTab('pickup'); break;
+          case '7': e.preventDefault(); setActiveTab('accounting'); break;
+          case '8': e.preventDefault(); setActiveTab('ai'); break;
+          case '9': e.preventDefault(); setActiveTab('reviews'); break;
           case 'b': e.preventDefault(); setSidebarOpen(p => !p); break;
         }
       }
@@ -106,6 +109,7 @@ export default function AdminDashboard() {
             {activeTab === 'customers' && <CustomersPanel />}
             {!isCashier && activeTab === 'books' && <BooksPanel />}
             {!isCashier && activeTab === 'delivery' && <DeliveryPanel />}
+            {!isCashier && activeTab === 'pickup' && <PickupPanel />}
             {!isCashier && activeTab === 'accounting' && <AccountingPanel />}
             {!isCashier && activeTab === 'ai' && <AIPanel />}
             {!isCashier && activeTab === 'reviews' && <ReviewsPanel />}
@@ -706,6 +710,182 @@ function DeliveryPanel() {
             </tbody>
           </table>
         </div>
+      </div>
+    </div>
+  );
+}
+
+function PickupPanel() {
+  const [pickups, setPickups] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
+
+  const fetchPickups = async () => {
+    try {
+      const res = await deliveryAPI.getPickups();
+      setPickups(res.data);
+    } catch { toast.error('خطأ في جلب الحجوزات'); }
+    finally { setLoading(false); }
+  };
+
+  useEffect(() => { fetchPickups(); }, []);
+
+  const handleStatus = async (id: string, status: string) => {
+    try {
+      await deliveryAPI.updatePickupStatus(id, status);
+      toast.success('تم تحديث حالة الحجز');
+      fetchPickups();
+    } catch { toast.error('خطأ في التحديث'); }
+  };
+
+  const filtered = pickups.filter((o: any) => {
+    if (statusFilter !== 'all' && o.deliveryStatus !== statusFilter) return false;
+    if (searchTerm) {
+      const q = searchTerm.toLowerCase();
+      const user = o.user || {};
+      const book = o.book || {};
+      if ((user.name || '').toLowerCase().includes(q)) return true;
+      if ((user.phone || '').includes(q)) return true;
+      if ((book.titleAr || '').includes(q)) return true;
+    }
+    return true;
+  });
+
+  const statusOptions = [
+    { value: 'all', label: 'الكل' },
+    { value: 'not_started', label: 'قيد المراجعة' },
+    { value: 'preparing', label: 'قيد التجهيز' },
+    { value: 'out_for_delivery', label: 'جاهز للاستلام' },
+    { value: 'delivered', label: 'تم الاستلام' },
+  ];
+
+  if (loading) return <LoadingPanel />;
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between flex-wrap gap-4">
+        <div>
+          <h1 className="text-2xl md:text-3xl font-bold">حجوزات المنفذ</h1>
+          <p className="text-gray-400 text-sm">إدارة حجوزات الاستلام من المنفذ — بني سويف، الاباصيري الجديد، خلف كازيون</p>
+        </div>
+      </div>
+
+      <div className="card p-4 bg-gradient-to-l from-amber-50 to-orange-50 dark:from-amber-900/10 dark:to-orange-900/10 border-amber-200 dark:border-amber-800">
+        <div className="flex items-center gap-2 text-amber-600 dark:text-amber-400">
+          <Store className="w-5 h-5" />
+          <span className="font-medium">منفذ الاستلام: بني سويف — الاباصيري الجديد — خلف كازيون</span>
+        </div>
+        <p className="text-sm text-gray-500 mt-1">ساعات العمل: ٩ ص — ١٠ م يومياً</p>
+      </div>
+
+      <div className="flex flex-wrap gap-3 items-center">
+        <div className="relative flex-1 min-w-[200px]">
+          <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+          <input type="text" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)}
+            placeholder="بحث باسم العميل، رقم الهاتف، أو الكتاب..."
+            className="input-field pr-10 text-sm" />
+        </div>
+        <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="input-field text-sm w-auto">
+          {statusOptions.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+        </select>
+      </div>
+
+      <div className="card overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="admin-table">
+            <thead>
+              <tr>
+                <th>العميل</th>
+                <th>الهاتف</th>
+                <th>الكتاب</th>
+                <th>المبلغ</th>
+                <th>المتبقي</th>
+                <th>إثبات الدفع</th>
+                <th>الحالة</th>
+                <th>إجراءات</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filtered.map((order: any) => {
+                const deposit = Math.round(order.totalPrice * 0.1);
+                const remaining = order.totalPrice - deposit;
+                return (
+                  <tr key={order._id}>
+                    <td className="font-medium">{order.user?.name || '—'}</td>
+                    <td className="text-xs" dir="ltr">{order.user?.phone || '—'}</td>
+                    <td>{order.book?.titleAr || order.book?.title || '—'}</td>
+                    <td>{order.totalPrice} ج.م</td>
+                    <td className="text-amber-600 font-medium">{remaining} ج.م</td>
+                    <td>
+                      {order.paymentProof?.imageUrl ? (
+                        <a href={order.paymentProof.imageUrl} target="_blank" rel="noopener noreferrer"
+                          className="text-primary-500 hover:underline text-xs flex items-center gap-1">
+                          <ImageIcon className="w-3 h-3" /> عرض الإثبات
+                        </a>
+                      ) : (
+                        <span className="text-gray-400 text-xs">—</span>
+                      )}
+                    </td>
+                    <td>
+                      <span className={`text-xs px-2 py-1 rounded-full font-medium ${
+                        order.deliveryStatus === 'delivered' ? 'bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-400' :
+                        order.deliveryStatus === 'out_for_delivery' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400' :
+                        order.deliveryStatus === 'preparing' ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/20 dark:text-amber-400' :
+                        'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400'
+                      }`}>
+                        {order.deliveryStatus === 'not_started' ? 'قيد المراجعة' :
+                         order.deliveryStatus === 'preparing' ? 'قيد التجهيز' :
+                         order.deliveryStatus === 'out_for_delivery' ? 'جاهز للاستلام' :
+                         order.deliveryStatus === 'delivered' ? 'تم الاستلام' : order.deliveryStatus}
+                      </span>
+                    </td>
+                    <td>
+                      <div className="flex gap-1.5 flex-wrap">
+                        {order.deliveryStatus === 'not_started' && (
+                          <button onClick={() => handleStatus(order._id, 'preparing')}
+                            className="text-xs px-2 py-1 rounded-lg bg-amber-100 text-amber-700 hover:bg-amber-200 dark:bg-amber-900/20 dark:text-amber-400 transition-colors">
+                            بدء التجهيز
+                          </button>
+                        )}
+                        {order.deliveryStatus === 'preparing' && (
+                          <button onClick={() => handleStatus(order._id, 'out_for_delivery')}
+                            className="text-xs px-2 py-1 rounded-lg bg-blue-100 text-blue-700 hover:bg-blue-200 dark:bg-blue-900/20 dark:text-blue-400 transition-colors">
+                            جاهز للاستلام
+                          </button>
+                        )}
+                        {order.deliveryStatus === 'out_for_delivery' && (
+                          <button onClick={() => handleStatus(order._id, 'delivered')}
+                            className="text-xs px-2 py-1 rounded-lg bg-green-100 text-green-700 hover:bg-green-200 dark:bg-green-900/20 dark:text-green-400 transition-colors">
+                            تأكيد الاستلام
+                          </button>
+                        )}
+                        {order.deliveryStatus === 'delivered' && (
+                          <span className="text-xs text-green-600 flex items-center gap-1">
+                            <Check className="w-3 h-3" /> تم
+                          </span>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
+              {filtered.length === 0 && (
+                <tr><td colSpan={8} className="text-center text-gray-400 py-12">لا توجد حجوزات</td></tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div className="card p-4">
+        <h3 className="font-semibold mb-2">إجراءات الاستلام</h3>
+        <ol className="text-sm text-gray-500 space-y-1 list-decimal list-inside">
+          <li>العميل يحضر إلى المنفذ: بني سويف — الاباصيري الجديد — خلف كازيون</li>
+          <li>تأكد من إثبات الدفع (الصورة ورقم الهاتف)</li>
+          <li>استلام المبلغ المتبقي نقداً</li>
+          <li>اضغط "تأكيد الاستلام" لإكمال العملية</li>
+        </ol>
       </div>
     </div>
   );

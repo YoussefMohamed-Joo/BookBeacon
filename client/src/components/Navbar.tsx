@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Moon, Sun, Menu, X, LogOut, ShoppingCart, LayoutDashboard, User, ChevronDown, Sparkles } from 'lucide-react';
+import { Moon, Sun, Menu, X, LogOut, ShoppingCart, LayoutDashboard, User, ChevronDown, Sparkles, Store } from 'lucide-react';
 import { useStore } from '../store/useStore';
 import NotificationBell from './NotificationBell';
 import Logo from './Logo';
@@ -120,6 +120,9 @@ export default function Navbar() {
                       <Link to="/orders" onClick={() => setShowUserMenu(false)} className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm hover:bg-gray-50 dark:hover:bg-dark-700 transition-all">
                         <ShoppingCart className="w-4 h-4 text-gray-400" /> طلباتي
                       </Link>
+                      <Link to="/my-pickups" onClick={() => setShowUserMenu(false)} className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm hover:bg-gray-50 dark:hover:bg-dark-700 transition-all">
+                        <Store className="w-4 h-4 text-primary-400" /> حجوزاتي
+                      </Link>
                       {user.role === 'admin' && (
                         <Link to="/admin" onClick={() => setShowUserMenu(false)} className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm hover:bg-gray-50 dark:hover:bg-dark-700 transition-all">
                           <LayoutDashboard className="w-4 h-4 text-primary-500" /> لوحة التحكم
@@ -179,6 +182,9 @@ export default function Navbar() {
                   <div className="px-4 py-2 text-sm text-gray-500">{user.name} - {user.email}</div>
                   <Link to="/orders" className="block px-4 py-3 rounded-xl text-sm hover:bg-gray-50 dark:hover:bg-dark-700">
                     <ShoppingCart className="w-4 h-4 inline ml-1.5" /> طلباتي
+                  </Link>
+                  <Link to="/my-pickups" className="block px-4 py-3 rounded-xl text-sm hover:bg-gray-50 dark:hover:bg-dark-700">
+                    <Store className="w-4 h-4 inline ml-1.5" /> حجوزاتي
                   </Link>
                   {user.role === 'admin' && (
                     <Link to="/admin" className="block px-4 py-3 rounded-xl text-sm text-primary-500 hover:bg-gray-50 dark:hover:bg-dark-700">
