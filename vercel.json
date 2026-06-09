@@ -3,8 +3,8 @@
   "outputDirectory": "client/dist",
   "installCommand": "cd server && npm install && cd ../client && npm install",
   "rewrites": [
-    { "source": "/api/(.*)", "destination": "/api/$1" },
-    { "source": "/uploads/(.*)", "destination": "/api/uploads/$1" },
+    { "source": "/api/(.*)", "destination": "/api" },
+    { "source": "/uploads/(.*)", "destination": "/api" },
     { "source": "/((?!api).*)", "destination": "/index.html" }
   ],
   "functions": {
