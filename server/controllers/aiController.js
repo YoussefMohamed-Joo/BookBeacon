@@ -5,29 +5,45 @@ const User = require('../models/User');
 
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
 
+const AI_MODELS = [
+  'mistralai/mistral-7b-instruct',
+  'google/gemini-flash-1.5',
+  'cognitivecomputations/dolphin-mixtral-8x7b',
+];
+
 async function callOpenRouter(systemPrompt, userMessage) {
-  try {
-    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'openai/gpt-4o-mini',
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: userMessage },
-        ],
-        max_tokens: 600,
-      }),
-    });
-    const data = await response.json();
-    return data.choices?.[0]?.message?.content || null;
-  } catch (err) {
-    console.error('OpenRouter API error:', err.message);
-    return null;
+  for (const model of AI_MODELS) {
+    try {
+      const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
+          'Content-Type': 'application/json',
+          'HTTP-Referer': 'https://book-beacon-zeta.vercel.app',
+          'X-Title': 'Book Beacon',
+        },
+        body: JSON.stringify({
+          model,
+          messages: [
+            { role: 'system', content: systemPrompt },
+            { role: 'user', content: userMessage },
+          ],
+          max_tokens: 600,
+        }),
+      });
+      const data = await response.json();
+      if (data.error) {
+        console.error(`OpenRouter error (${model}):`, data.error.message || JSON.stringify(data.error));
+        continue;
+      }
+      const content = data.choices?.[0]?.message?.content;
+      if (content) return content;
+    } catch (err) {
+      console.error(`OpenRouter API error (${model}):`, err.message);
+      continue;
+    }
   }
+  return null;
 }
 
 const aiChat = async (req, res) => {
