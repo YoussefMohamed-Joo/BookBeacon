@@ -1,8 +1,8 @@
-import { useState, useEffect, lazy, Suspense, useRef, useCallback } from 'react';
+import { useState, useEffect, lazy, Suspense, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, useScroll, useTransform, useInView } from 'framer-motion';
 import { Helmet } from 'react-helmet-async';
-import { BookOpen, Star, Truck, Shield, ArrowLeft, GraduationCap, TrendingUp, Sparkles, ChevronDown, BookMarked, Award, Zap, Brain, Percent, Users, MapPin, CheckCircle, BookText, Lightbulb, HeartHandshake, Globe, BookCopy, MessageCircle, PhoneCall, Wallet, Clock, Lock, BadgeCheck, Store } from 'lucide-react';
+import { BookOpen, Star, Truck, Shield, ArrowLeft, GraduationCap, TrendingUp, Sparkles, ChevronDown, BookMarked, Award, Zap, Brain, Users, MapPin, BookText, Globe, MessageCircle, PhoneCall, Wallet, Clock, Lock, BadgeCheck, Store } from 'lucide-react';
 import BookCard from '../components/BookCard';
 import ScrollReveal from '../components/animations/ScrollReveal';
 import MagneticButton from '../components/animations/MagneticButton';
@@ -80,9 +80,6 @@ export default function Home() {
   const { scrollYProgress } = useScroll();
   const heroOpacity = useTransform(scrollYProgress, [0, 0.12], [1, 0]);
   const heroScale = useTransform(scrollYProgress, [0, 0.12], [1, 0.95]);
-
-  const depositRef = useRef(null);
-  const depositInView = useInView(depositRef, { once: true, margin: '-100px' });
 
   const heroRef = useRef<HTMLDivElement>(null);
 
@@ -324,76 +321,6 @@ export default function Home() {
                   </motion.div>
                 </ScrollReveal>
               ))}
-            </div>
-          </div>
-        </section>
-      </ParallaxSection>
-
-      {/* Deposit System */}
-      <ParallaxSection>
-        <section ref={depositRef} className="py-16 bg-gradient-to-l from-primary-50/80 to-primary-100/30 dark:from-dark-800/30 dark:to-dark-900/30">
-          <div className="max-w-7xl mx-auto px-4">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
-              <ScrollReveal>
-                <div>
-                  <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary-100 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400 text-sm font-medium mb-4">
-                    <Percent className="w-4 h-4" /> نظام المقدم
-                  </div>
-                  <h2 className="text-3xl md:text-4xl font-bold mb-3">احجز ب ١٠٪ بس ✨</h2>
-                  <p className="text-gray-500 dark:text-gray-400 mb-6 leading-relaxed text-lg">
-                    احجز أي كتاب بدفع ١٠٪ بس من قيمته مقدم، و الباقي تدفعه و انت مستلم. نظام مرن و سهل و يضمنلك إنك تحجز الكتاب قبل ما يخلص من السوق.
-                  </p>
-                  <div className="flex flex-wrap gap-4">
-                    <motion.div whileHover={{ scale: 1.05 }} className="flex items-center gap-2 bg-white dark:bg-dark-800 rounded-xl px-4 py-2.5 shadow-sm border border-emerald-100 dark:border-emerald-800/30">
-                      <CheckCircle className="w-5 h-5 text-emerald-500" />
-                      <span className="text-sm font-medium">١٠٪ مقدم بس</span>
-                    </motion.div>
-                    <motion.div whileHover={{ scale: 1.05 }} className="flex items-center gap-2 bg-white dark:bg-dark-800 rounded-xl px-4 py-2.5 shadow-sm">
-                      <CheckCircle className="w-5 h-5 text-emerald-500" />
-                      <span className="text-sm font-medium">استلام يد بيد</span>
-                    </motion.div>
-                    <motion.div whileHover={{ scale: 1.05 }} className="flex items-center gap-2 bg-white dark:bg-dark-800 rounded-xl px-4 py-2.5 shadow-sm">
-                      <CheckCircle className="w-5 h-5 text-emerald-500" />
-                      <span className="text-sm font-medium">توصيل لكل مصر</span>
-                    </motion.div>
-                  </div>
-                  <Link to="/books" className="inline-flex items-center gap-2 mt-6 text-primary-500 hover:text-primary-600 font-medium transition-colors group">
-                    تصفح الكتب <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-                  </Link>
-                </div>
-              </ScrollReveal>
-              <ScrollReveal direction="left">
-                <div className="relative">
-                  <motion.div
-                    animate={depositInView ? { rotate: [0, 5, -5, 0], scale: [1, 1.05, 1] } : {}}
-                    transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
-                    className="absolute -top-4 -right-4 w-28 h-28 bg-gradient-to-br from-amber-400 to-amber-500 rounded-2xl -rotate-12 flex items-center justify-center shadow-xl z-10"
-                  >
-                    <span className="text-white font-bold text-xl">١٠٪</span>
-                  </motion.div>
-                  <div className="absolute inset-0 bg-gradient-to-br from-primary-400/20 to-purple-400/20 rounded-3xl blur-3xl" />
-                  <div className="relative bg-white dark:bg-dark-800/50 backdrop-blur-xl rounded-3xl p-8 border border-gray-100 dark:border-dark-700/50 shadow-xl">
-                    <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
-                      <BookCopy className="w-5 h-5 text-primary-500" /> مثال للحساب
-                    </h3>
-                    <div className="space-y-3">
-                      <motion.div whileHover={{ x: -4 }} className="flex justify-between items-center p-3 rounded-xl bg-gray-50 dark:bg-dark-700">
-                        <span className="text-sm text-gray-500">سعر الكتاب</span>
-                        <span className="font-bold">٢٥٠ ج.م</span>
-                      </motion.div>
-                      <motion.div whileHover={{ x: -4 }} className="flex justify-between items-center p-3 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-100 dark:border-emerald-800/30">
-                        <span className="text-sm text-emerald-600 font-medium">المقدم (١٠٪)</span>
-                        <span className="font-bold text-emerald-600">٢٥ ج.م</span>
-                      </motion.div>
-                      <motion.div whileHover={{ x: -4 }} className="flex justify-between items-center p-3 rounded-xl bg-gray-50 dark:bg-dark-700">
-                        <span className="text-sm text-gray-500">الباقي عند الاستلام</span>
-                        <span className="font-bold">٢٢٥ ج.م</span>
-                      </motion.div>
-                      <p className="text-xs text-gray-400 mt-2">ادفع ٢٥ ج.م عبر فودافون كاش على 01033558125 و استلم الكتاب 🤝</p>
-                    </div>
-                  </div>
-                </div>
-              </ScrollReveal>
             </div>
           </div>
         </section>
