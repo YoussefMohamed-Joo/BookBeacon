@@ -6,9 +6,9 @@ const User = require('../models/User');
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
 
 const AI_MODELS = [
-  'mistralai/mistral-7b-instruct',
+  'meta-llama/llama-3-8b-instruct',
   'google/gemini-flash-1.5',
-  'cognitivecomputations/dolphin-mixtral-8x7b',
+  'microsoft/phi-3-mini-128k-instruct',
 ];
 
 async function callOpenRouter(systemPrompt, userMessage) {
