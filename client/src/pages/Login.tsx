@@ -31,12 +31,12 @@ export default function Login() {
 
   return (
     <>
-      <Helmet><title>تسجيل الدخول | Book Beacon</title></Helmet>
+      <Helmet><title>تسجيل الدخول | بوكيفاي</title></Helmet>
       <div className="min-h-screen flex items-center justify-center pt-20 pb-12 px-4">
-        <div className="w-full max-w-md">
-          <div className="text-center mb-8">
+        <div className="w-full max-w-sm">
+          <div className="text-center mb-7">
             <h1 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>تسجيل الدخول</h1>
-            <p className="mt-1 text-sm" style={{ color: 'var(--muted)' }}>مرحباً بك مرة أخرى في Book Beacon</p>
+            <p className="mt-1 text-sm" style={{ color: 'var(--muted)' }}>مرحباً بك مرة أخرى</p>
           </div>
 
           <form onSubmit={handleSubmit} className="card p-6 space-y-4">
@@ -59,9 +59,7 @@ export default function Login() {
               </div>
             </div>
 
-            <button type="submit" disabled={loading}
-              className="btn-primary w-full justify-center !py-2.5"
-            >
+            <button type="submit" disabled={loading} className="btn-primary w-full justify-center !py-2.5">
               {loading ? (
                 <span className="flex items-center justify-center gap-2">
                   <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -72,7 +70,7 @@ export default function Login() {
 
             <p className="text-center text-sm" style={{ color: 'var(--muted)' }}>
               ليس لديك حساب؟{' '}
-              <Link to="/register" className="font-medium" style={{ color: 'var(--primary)' }}>إنشاء حساب جديد</Link>
+              <Link to="/register" className="font-medium" style={{ color: 'var(--accent)' }}>إنشاء حساب جديد</Link>
             </p>
           </form>
         </div>

@@ -5,45 +5,46 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        cairo: ['Cairo', 'sans-serif'],
-        sans: ['Inter', 'system-ui', 'sans-serif'],
+        alexandria: ['Alexandria', 'sans-serif'],
+        roboto: ['Roboto', 'sans-serif'],
+        sans: ['Alexandria', 'system-ui', 'sans-serif'],
       },
       colors: {
         primary: {
-          50: '#EDF2EF', 100: '#D5E1DA', 200: '#ABC3B5', 300: '#84A98C',
-          400: '#5C826A', 500: '#3F5C4E', 600: '#334A3F', 700: '#26382F',
-          800: '#1A2520', 900: '#0F1712', 950: '#080C0A',
+          50: '#FDF8F5', 100: '#FCF0E8', 200: '#F9E0D0', 300: '#F5C8A8',
+          400: '#F0A870', 500: '#3a3530', 600: '#2F2B27', 700: '#24211E',
+          800: '#1A1815', 900: '#100F0D', 950: '#080706',
+        },
+        brand: {
+          orange: '#ff9500',
+          tan: '#dcb29c',
+          cream: '#fcf8f5',
+          brown: '#3a3530',
         },
         dark: {
-          50: '#F2F1EF', 100: '#E6E3DF', 200: '#C8C4BE', 300: '#A8A29E',
-          400: '#8A847E', 500: '#6B6660', 600: '#52504A', 700: '#3D3B37',
+          50: '#F5F3F2', 100: '#E8E5E2', 200: '#D1CCC8', 300: '#B0AAA4',
+          400: '#8A827A', 500: '#6B645C', 600: '#524C46', 700: '#3D3934',
           800: '#2A2A2A', 900: '#1F1F1F', 950: '#141414',
-        },
-        surface: {
-          50: '#F4F1EC', 100: '#EAE6DF', 200: '#D5CFC5', 300: '#BFB7A9',
-          400: '#A89E8D', 500: '#918674', 600: '#756C5D', 700: '#5C5448',
-          800: '#453F36', 900: '#2E2A23', 950: '#181511',
-        },
-        accent: {
-          cta: '#C4693F',
-          warm: '#D08C60',
-          gold: '#E6C99A',
-          sage: '#84A98C',
         },
       },
       animation: {
-        'fade-in': 'fadeIn 0.6s ease-out',
-        'slide-up': 'slideUp 0.6s ease-out',
+        'fade-in': 'fadeIn 0.5s ease-out',
+        'slide-up': 'slideUp 0.5s ease-out',
       },
       keyframes: {
         fadeIn: { '0%': { opacity: '0' }, '100%': { opacity: '1' } },
-        slideUp: { '0%': { transform: 'translateY(24px)', opacity: '0' }, '100%': { transform: 'translateY(0)', opacity: '1' } },
+        slideUp: { '0%': { transform: 'translateY(20px)', opacity: '0' }, '100%': { transform: 'translateY(0)', opacity: '1' } },
       },
       boxShadow: {
-        'soft': '0 2px 12px rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0, 0, 0, 0.03)',
-        'card': '0 1px 6px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02)',
-        'warm': '0 4px 16px rgba(63, 92, 78, 0.08), 0 1px 4px rgba(63, 92, 78, 0.04)',
-        'cta': '0 4px 14px rgba(196, 105, 63, 0.25)',
+        'soft': '0 2px 8px rgba(0, 0, 0, 0.04)',
+        'card': '0 1px 4px rgba(0, 0, 0, 0.03)',
+        'peach': '0 4px 14px rgba(246, 219, 205, 0.5)',
+        'orange': '0 4px 14px rgba(255, 149, 0, 0.25)',
+      },
+      borderRadius: {
+        'btn': '0.75rem',
+        'card': '1rem',
+        'pill': '50rem',
       },
     },
   },
