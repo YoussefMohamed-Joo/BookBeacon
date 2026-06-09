@@ -53,7 +53,7 @@ export default function DeliveryPolicy() {
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}
               className="bg-white dark:bg-dark-800/50 rounded-3xl p-6 shadow-xl border border-gray-100 dark:border-dark-700/50"
             >
-              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center mb-4 shadow-lg">
+              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center mb-4 shadow-lg">
                 <Package className="w-6 h-6 text-white" />
               </div>
               <h3 className="font-bold text-gray-800 dark:text-white mb-2">متابعة الطلب</h3>

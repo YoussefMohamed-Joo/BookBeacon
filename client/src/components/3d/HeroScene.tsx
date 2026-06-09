@@ -4,12 +4,12 @@ import { Environment, ContactShadows, PerspectiveCamera, Stars, Sparkles } from 
 import FloatingBook from './FloatingBook';
 
 const books = [
-  { position: [-2.8, -0.3, -1] as [number, number, number], rotation: [0.15, 0.4, 0.08] as [number, number, number], color: '#4F46E5', scale: 1.3, speed: 0.7 },
-  { position: [3, 0.6, -2] as [number, number, number], rotation: [-0.08, -0.35, 0.15] as [number, number, number], color: '#7C3AED', scale: 0.95, speed: 1.0 },
-  { position: [-3.5, 1.4, -3.5] as [number, number, number], rotation: [0.25, -0.25, -0.08] as [number, number, number], color: '#2563EB', scale: 0.75, speed: 0.5 },
-  { position: [3.8, -0.4, -3] as [number, number, number], rotation: [-0.15, 0.5, 0.04] as [number, number, number], color: '#06B6D4', scale: 0.65, speed: 1.2 },
-  { position: [0, -1.4, -3.2] as [number, number, number], rotation: [0.08, 0.7, -0.04] as [number, number, number], color: '#8B5CF6', scale: 0.85, speed: 0.8 },
-  { position: [1.2, 1.8, -4] as [number, number, number], rotation: [-0.2, 0.3, 0.1] as [number, number, number], color: '#0EA5E9', scale: 0.55, speed: 1.1 },
+  { position: [-2.8, -0.3, -1] as [number, number, number], rotation: [0.15, 0.4, 0.08] as [number, number, number], color: '#4A6F5D', scale: 1.3, speed: 0.7 },
+  { position: [3, 0.6, -2] as [number, number, number], rotation: [-0.08, -0.35, 0.15] as [number, number, number], color: '#5B8A73', scale: 0.95, speed: 1.0 },
+  { position: [-3.5, 1.4, -3.5] as [number, number, number], rotation: [0.25, -0.25, -0.08] as [number, number, number], color: '#D4A76A', scale: 0.75, speed: 0.5 },
+  { position: [3.8, -0.4, -3] as [number, number, number], rotation: [-0.15, 0.5, 0.04] as [number, number, number], color: '#8BA989', scale: 0.65, speed: 1.2 },
+  { position: [0, -1.4, -3.2] as [number, number, number], rotation: [0.08, 0.7, -0.04] as [number, number, number], color: '#B8A99A', scale: 0.85, speed: 0.8 },
+  { position: [1.2, 1.8, -4] as [number, number, number], rotation: [-0.2, 0.3, 0.1] as [number, number, number], color: '#E07A5F', scale: 0.55, speed: 1.1 },
 ];
 
 function SceneContent() {
@@ -19,12 +19,12 @@ function SceneContent() {
 
       <ambientLight intensity={0.45} />
       <directionalLight position={[6, 6, 6]} intensity={0.9} />
-      <directionalLight position={[-6, -3, -6]} intensity={0.35} color="#818cf8" />
-      <pointLight position={[0, 4, 0]} intensity={0.6} color="#6366f1" />
+      <directionalLight position={[-6, -3, -6]} intensity={0.25} color="#8BA989" />
+      <pointLight position={[0, 4, 0]} intensity={0.4} color="#D4A76A" />
 
-      <Stars radius={30} depth={40} count={80} factor={3} saturation={0} fade speed={0.5} />
+      <Stars radius={30} depth={40} count={60} factor={3} saturation={0} fade speed={0.5} />
 
-      <Sparkles count={15} scale={6} size={1.2} speed={0.3} color="#818cf8" opacity={0.3} />
+      <Sparkles count={10} scale={6} size={1.0} speed={0.3} color="#D4A76A" opacity={0.25} />
 
       {books.map((book, i) => (
         <FloatingBook key={i} {...book} />
@@ -49,8 +49,17 @@ export default function HeroScene() {
   const [mounted, setMounted] = useState(false);
   const [hasError, setHasError] = useState(false);
   const [fallbackWebGL, setFallbackWebGL] = useState(false);
+  const [isDesktop, setIsDesktop] = useState(false);
 
   useEffect(() => {
+    setIsDesktop(window.innerWidth >= 1024);
+    const handleResize = () => setIsDesktop(window.innerWidth >= 1024);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  useEffect(() => {
+    if (!isDesktop) return;
     try {
       const canvas = document.createElement('canvas');
       const gl = canvas.getContext('webgl') || (canvas.getContext('experimental-webgl') as WebGLRenderingContext | null);
@@ -65,11 +74,13 @@ export default function HeroScene() {
 
     const timer = setTimeout(() => setMounted(true), 300);
     return () => clearTimeout(timer);
-  }, []);
+  }, [isDesktop]);
+
+  if (!isDesktop) return null;
 
   if (fallbackWebGL) {
     return (
-      <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary-50/50 to-purple-50/50 dark:from-dark-800/30 dark:to-dark-900/30 rounded-3xl">
+      <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary-50/50 to-primary-100/50 dark:from-dark-800/30 dark:to-dark-900/30 rounded-3xl">
         <div className="text-center p-8">
           <div className="w-24 h-24 mx-auto mb-4 opacity-30">
             <div className="w-full h-full rounded-2xl bg-gradient-to-br from-primary-400 to-primary-600" />

@@ -101,7 +101,7 @@
   .badge-info { @apply badge bg-blue-100 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400; }
 
   .gradient-text {
-    @apply bg-clip-text text-transparent bg-gradient-to-l from-primary-500 to-primary-700 dark:from-primary-300 dark:to-primary-500;
+    @apply bg-clip-text text-transparent bg-gradient-to-l from-primary-600 via-primary-500 to-amber-500;
   }
 
   .order-card {
@@ -242,8 +242,8 @@
   }
 
   @keyframes glow-pulse {
-    0%, 100% { box-shadow: 0 0 20px rgba(79, 70, 229, 0.1); }
-    50% { box-shadow: 0 0 40px rgba(79, 70, 229, 0.25); }
+    0%, 100% { box-shadow: 0 0 20px rgba(74, 111, 93, 0.08); }
+    50% { box-shadow: 0 0 40px rgba(74, 111, 93, 0.18); }
   }
 
   .animate-glow-pulse {

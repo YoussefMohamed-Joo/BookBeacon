@@ -145,9 +145,9 @@ function DashboardPanel() {
   const cards = [
     { label: 'إجمالي الطلبات', value: stats.totalOrders, icon: Package, color: 'from-blue-500 to-blue-600' },
     { label: 'الإيرادات', value: formatPrice(stats.totalRevenue || 0), icon: DollarSign, color: 'from-emerald-500 to-emerald-600' },
-    { label: 'صافي الربح', value: formatPrice(stats.netProfit || 0), icon: TrendingUp, color: 'from-purple-500 to-purple-600' },
+    { label: 'صافي الربح', value: formatPrice(stats.netProfit || 0), icon: TrendingUp, color: 'from-emerald-500 to-emerald-600' },
     { label: 'طلبات معلقة', value: stats.pendingOrders, icon: AlertTriangle, color: 'from-amber-500 to-amber-600' },
-    { label: 'تم التوصيل', value: stats.deliveredOrders || 0, icon: Truck, color: 'from-cyan-500 to-cyan-600' },
+    { label: 'تم التوصيل', value: stats.deliveredOrders || 0, icon: Truck, color: 'from-green-500 to-green-600' },
     { label: 'العملاء', value: stats.totalCustomers, icon: Users, color: 'from-pink-500 to-pink-600' },
   ];
 

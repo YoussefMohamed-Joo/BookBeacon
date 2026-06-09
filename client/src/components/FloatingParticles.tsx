@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 
 const emojis = ['📚', '📖', '⭐', '✨', '📕', '📗', '📘', '📙', '🌟', '💫'];
-const colors = ['#4f46e5', '#7c3aed', '#f59e0b', '#10b981', '#ec4899', '#06b6d4'];
+const colors = ['#4A6F5D', '#5B8A73', '#E07A5F', '#D4A76A', '#8BA989', '#B8A99A'];
 
 interface Particle {
   el: HTMLDivElement;

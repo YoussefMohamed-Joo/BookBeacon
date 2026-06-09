@@ -30,7 +30,7 @@ export default function BookCard({ book, index = 0 }: BookCardProps) {
       transition={{ delay: index * 0.05 }}
     >
       <Link to={`/books/${book.slug}`} className="group block card overflow-hidden hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300">
-        <div className="relative h-52 bg-gradient-to-br from-primary-50 via-primary-100/50 to-purple-50 dark:from-dark-700 dark:via-dark-800 dark:to-dark-700 flex items-center justify-center overflow-hidden">
+        <div className="relative h-52 bg-gradient-to-br from-primary-50 via-primary-100/50 to-primary-100 dark:from-dark-700 dark:via-dark-800 dark:to-dark-700 flex items-center justify-center overflow-hidden">
           {book.image ? (
             <img src={book.image} alt={book.titleAr} className="w-full h-full object-contain p-6 group-hover:scale-110 transition-transform duration-700 ease-out" />
           ) : (

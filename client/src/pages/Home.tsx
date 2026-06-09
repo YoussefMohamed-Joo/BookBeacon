@@ -15,8 +15,8 @@ const HeroScene = lazy(() => import('../components/3d/HeroScene'));
 
 const features = [
   { icon: Shield, title: 'دفع آمن', desc: 'طرق دفع آمنة عبر فودافون كاش — متاح ف كل مصر', gradient: 'from-emerald-500 to-teal-500' },
-  { icon: Truck, title: 'توصيل سريع', desc: 'بنوصل لكل محافظات مصر بسرعة و في أمان', gradient: 'from-cyan-500 to-blue-500' },
-  { icon: BookOpen, title: 'كتالوج ضخم', desc: 'أكتر من ٥٠٠ كتاب لكل الصفوف و المواد', gradient: 'from-primary-500 to-purple-500' },
+  { icon: Truck, title: 'توصيل سريع', desc: 'بنوصل لكل محافظات مصر بسرعة و في أمان', gradient: 'from-emerald-500 to-emerald-600' },
+  { icon: BookOpen, title: 'كتالوج ضخم', desc: 'أكتر من ٥٠٠ كتاب لكل الصفوف و المواد', gradient: 'from-green-500 to-green-600' },
   { icon: Star, title: 'نقاط الولاء', desc: 'اجمع نقاط و استبدلها بخصومات جامدة', gradient: 'from-amber-500 to-orange-500' },
 ];
 
@@ -30,15 +30,15 @@ const stats = [
 const grades = [
   { name: 'أولى ثانوي', icon: GraduationCap, gradient: 'from-emerald-500 to-emerald-600', slug: 'أولى+ثانوي', desc: 'كتب الصف الأول الثانوي', emoji: '📚' },
   { name: 'تانية ثانوي', icon: BookOpen, gradient: 'from-blue-500 to-blue-600', slug: 'تانية+ثانوي', desc: 'كتب الصف الثاني الثانوي', emoji: '📖' },
-  { name: 'تالتة ثانوي', icon: TrendingUp, gradient: 'from-purple-500 to-purple-600', slug: 'تالتة+ثانوي', desc: 'كتب الصف الثالث الثانوي', emoji: '🎯' },
+  { name: 'تالتة ثانوي', icon: TrendingUp, gradient: 'from-orange-500 to-orange-600', slug: 'تالتة+ثانوي', desc: 'كتب الصف الثالث الثانوي', emoji: '🎯' },
 ];
 
 const trustFeatures = [
   { icon: BadgeCheck, title: 'ضمان الحق للجميع', desc: 'بنضمن حق البائع و المشتري — المقدم بيأمن الطرفين, و الفلوس مش بتضيع', color: 'from-emerald-500 to-teal-500' },
   { icon: MessageCircle, title: 'تواصل مباشر', desc: 'تقدر تكلمنا ع الواتساب 01033558125 أو عبر الموقع — احنا معاك ١٢ ساعة يومياً', color: 'from-green-500 to-emerald-500' },
   { icon: Wallet, title: 'نظام المقدم (١٠٪)', desc: 'ادفع ١٠٪ بس عشان تحجز الكتاب, و الباقي تدفعه لما تستلم — النظام ده بيضمن الكل', color: 'from-amber-500 to-orange-500' },
-  { icon: Clock, title: 'متابعة الطلب', desc: 'تقدر تتابع طلبك خطوة بخطوة — من التأكيد للتحضير للشحن للتوصيل', color: 'from-blue-500 to-cyan-500' },
-  { icon: Store, title: 'استلام يد بيد', desc: 'بنقابلك ف مكان عام عشان تسلم الكتاب بنفسك — أو بنوصلك لباب البيت', color: 'from-purple-500 to-pink-500' },
+  { icon: Clock, title: 'متابعة الطلب', desc: 'تقدر تتابع طلبك خطوة بخطوة — من التأكيد للتحضير للشحن للتوصيل', color: 'from-emerald-500 to-emerald-600' },
+  { icon: Store, title: 'استلام يد بيد', desc: 'بنقابلك ف مكان عام عشان تسلم الكتاب بنفسك — أو بنوصلك لباب البيت', color: 'from-amber-500 to-orange-500' },
   { icon: Lock, title: 'بياناتك آمنة', desc: 'مش بنشارك بياناتك مع حد تالت — كل حاجة مشفرة و مضمونة', color: 'from-red-500 to-rose-500' },
 ];
 
@@ -46,9 +46,9 @@ const subjectsList = [
   { name: 'الفيزياء', icon: Brain, slug: 'الفيزياء', color: 'from-blue-500 to-blue-600', emoji: '⚡' },
   { name: 'الكيمياء', icon: BookText, slug: 'الكيمياء', color: 'from-emerald-500 to-emerald-600', emoji: '🧪' },
   { name: 'الأحياء', icon: BookOpen, slug: 'الأحياء', color: 'from-green-500 to-green-600', emoji: '🧬' },
-  { name: 'الرياضيات', icon: TrendingUp, slug: 'الرياضيات', color: 'from-purple-500 to-purple-600', emoji: '📐' },
+  { name: 'الرياضيات', icon: TrendingUp, slug: 'الرياضيات', color: 'from-orange-500 to-orange-600', emoji: '📐' },
   { name: 'العربي', icon: BookMarked, slug: 'اللغة+العربية', color: 'from-amber-500 to-orange-500', emoji: '📝' },
-  { name: 'الإنجليزي', icon: Globe, slug: 'اللغة+الإنجليزية', color: 'from-cyan-500 to-cyan-600', emoji: '🌍' },
+  { name: 'الإنجليزي', icon: Globe, slug: 'اللغة+الإنجليزية', color: 'from-green-500 to-green-600', emoji: '🌍' },
 ];
 
 function ParallaxSection({ children, className = '', speed = 0.5 }: { children: React.ReactNode; className?: string; speed?: number }) {
@@ -120,8 +120,8 @@ export default function Home() {
           style={{ transform: 'translateX(calc(var(--mouse-x, 0) * -20px)) translateY(calc(var(--mouse-y, 0) * -20px))' }}
         >
           <div className="absolute top-1/4 left-1/4 w-[600px] h-[600px] rounded-full bg-primary-400/10 dark:bg-primary-500/5 blur-[120px] animate-glow-pulse" />
-          <div className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] rounded-full bg-purple-400/10 dark:bg-purple-500/5 blur-[120px] animate-glow-pulse" style={{ animationDelay: '1s' }} />
-          <div className="absolute top-1/3 right-1/3 w-[400px] h-[400px] rounded-full bg-cyan-400/10 dark:bg-cyan-500/5 blur-[100px] animate-glow-pulse" style={{ animationDelay: '2s' }} />
+          <div className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] rounded-full bg-cta-400/10 dark:bg-cta-500/5 blur-[120px] animate-glow-pulse" style={{ animationDelay: '1s' }} />
+          <div className="absolute top-1/3 right-1/3 w-[400px] h-[400px] rounded-full bg-amber-400/10 dark:bg-amber-500/5 blur-[100px] animate-glow-pulse" style={{ animationDelay: '2s' }} />
         </div>
 
         <div className="relative z-10 w-full max-w-7xl mx-auto px-4 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
@@ -423,7 +423,7 @@ export default function Home() {
 
       {/* Premium CTA — مع معلومات التواصل */}
       <section className="py-24 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary-600 via-primary-700 to-purple-800" />
+        <div className="absolute inset-0 bg-gradient-to-br from-primary-600 via-primary-700 to-primary-800" />
         <div className="absolute inset-0 opacity-10">
           <div className="absolute top-10 left-10 w-64 h-64 bg-white rounded-full blur-3xl" />
           <div className="absolute bottom-10 right-10 w-96 h-96 bg-purple-300 rounded-full blur-3xl" />

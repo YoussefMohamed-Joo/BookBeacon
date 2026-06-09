@@ -55,7 +55,7 @@ export default function VerifyOTP() {
     <>
       <Helmet><title>التحقق من البريد الإلكتروني | Book Beacon</title></Helmet>
       <div className="min-h-screen flex items-center justify-center pt-20 pb-12 px-4 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary-50 via-white to-purple-50 dark:from-dark-900 dark:via-dark-950 dark:to-dark-900" />
+        <div className="absolute inset-0 bg-gradient-to-br from-primary-50 via-white to-primary-100 dark:from-dark-900 dark:via-dark-950 dark:to-dark-900" />
         <div className="absolute top-1/3 left-1/3 w-64 h-64 bg-emerald-400/10 rounded-full blur-[100px]" />
 
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="relative z-10 w-full max-w-md">

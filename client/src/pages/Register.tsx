@@ -41,7 +41,7 @@ export default function Register() {
     <>
       <Helmet><title>إنشاء حساب | Book Beacon</title></Helmet>
       <div className="min-h-screen flex items-center justify-center pt-20 pb-12 px-4 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary-50 via-white to-purple-50 dark:from-dark-900 dark:via-dark-950 dark:to-dark-900" />
+        <div className="absolute inset-0 bg-gradient-to-br from-primary-50 via-white to-primary-100 dark:from-dark-900 dark:via-dark-950 dark:to-dark-900" />
         <div className="absolute top-1/4 left-1/4 w-72 h-72 bg-emerald-400/10 rounded-full blur-[100px]" />
         <div className="absolute bottom-1/4 right-1/4 w-72 h-72 bg-primary-400/10 rounded-full blur-[100px]" />
 

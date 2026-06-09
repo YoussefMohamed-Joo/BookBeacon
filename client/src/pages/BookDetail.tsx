@@ -103,7 +103,7 @@ export default function BookDetail() {
             {/* Book Image */}
             <motion.div initial={{ opacity: 0, x: -30 }} animate={{ opacity: 1, x: 0 }}>
               <div className="sticky top-24">
-                <div className="aspect-[3/4] rounded-3xl bg-gradient-to-br from-primary-50 via-primary-100/30 to-purple-50 dark:from-dark-800 dark:via-dark-800/50 dark:to-dark-700 flex items-center justify-center overflow-hidden border border-gray-100 dark:border-dark-700 shadow-xl">
+                <div className="aspect-[3/4] rounded-3xl bg-gradient-to-br from-primary-50 via-primary-100/30 to-primary-100 dark:from-dark-800 dark:via-dark-800/50 dark:to-dark-700 flex items-center justify-center overflow-hidden border border-gray-100 dark:border-dark-700 shadow-xl">
                   {book.image ? (
                     <img src={book.image} alt={book.titleAr} className="w-full h-full object-contain p-10 hover:scale-105 transition-transform duration-700" />
                   ) : (
