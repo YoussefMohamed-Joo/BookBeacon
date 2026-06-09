@@ -7,3 +7,5 @@ server/uploads/*
 client/dist/
 *.log
 .DS_Store
+
+.vercel
