@@ -4,7 +4,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { useStore } from './store/useStore';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
-import CursorFollower from './components/CursorFollower';
+// import CursorFollower from './components/CursorFollower';
 import LoadingScreen from './components/LoadingScreen';
 import Home from './pages/Home';
 import Books from './pages/Books';
@@ -59,7 +59,7 @@ function App() {
   return (
     <div className="min-h-screen bg-surface-50 dark:bg-dark-950 text-gray-900 dark:text-gray-100 font-sans">
       <LoadingScreen />
-      <CursorFollower />
+      {/* <CursorFollower /> */}
       <Navbar />
       <AnimatePresence mode="wait">
         <Routes location={location} key={location.pathname}>
