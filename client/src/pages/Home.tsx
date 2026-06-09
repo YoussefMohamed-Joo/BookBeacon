@@ -1,13 +1,14 @@
-import { useState, useEffect, lazy, Suspense, useRef } from 'react';
+import { useState, useEffect, lazy, Suspense, useRef, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, useScroll, useTransform, useInView } from 'framer-motion';
 import { Helmet } from 'react-helmet-async';
-import { BookOpen, Star, Truck, Shield, ArrowLeft, GraduationCap, TrendingUp, Sparkles, ChevronDown, BookMarked, Award, Zap, Brain, Percent, Users, MapPin, CheckCircle, BookText, Lightbulb, HeartHandshake, Globe, BookCopy } from 'lucide-react';
+import { BookOpen, Star, Truck, Shield, ArrowLeft, GraduationCap, TrendingUp, Sparkles, ChevronDown, BookMarked, Award, Zap, Brain, Percent, Users, MapPin, CheckCircle, BookText, Lightbulb, HeartHandshake, Globe, BookCopy, MessageCircle, PhoneCall, Wallet, Clock, Lock, BadgeCheck, Store } from 'lucide-react';
 import BookCard from '../components/BookCard';
 import ScrollReveal from '../components/animations/ScrollReveal';
 import MagneticButton from '../components/animations/MagneticButton';
 import FloatingParticles from '../components/FloatingParticles';
 import Logo from '../components/Logo';
+import ErrorBoundary from '../components/ErrorBoundary';
 import { booksAPI } from '../lib/api';
 
 const HeroScene = lazy(() => import('../components/3d/HeroScene'));
@@ -32,10 +33,28 @@ const grades = [
   { name: 'تالتة ثانوي', icon: TrendingUp, gradient: 'from-purple-500 to-purple-600', slug: 'تالتة+ثانوي', desc: 'كتب الصف الثالث الثانوي', emoji: '🎯' },
 ];
 
-function ParallaxSection({ children, className = '' }: { children: React.ReactNode; className?: string }) {
+const trustFeatures = [
+  { icon: BadgeCheck, title: 'ضمان الحق للجميع', desc: 'بنضمن حق البائع و المشتري — المقدم بيأمن الطرفين, و الفلوس مش بتضيع', color: 'from-emerald-500 to-teal-500' },
+  { icon: MessageCircle, title: 'تواصل مباشر', desc: 'تقدر تكلمنا ع الواتساب 01033558125 أو عبر الموقع — احنا معاك ١٢ ساعة يومياً', color: 'from-green-500 to-emerald-500' },
+  { icon: Wallet, title: 'نظام المقدم (١٠٪)', desc: 'ادفع ١٠٪ بس عشان تحجز الكتاب, و الباقي تدفعه لما تستلم — النظام ده بيضمن الكل', color: 'from-amber-500 to-orange-500' },
+  { icon: Clock, title: 'متابعة الطلب', desc: 'تقدر تتابع طلبك خطوة بخطوة — من التأكيد للتحضير للشحن للتوصيل', color: 'from-blue-500 to-cyan-500' },
+  { icon: Store, title: 'استلام يد بيد', desc: 'بنقابلك ف مكان عام عشان تسلم الكتاب بنفسك — أو بنوصلك لباب البيت', color: 'from-purple-500 to-pink-500' },
+  { icon: Lock, title: 'بياناتك آمنة', desc: 'مش بنشارك بياناتك مع حد تالت — كل حاجة مشفرة و مضمونة', color: 'from-red-500 to-rose-500' },
+];
+
+const subjectsList = [
+  { name: 'الفيزياء', icon: Brain, slug: 'الفيزياء', color: 'from-blue-500 to-blue-600', emoji: '⚡' },
+  { name: 'الكيمياء', icon: BookText, slug: 'الكيمياء', color: 'from-emerald-500 to-emerald-600', emoji: '🧪' },
+  { name: 'الأحياء', icon: BookOpen, slug: 'الأحياء', color: 'from-green-500 to-green-600', emoji: '🧬' },
+  { name: 'الرياضيات', icon: TrendingUp, slug: 'الرياضيات', color: 'from-purple-500 to-purple-600', emoji: '📐' },
+  { name: 'العربي', icon: BookMarked, slug: 'اللغة+العربية', color: 'from-amber-500 to-orange-500', emoji: '📝' },
+  { name: 'الإنجليزي', icon: Globe, slug: 'اللغة+الإنجليزية', color: 'from-cyan-500 to-cyan-600', emoji: '🌍' },
+];
+
+function ParallaxSection({ children, className = '', speed = 0.5 }: { children: React.ReactNode; className?: string; speed?: number }) {
   const ref = useRef(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ['start end', 'end start'] });
-  const y = useTransform(scrollYProgress, [0, 1], ['-5%', '5%']);
+  const y = useTransform(scrollYProgress, [0, 1], [`${-speed * 5}%`, `${speed * 5}%`]);
 
   return (
     <div ref={ref} className={`relative overflow-hidden ${className}`}>
@@ -47,8 +66,10 @@ function ParallaxSection({ children, className = '' }: { children: React.ReactNo
 }
 
 function Counter({ value, suffix = '' }: { value: string; suffix?: string }) {
+  const ref = useRef(null);
+  const inView = useInView(ref, { once: true });
   return (
-    <span className="counter-value text-3xl md:text-4xl font-bold gradient-text mb-1 block">
+    <span ref={ref} className={`counter-value text-3xl md:text-4xl font-bold gradient-text mb-1 block transition-all duration-700 ${inView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
       {value}{suffix}
     </span>
   );
@@ -63,8 +84,24 @@ export default function Home() {
   const depositRef = useRef(null);
   const depositInView = useInView(depositRef, { once: true, margin: '-100px' });
 
+  const heroRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     booksAPI.getAll({ limit: 8 }).then((res) => setBooks(res.data.books)).catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    const el = heroRef.current;
+    if (!el) return;
+    const handleMouse = (e: MouseEvent) => {
+      const rect = el.getBoundingClientRect();
+      const x = (e.clientX - rect.left) / rect.width - 0.5;
+      const y = (e.clientY - rect.top) / rect.height - 0.5;
+      el.style.setProperty('--mouse-x', String(x));
+      el.style.setProperty('--mouse-y', String(y));
+    };
+    window.addEventListener('mousemove', handleMouse);
+    return () => window.removeEventListener('mousemove', handleMouse);
   }, []);
 
   return (
@@ -75,42 +112,43 @@ export default function Home() {
       </Helmet>
 
       {/* Hero Section */}
-      <motion.section style={{ opacity: heroOpacity, scale: heroScale }} className="relative min-h-[100vh] flex items-center justify-center overflow-hidden">
+      <section ref={heroRef}
+        className="relative min-h-[100vh] flex items-center justify-center overflow-hidden"
+        style={{ perspective: '1000px' }}
+      >
         <div className="absolute inset-0 bg-gradient-to-b from-primary-50/50 via-white to-white dark:from-dark-900 dark:via-dark-950 dark:to-dark-950" />
         <FloatingParticles count={20} />
 
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] rounded-full bg-primary-400/10 dark:bg-primary-500/5 blur-[120px]" />
-          <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] rounded-full bg-purple-400/10 dark:bg-purple-500/5 blur-[120px]" />
-          <div className="absolute top-1/3 right-1/3 w-[300px] h-[300px] rounded-full bg-cyan-400/10 dark:bg-cyan-500/5 blur-[100px]" />
+        <div className="absolute inset-0 overflow-hidden pointer-events-none"
+          style={{ transform: 'translateX(calc(var(--mouse-x, 0) * -20px)) translateY(calc(var(--mouse-y, 0) * -20px))' }}
+        >
+          <div className="absolute top-1/4 left-1/4 w-[600px] h-[600px] rounded-full bg-primary-400/10 dark:bg-primary-500/5 blur-[120px] animate-glow-pulse" />
+          <div className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] rounded-full bg-purple-400/10 dark:bg-purple-500/5 blur-[120px] animate-glow-pulse" style={{ animationDelay: '1s' }} />
+          <div className="absolute top-1/3 right-1/3 w-[400px] h-[400px] rounded-full bg-cyan-400/10 dark:bg-cyan-500/5 blur-[100px] animate-glow-pulse" style={{ animationDelay: '2s' }} />
         </div>
 
         <div className="relative z-10 w-full max-w-7xl mx-auto px-4 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-          <div className="text-right lg:text-right">
-            <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, ease: [0.25, 0.1, 0.25, 1] }}>
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary-50 dark:bg-primary-900/20 border border-primary-100 dark:border-primary-800 mb-6">
-                <Sparkles className="w-4 h-4 text-primary-500" />
-                <span className="text-sm text-primary-600 dark:text-primary-400 font-medium">منصة كتب ثانوية عامة — مصري ١٠٠٪</span>
-              </div>
-            </motion.div>
+          <motion.div initial={{ opacity: 0, x: -50 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+            className="text-right lg:text-right"
+          >
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary-50 dark:bg-primary-900/20 border border-primary-100 dark:border-primary-800 mb-6">
+              <Sparkles className="w-4 h-4 text-primary-500" />
+              <span className="text-sm text-primary-600 dark:text-primary-400 font-medium">منصة كتب ثانوية عامة — مصري ١٠٠٪</span>
+            </div>
 
-            <motion.h1 initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1, duration: 0.6, ease: [0.25, 0.1, 0.25, 1] }}
-              className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-6"
-            >
+            <h1 className="text-4xl md:text-5xl lg:text-7xl font-bold leading-tight mb-6">
               <span className="gradient-text">Book Beacon</span>
               <br />
               <span className="text-gray-800 dark:text-gray-100">مستقبل الكتب المدرسية</span>
-            </motion.h1>
+            </h1>
 
-            <motion.p initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2, duration: 0.6, ease: [0.25, 0.1, 0.25, 1] }}
-              className="text-lg md:text-xl text-gray-500 dark:text-gray-400 mb-8 max-w-xl leading-relaxed"
-            >
+            <p className="text-lg md:text-xl text-gray-500 dark:text-gray-400 mb-8 max-w-xl leading-relaxed">
               أحسن الكتب الدراسية للثانوية العامة ف مصر — بنوفرلك كل اللي محتاجه عشان تتفوق، مع أسرع توصيل و أحسن الأسعار. بكل بساطة 🤝
-            </motion.p>
+            </p>
 
-            <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3, duration: 0.6 }} className="flex flex-wrap gap-4 justify-start">
+            <div className="flex flex-wrap gap-4 justify-start">
               <MagneticButton>
-                <Link to="/books" className="btn-primary text-lg px-8 py-3 shadow-xl shadow-primary-500/20 hover:shadow-primary-500/30">
+                <Link to="/books" className="btn-primary text-lg px-8 py-3 shadow-xl shadow-primary-500/20 hover:shadow-primary-500/40">
                   تصفح الكتب
                   <ArrowLeft className="w-5 h-5 inline mr-2" />
                 </Link>
@@ -120,45 +158,56 @@ export default function Home() {
                   إنشاء حساب
                 </Link>
               </MagneticButton>
-            </motion.div>
+            </div>
 
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.6, duration: 0.8 }}
-              className="mt-12 flex items-center gap-8 text-sm text-gray-400"
-            >
+            <div className="mt-12 flex items-center gap-8 text-sm text-gray-400">
               <div className="flex -space-x-2">
                 {[1, 2, 3, 4].map((i) => (
-                  <div key={i} className="w-8 h-8 rounded-full bg-gradient-to-br from-primary-300 to-primary-500 border-2 border-white dark:border-dark-900 flex items-center justify-center text-[10px] text-white font-bold">
+                  <motion.div key={i} initial={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.8 + i * 0.1 }}
+                    className="w-8 h-8 rounded-full bg-gradient-to-br from-primary-300 to-primary-500 border-2 border-white dark:border-dark-900 flex items-center justify-center text-[10px] text-white font-bold"
+                  >
                     {['أ', 'ب', 'ج', 'د'][i - 1]}
-                  </div>
+                  </motion.div>
                 ))}
               </div>
-              <span>انضم لـ <strong className="text-gray-700 dark:text-gray-300">١٠٠٠+</strong> طالب</span>
-            </motion.div>
-          </div>
+              <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.2 }}>
+                انضم لـ <strong className="text-gray-700 dark:text-gray-300">١٠٠٠+</strong> طالب
+              </motion.span>
+            </div>
+          </motion.div>
 
-          <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.4, duration: 0.8 }}
+          <motion.div initial={{ opacity: 0, scale: 0.85, y: 40 }} animate={{ opacity: 1, scale: 1, y: 0 }} transition={{ delay: 0.3, duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
             className="hidden lg:block h-[600px] relative"
           >
-            <Suspense fallback={
-              <div className="w-full h-full flex items-center justify-center">
-                <div className="w-12 h-12 border-2 border-primary-400 border-t-transparent rounded-full animate-spin" />
+            <ErrorBoundary fallback={
+              <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-dark-50 to-dark-100 dark:from-dark-800 dark:to-dark-900 rounded-3xl">
+                <div className="text-center p-8">
+                  <Logo size={80} />
+                  <p className="text-gray-400 mt-4">عذراً، لم نتمكن من تحميل المشهد ثلاثي الأبعاد</p>
+                </div>
               </div>
             }>
-              <HeroScene />
-            </Suspense>
+              <Suspense fallback={
+                <div className="w-full h-full flex items-center justify-center">
+                  <div className="w-12 h-12 border-2 border-primary-400 border-t-transparent rounded-full animate-spin" />
+                </div>
+              }>
+                <HeroScene />
+              </Suspense>
+            </ErrorBoundary>
           </motion.div>
         </div>
 
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.2 }}
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.5 }}
           className="absolute bottom-8 left-1/2 -translate-x-1/2"
         >
-          <motion.div animate={{ y: [0, 8, 0] }} transition={{ duration: 2, repeat: Infinity }}>
+          <motion.div animate={{ y: [0, 10, 0] }} transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}>
             <ChevronDown className="w-6 h-6 text-gray-300" />
           </motion.div>
         </motion.div>
-      </motion.section>
+      </section>
 
-      {/* Stats Section */}
+      {/* Stats */}
       <ParallaxSection>
         <section className="py-16 relative">
           <div className="max-w-7xl mx-auto px-4">
@@ -174,6 +223,104 @@ export default function Home() {
                     </div>
                     <Counter value={stat.value} />
                     <p className="text-sm text-gray-500 dark:text-gray-400">{stat.label}</p>
+                  </motion.div>
+                </ScrollReveal>
+              ))}
+            </div>
+          </div>
+        </section>
+      </ParallaxSection>
+
+      {/* Trust & Safety — ضمان حق البائع و المشتري */}
+      <ParallaxSection>
+        <section className="py-20 relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-b from-primary-50/30 to-transparent dark:from-primary-900/10 dark:to-transparent" />
+          <div className="max-w-7xl mx-auto px-4 relative z-10">
+            <ScrollReveal>
+              <div className="text-center mb-4">
+                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-100 dark:border-emerald-800 text-emerald-600 dark:text-emerald-400 text-sm font-medium mb-4">
+                  <Shield className="w-4 h-4" /> ضمان حق البائع و المشتري
+                </div>
+                <h2 className="text-3xl md:text-4xl font-bold mb-3">إزاي بنضمن حقك؟ 🤝</h2>
+                <p className="text-gray-500 dark:text-gray-400 max-w-2xl mx-auto text-lg">احنا وسيط موثوق — بنضمن حق الطالب و حق الناشر/البائع عشان الكل يبقى مرتاح</p>
+              </div>
+            </ScrollReveal>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-10">
+              {trustFeatures.map((item, i) => (
+                <ScrollReveal key={item.title} delay={i * 0.08}>
+                  <motion.div
+                    whileHover={{ y: -6, scale: 1.02 }}
+                    className="group p-6 rounded-2xl bg-white dark:bg-dark-800/50 border border-gray-100 dark:border-dark-700/50 shadow-soft hover:shadow-xl transition-all duration-300"
+                  >
+                    <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${item.color} p-2.5 flex items-center justify-center mb-4 shadow-lg group-hover:scale-110 transition-transform`}>
+                      <item.icon className="w-6 h-6 text-white" />
+                    </div>
+                    <h3 className="font-semibold mb-2">{item.title}</h3>
+                    <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">{item.desc}</p>
+                  </motion.div>
+                </ScrollReveal>
+              ))}
+            </div>
+          </div>
+        </section>
+      </ParallaxSection>
+
+      {/* How It Works — خطوات الشراء */}
+      <ParallaxSection>
+        <section className="py-20 bg-white/50 dark:bg-dark-900/30">
+          <div className="max-w-7xl mx-auto px-4">
+            <ScrollReveal>
+              <div className="text-center mb-12">
+                <h2 className="section-title">إزاي تشتري؟ 🛒</h2>
+                <p className="section-subtitle">٣ خطوات بس و تبقى مالك الكتاب — بسيطة و سريعة</p>
+              </div>
+            </ScrollReveal>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {[
+                { step: '١', icon: Search, title: 'اختار الكتاب', desc: 'تصفح الكتب و اختار اللي يناسبك — فيه كتب لكل الصفوف و المواد' },
+                { step: '٢', icon: Wallet, title: 'ادفع المقدم', desc: 'ادفع ١٠٪ بس من قيمة الكتاب عبر فودافون كاش على 01033558125' },
+                { step: '٣', icon: Truck, title: 'استلم الكتاب', desc: 'استلم الكتاب لباب البيت أو قابلنا ف مكان عام — و ادفع الباقي' },
+              ].map((item, i) => (
+                <ScrollReveal key={item.step} delay={i * 0.15}>
+                  <motion.div whileHover={{ y: -8 }} className="relative p-8 rounded-2xl bg-white dark:bg-dark-800 border border-gray-100 dark:border-dark-700/50 shadow-soft hover:shadow-xl transition-all text-center">
+                    <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center text-2xl font-bold text-white shadow-xl shadow-primary-500/20">
+                      {item.step}
+                    </div>
+                    <item.icon className="w-8 h-8 mx-auto mb-3 text-primary-400" />
+                    <h3 className="text-lg font-semibold mb-2">{item.title}</h3>
+                    <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">{item.desc}</p>
+                  </motion.div>
+                </ScrollReveal>
+              ))}
+            </div>
+          </div>
+        </section>
+      </ParallaxSection>
+
+      {/* Features */}
+      <ParallaxSection>
+        <section className="py-20">
+          <div className="max-w-7xl mx-auto px-4">
+            <ScrollReveal>
+              <div className="text-center mb-12">
+                <h2 className="section-title">إيه اللي يخلينا مختلفين؟ 🤔</h2>
+                <p className="section-subtitle">احنا مش مجرد منصة كتب — احنا تجربة متكاملة عشان نسهل عليك</p>
+              </div>
+            </ScrollReveal>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {features.map((feature, i) => (
+                <ScrollReveal key={feature.title} delay={i * 0.1}>
+                  <motion.div
+                    whileHover={{ y: -8, scale: 1.02 }}
+                    className="group relative p-8 rounded-2xl bg-white dark:bg-dark-800 border border-gray-100 dark:border-dark-700/50 shadow-soft hover:shadow-xl transition-all duration-300 overflow-hidden"
+                  >
+                    <div className={`absolute top-0 left-0 w-full h-1 bg-gradient-to-r ${feature.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-300`} />
+                    <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${feature.gradient} p-3 flex items-center justify-center mb-5 shadow-lg group-hover:scale-110 transition-transform`}>
+                      <feature.icon className="w-7 h-7 text-white" />
+                    </div>
+                    <h3 className="text-lg font-semibold mb-2">{feature.title}</h3>
+                    <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">{feature.desc}</p>
                   </motion.div>
                 </ScrollReveal>
               ))}
@@ -218,11 +365,11 @@ export default function Home() {
               <ScrollReveal direction="left">
                 <div className="relative">
                   <motion.div
-                    animate={depositInView ? { rotate: [0, 5, -5, 0], scale: [1, 1.02, 1] } : {}}
+                    animate={depositInView ? { rotate: [0, 5, -5, 0], scale: [1, 1.05, 1] } : {}}
                     transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
-                    className="absolute -top-4 -right-4 w-24 h-24 bg-gradient-to-br from-amber-400 to-amber-500 rounded-2xl -rotate-12 flex items-center justify-center shadow-xl z-10"
+                    className="absolute -top-4 -right-4 w-28 h-28 bg-gradient-to-br from-amber-400 to-amber-500 rounded-2xl -rotate-12 flex items-center justify-center shadow-xl z-10"
                   >
-                    <span className="text-white font-bold text-lg">١٠٪</span>
+                    <span className="text-white font-bold text-xl">١٠٪</span>
                   </motion.div>
                   <div className="absolute inset-0 bg-gradient-to-br from-primary-400/20 to-purple-400/20 rounded-3xl blur-3xl" />
                   <div className="relative bg-white dark:bg-dark-800/50 backdrop-blur-xl rounded-3xl p-8 border border-gray-100 dark:border-dark-700/50 shadow-xl">
@@ -242,43 +389,11 @@ export default function Home() {
                         <span className="text-sm text-gray-500">الباقي عند الاستلام</span>
                         <span className="font-bold">٢٢٥ ج.م</span>
                       </motion.div>
-                      <p className="text-xs text-gray-400 mt-2">ادفع ٢٥ ج.م عبر فودافون كاش و استلم الكتاب 🤝</p>
+                      <p className="text-xs text-gray-400 mt-2">ادفع ٢٥ ج.م عبر فودافون كاش على 01033558125 و استلم الكتاب 🤝</p>
                     </div>
                   </div>
                 </div>
               </ScrollReveal>
-            </div>
-          </div>
-        </section>
-      </ParallaxSection>
-
-      {/* Features */}
-      <ParallaxSection>
-        <section className="py-20 bg-white/50 dark:bg-dark-900/30">
-          <div className="max-w-7xl mx-auto px-4">
-            <ScrollReveal>
-              <div className="text-center mb-12">
-                <h2 className="section-title">إيه اللي يخلينا مختلفين؟ 🤔</h2>
-                <p className="section-subtitle">احنا مش مجرد منصة كتب — احنا تجربة متكاملة عشان نسهل عليك</p>
-              </div>
-            </ScrollReveal>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {features.map((feature, i) => (
-                <ScrollReveal key={feature.title} delay={i * 0.1}>
-                  <motion.div
-                    whileHover={{ y: -8, scale: 1.02 }}
-                    className="group relative p-8 rounded-2xl bg-white dark:bg-dark-800 border border-gray-100 dark:border-dark-700/50 shadow-soft hover:shadow-xl transition-all duration-300 overflow-hidden"
-                  >
-                    <div className={`absolute top-0 left-0 w-full h-1 bg-gradient-to-r ${feature.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-300`} />
-                    <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${feature.gradient} p-3 flex items-center justify-center mb-5 shadow-lg group-hover:scale-110 transition-transform`}>
-                      <feature.icon className="w-7 h-7 text-white" />
-                    </div>
-                    <h3 className="text-lg font-semibold mb-2">{feature.title}</h3>
-                    <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">{feature.desc}</p>
-                  </motion.div>
-                </ScrollReveal>
-              ))}
             </div>
           </div>
         </section>
@@ -294,7 +409,6 @@ export default function Home() {
                 <p className="section-subtitle">صفح الكتب حسب الصف اللي انت فيه و ابدأ رحلة التفوق</p>
               </div>
             </ScrollReveal>
-
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {grades.map((grade, i) => (
                 <ScrollReveal key={grade.name} delay={i * 0.1}>
@@ -333,14 +447,7 @@ export default function Home() {
               </div>
             </ScrollReveal>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-              {[
-                { name: 'الفيزياء', icon: Brain, slug: 'الفيزياء', color: 'from-blue-500 to-blue-600', emoji: '⚡' },
-                { name: 'الكيمياء', icon: BookText, slug: 'الكيمياء', color: 'from-emerald-500 to-emerald-600', emoji: '🧪' },
-                { name: 'الأحياء', icon: BookOpen, slug: 'الأحياء', color: 'from-green-500 to-green-600', emoji: '🧬' },
-                { name: 'الرياضيات', icon: TrendingUp, slug: 'الرياضيات', color: 'from-purple-500 to-purple-600', emoji: '📐' },
-                { name: 'العربي', icon: BookMarked, slug: 'اللغة+العربية', color: 'from-amber-500 to-orange-500', emoji: '📝' },
-                { name: 'الإنجليزي', icon: Globe, slug: 'اللغة+الإنجليزية', color: 'from-cyan-500 to-cyan-600', emoji: '🌍' },
-              ].map((subject, i) => (
+              {subjectsList.map((subject, i) => (
                 <ScrollReveal key={subject.name} delay={i * 0.05}>
                   <Link to={`/books?subject=${subject.slug}`} className="block group">
                     <motion.div whileHover={{ scale: 1.05, y: -4 }}
@@ -376,7 +483,6 @@ export default function Home() {
                 </Link>
               </ScrollReveal>
             </div>
-
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
               {books.map((book: any, i: number) => (
                 <ScrollReveal key={book._id} delay={i * 0.05}>
@@ -388,7 +494,7 @@ export default function Home() {
         </section>
       </ParallaxSection>
 
-      {/* Premium CTA */}
+      {/* Premium CTA — مع معلومات التواصل */}
       <section className="py-24 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-primary-600 via-primary-700 to-purple-800" />
         <div className="absolute inset-0 opacity-10">
@@ -423,6 +529,14 @@ export default function Home() {
                   </Link>
                 </MagneticButton>
               </div>
+              <div className="mt-8 pt-8 border-t border-white/10 inline-flex items-center gap-6 text-white/60 text-sm">
+                <a href="tel:01033558125" className="hover:text-white transition-colors flex items-center gap-2">
+                  <PhoneCall className="w-4 h-4" /> 01033558125
+                </a>
+                <a href="https://wa.me/201033558125" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors flex items-center gap-2">
+                  <MessageCircle className="w-4 h-4" /> واتساب
+                </a>
+              </div>
             </motion.div>
           </ScrollReveal>
         </div>
@@ -430,3 +544,5 @@ export default function Home() {
     </>
   );
 }
+
+function Search(props: any) { return <svg {...props} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg> }
