@@ -81,7 +81,7 @@ export default function Navbar() {
                       </div>
                       <Link to="/orders" onClick={() => setShowUserMenu(false)} className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm hover:bg-white/5 transition-all"><ShoppingCart className="w-4 h-4" /> طلباتي</Link>
                       <Link to="/my-pickups" onClick={() => setShowUserMenu(false)} className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm hover:bg-white/5 transition-all"><Store className="w-4 h-4" /> حجوزاتي</Link>
-                      {user.role === 'admin' && (
+                      {(user.role === 'admin' || user.role === 'cashier') && (
                         <Link to="/admin" onClick={() => setShowUserMenu(false)} className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm hover:bg-white/5 transition-all"><LayoutDashboard className="w-4 h-4" /> لوحة التحكم</Link>
                       )}
                       <button onClick={handleLogout} className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm hover:bg-white/5 transition-all mt-1" style={{ color: 'var(--danger)' }}><LogOut className="w-4 h-4" /> تسجيل الخروج</button>
@@ -124,7 +124,7 @@ export default function Navbar() {
                 <div className="px-4 py-2 text-sm" style={{ color: 'var(--muted)' }}>{user.name}</div>
                 <Link to="/orders" className="block px-4 py-2.5 rounded-lg text-sm hover:bg-white/5">طلباتي</Link>
                 <Link to="/my-pickups" className="block px-4 py-2.5 rounded-lg text-sm hover:bg-white/5">حجوزاتي</Link>
-                {user.role === 'admin' && <Link to="/admin" className="block px-4 py-2.5 rounded-lg text-sm hover:bg-white/5">لوحة التحكم</Link>}
+                {(user.role === 'admin' || user.role === 'cashier') && <Link to="/admin" className="block px-4 py-2.5 rounded-lg text-sm hover:bg-white/5">لوحة التحكم</Link>}
                 <button onClick={handleLogout} className="w-full text-right px-4 py-2.5 rounded-lg text-sm" style={{ color: 'var(--danger)' }}>تسجيل الخروج</button>
               </>
             ) : (

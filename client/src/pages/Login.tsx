@@ -26,7 +26,7 @@ export default function Login() {
       localStorage.setItem('user', JSON.stringify(data));
       setUser(data);
       toast.success(`مرحباً ${data.name}`);
-      navigate(data.role === 'admin' ? '/admin' : '/');
+      navigate(data.role === 'admin' || data.role === 'cashier' ? '/admin' : '/');
     } catch (err: any) {
       toast.error(err.response?.data?.message || 'خطأ في تسجيل الدخول');
     } finally { setLoading(false); }
