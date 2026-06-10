@@ -16,7 +16,7 @@ import {
 } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line, AreaChart, Area } from 'recharts';
 
-const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4', '#f97316'];
+const COLORS = ['#0098A4', '#4EE7F3', '#007A83', '#10b981', '#f59e0b', '#8b5cf6', '#f97316'];
 
 type Tab = 'dashboard' | 'orders' | 'customers' | 'books' | 'delivery' | 'pickup' | 'instant' | 'inventory' | 'accounting' | 'ai' | 'reviews' | 'staff' | 'settings' | 'activity';
 
@@ -48,12 +48,16 @@ export default function AdminDashboard() {
     { id: 'settings', icon: Settings, label: 'الإعدادات' },
   ] as const;
 
-  const cashierTabs = ['orders', 'customers', 'pickup', 'instant'] as const;
-  const tabs = isCashier ? allTabs.filter(t => cashierTabs.includes(t.id as any)) : allTabs;
+  const cashierBlocked = ['dashboard', 'books', 'delivery', 'inventory', 'accounting', 'ai', 'reviews', 'staff', 'activity', 'settings'];
+  const tabs = allTabs;
 
-  useEffect(() => {
-    if (isCashier && !['orders', 'customers', 'pickup', 'instant'].includes(activeTab)) setActiveTab('orders');
-  }, [isCashier, activeTab]);
+  const handleTabClick = (tabId: Tab) => {
+    if (isCashier && cashierBlocked.includes(tabId)) {
+      toast.error('هذه الصفحة للمشرفين فقط');
+      return;
+    }
+    setActiveTab(tabId);
+  };
 
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
@@ -154,14 +158,14 @@ function DashboardPanel() {
   if (!stats) return null;
 
   const cards = [
-    { label: 'إجمالي الطلبات', value: stats.totalOrders, icon: Package, color: 'from-blue-500 to-blue-600' },
+    { label: 'إجمالي الطلبات', value: stats.totalOrders, icon: Package, color: 'from-teal-500 to-teal-600' },
     { label: 'الإيرادات', value: formatPrice(stats.totalRevenue || 0), icon: DollarSign, color: 'from-emerald-500 to-emerald-600' },
     { label: 'صافي الربح', value: formatPrice(stats.netProfit || 0), icon: TrendingUp, color: 'from-emerald-500 to-emerald-600' },
     { label: 'طلبات معلقة', value: stats.pendingOrders, icon: AlertTriangle, color: 'from-amber-500 to-amber-600' },
-    { label: 'تم التوصيل', value: stats.deliveredOrders || 0, icon: Truck, color: 'from-green-500 to-green-600' },
-    { label: 'العملاء', value: stats.totalCustomers, icon: Users, color: 'from-pink-500 to-pink-600' },
-    { label: 'المخزون', value: stats.inventorySummary?.totalStock || 0, icon: Warehouse, color: 'from-purple-500 to-purple-600' },
-    { label: 'اليوم', value: `${stats.todayOrders || 0} طلبات`, icon: Clock, color: 'from-cyan-500 to-cyan-600' },
+    { label: 'تم التوصيل', value: stats.deliveredOrders || 0, icon: Truck, color: 'from-primary-500 to-primary-600' },
+    { label: 'العملاء', value: stats.totalCustomers, icon: Users, color: 'from-purple-500 to-purple-600' },
+    { label: 'المخزون', value: stats.inventorySummary?.totalStock || 0, icon: Warehouse, color: 'from-cyan-500 to-cyan-600' },
+    { label: 'اليوم', value: `${stats.todayOrders || 0} طلبات`, icon: Clock, color: 'from-primary-400 to-primary-500' },
   ];
 
   const monthlyData = (stats.monthlyRevenue || []).reverse().map((m: any) => ({
@@ -218,8 +222,8 @@ function DashboardPanel() {
               <XAxis dataKey="name" stroke="#9ca3af" fontSize={12} />
               <YAxis stroke="#9ca3af" fontSize={12} />
               <Tooltip contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 20px rgba(0,0,0,0.1)' }} />
-              <Bar dataKey="income" fill="#3b82f6" name="الإيرادات" radius={[4, 4, 0, 0]} />
-              <Bar dataKey="expense" fill="#ef4444" name="المصروفات" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="income" fill="#0098A4" name="الإيرادات" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="expense" fill="#f97316" name="المصروفات" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>
