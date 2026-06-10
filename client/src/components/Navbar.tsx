@@ -7,7 +7,8 @@ import SearchBar from './SearchBar';
 import Logo from './Logo';
 
 export default function Navbar() {
-  const { user, isDarkMode, toggleDarkMode, logout } = useStore();
+  const { user, isDarkMode, toggleDarkMode, logout, cart } = useStore();
+  const cartCount = cart.reduce((sum, i) => sum + i.quantity, 0);
   const [isOpen, setIsOpen] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -57,10 +58,12 @@ export default function Navbar() {
 
             {user && <NotificationBell />}
 
-            <button className="relative p-2 rounded-lg hover:bg-white/5 transition-all">
+            <Link to="/cart" className="relative p-2 rounded-lg hover:bg-white/5 transition-all">
               <ShoppingCart className="w-5 h-5" />
-              <span className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full text-[10px] font-bold flex items-center justify-center" style={{ background: 'var(--accent)', color: '#0a1628' }}>0</span>
-            </button>
+              {cartCount > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full text-[10px] font-bold flex items-center justify-center" style={{ background: 'var(--accent)', color: '#0a1628' }}>{cartCount}</span>
+              )}
+            </Link>
 
             {user ? (
               <div className="relative">

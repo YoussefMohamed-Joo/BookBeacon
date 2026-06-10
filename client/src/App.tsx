@@ -23,6 +23,7 @@ import FAQ from './pages/FAQ';
 import PaymentMethods from './pages/PaymentMethods';
 import DeliveryPolicy from './pages/DeliveryPolicy';
 import MyPickups from './pages/MyPickups';
+import Cart from './pages/Cart';
 import ChatBot from './components/ChatBot';
 
 // Page transition animation variants
@@ -83,6 +84,7 @@ function App() {
           <Route path="/faq" element={<AnimatedPage><FAQ /></AnimatedPage>} />
           <Route path="/payment-methods" element={<AnimatedPage><PaymentMethods /></AnimatedPage>} />
           <Route path="/delivery-policy" element={<AnimatedPage><DeliveryPolicy /></AnimatedPage>} />
+          <Route path="/cart" element={<AnimatedPage><Cart /></AnimatedPage>} />
           <Route path="/my-pickups" element={<AnimatedPage><MyPickups /></AnimatedPage>} />
           <Route path="*" element={<AnimatedPage><div className="min-h-screen flex items-center justify-center"><div className="text-center"><h1 className="text-6xl font-bold opacity-20 mb-4">404</h1><p className="opacity-50">الصفحة غير موجودة</p></div></div></AnimatedPage>} />
         </Routes>

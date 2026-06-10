@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { ShoppingCart, Minus, Plus } from 'lucide-react';
 import { formatPrice } from '../lib/utils';
+import { useStore } from '../store/useStore';
 
 interface BookCardProps {
   book: {
@@ -24,9 +25,28 @@ interface BookCardProps {
 }
 
 export default function BookCard({ book }: BookCardProps) {
-  // Local quantity state for +/- buttons (default 1)
   const [qty, setQty] = useState(1);
+  const navigate = useNavigate();
+  const addToCart = useStore((s) => s.addToCart);
   const outOfStock = (book.stock ?? 10) <= 0;
+
+  const handleAddToCart = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    addToCart({
+      _id: book._id,
+      book: {
+        _id: book._id,
+        titleAr: book.titleAr,
+        slug: book.slug,
+        price: book.price,
+        image: book.image,
+        stock: book.stock ?? 10,
+      },
+      quantity: qty,
+    });
+    navigate('/cart');
+  };
 
   return (
     <Link to={`/books/${book.slug}`} className="card overflow-hidden block group">
@@ -73,7 +93,7 @@ export default function BookCard({ book }: BookCardProps) {
 
         {/* Add to cart button */}
         {!outOfStock && (
-          <button onClick={(e) => { e.preventDefault(); }}
+          <button onClick={handleAddToCart}
             className="w-full mt-2 py-2 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-all"
             style={{ background: 'var(--primary)', color: 'white' }}
             onMouseEnter={(e) => e.currentTarget.style.background = '#007A83'}
