@@ -38,12 +38,14 @@ const sliderScrollStyle = `
 `;
 
 export default function Home() {
+  const [bestSellers, setBestSellers] = useState<any[]>([]);
   const [books, setBooks] = useState<any[]>([]);
   const [slideIndex, setSlideIndex] = useState(0);
   const sliderRef = useRef<HTMLDivElement>(null);
 
   // Fetch books on mount
   useEffect(() => {
+    booksAPI.getAll({ limit: 10, sort: 'sales' }).then((res) => setBestSellers(res.data.books)).catch(() => {});
     booksAPI.getAll({ limit: 8 }).then((res) => setBooks(res.data.books)).catch(() => {});
   }, []);
 
@@ -111,7 +113,7 @@ export default function Home() {
                 <p className="text-base mb-6" style={{ color: 'var(--text-secondary)' }}>
                   {slides[slideIndex].subtitle}
                 </p>
-                <Link to="/books" className="btn-cta text-base !py-3 !px-8">
+                <Link to={slideIndex === 0 ? '/books?grade=تالتة+ثانوي' : '/books'} className="btn-cta text-base !py-3 !px-8">
                   {slides[slideIndex].cta} <ArrowLeft className="w-4 h-4" />
                 </Link>
               </div>
@@ -162,11 +164,13 @@ export default function Home() {
             ref={sliderRef}
             className="slider-track flex gap-4 overflow-x-auto pb-4"
           >
-            {books.map((book: any, i: number) => (
+            {bestSellers.length > 0 ? bestSellers.map((book: any, i: number) => (
               <div key={book._id || i} className="flex-shrink-0" style={{ width: '250px' }}>
                 <BookCard book={book} index={i} />
               </div>
-            ))}
+            )) : (
+              <p className="text-sm opacity-50 py-8">لا توجد كتب بعد</p>
+            )}
           </div>
         </div>
       </section>

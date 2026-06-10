@@ -2,7 +2,7 @@ const Book = require('../models/Book');
 
 const getBooks = async (req, res) => {
   try {
-    const { grade, subject, search, page = 1, limit = 20 } = req.query;
+    const { grade, subject, search, page = 1, limit = 20, sort } = req.query;
     const query = { isActive: true };
 
     if (grade) query.grade = grade;
@@ -16,8 +16,14 @@ const getBooks = async (req, res) => {
       ];
     }
 
+    let sortObj = { createdAt: -1 };
+    if (sort === 'sales') sortObj = { salesCount: -1 };
+    else if (sort === 'sold') sortObj = { soldQuantity: -1 };
+    else if (sort === 'price_asc') sortObj = { price: 1 };
+    else if (sort === 'price_desc') sortObj = { price: -1 };
+
     const books = await Book.find(query)
-      .sort({ createdAt: -1 })
+      .sort(sortObj)
       .skip((page - 1) * limit)
       .limit(parseInt(limit));
 
