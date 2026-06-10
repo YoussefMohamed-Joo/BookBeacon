@@ -1,2 +1,2 @@
-const { protect, admin } = require('./auth');
-module.exports = { protect, admin };
+const { protect, admin, cashier } = require('./auth');
+module.exports = { protect, admin, cashier };

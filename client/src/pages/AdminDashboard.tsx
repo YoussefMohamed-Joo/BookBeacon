@@ -18,7 +18,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 
 const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4', '#f97316'];
 
-type Tab = 'dashboard' | 'orders' | 'customers' | 'books' | 'delivery' | 'pickup' | 'instant' | 'inventory' | 'accounting' | 'ai' | 'reviews' | 'staff' | 'settings';
+type Tab = 'dashboard' | 'orders' | 'customers' | 'books' | 'delivery' | 'pickup' | 'instant' | 'inventory' | 'accounting' | 'ai' | 'reviews' | 'staff' | 'settings' | 'activity';
 
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState<Tab>('dashboard');
@@ -44,6 +44,7 @@ export default function AdminDashboard() {
     { id: 'ai', icon: Brain, label: 'الذكاء الاصطناعي' },
     { id: 'reviews', icon: Star, label: 'التقييمات' },
     { id: 'staff', icon: UserCog, label: 'الموظفين' },
+    { id: 'activity', icon: Clock, label: 'النشاطات' },
     { id: 'settings', icon: Settings, label: 'الإعدادات' },
   ] as const;
 
@@ -67,7 +68,7 @@ export default function AdminDashboard() {
           case '7': e.preventDefault(); setActiveTab('inventory'); break;
           case '8': e.preventDefault(); setActiveTab('accounting'); break;
           case '9': e.preventDefault(); setActiveTab('ai'); break;
-          case '0': e.preventDefault(); setActiveTab('reviews'); break;
+          case '0': e.preventDefault(); setActiveTab('activity'); break;
           case 'b': e.preventDefault(); setSidebarOpen(p => !p); break;
         }
       }
@@ -118,6 +119,7 @@ export default function AdminDashboard() {
             {!isCashier && activeTab === 'ai' && <AIPanel />}
             {!isCashier && activeTab === 'reviews' && <ReviewsPanel />}
             {!isCashier && activeTab === 'staff' && <StaffPanel />}
+            {!isCashier && activeTab === 'activity' && <ActivityPanel />}
             {!isCashier && activeTab === 'settings' && <SettingsPanel />}
           </div>
         </main>
@@ -1573,6 +1575,113 @@ function ReviewsPanel() {
           </table>
         </div>
       </div>
+    </div>
+  );
+}
+
+// -----------------------------------------------------------------------
+// ACTIVITY PANEL
+// -----------------------------------------------------------------------
+function ActivityPanel() {
+  const [logs, setLogs] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [actionFilter, setActionFilter] = useState('');
+  const [cashierFilter, setCashierFilter] = useState('');
+
+  const fetchLogs = () => {
+    setLoading(true);
+    const params: any = { page, limit: 30 };
+    if (actionFilter) params.action = actionFilter;
+    activityAPI.getAll(params).then(res => {
+      setLogs(res.data.logs);
+      setTotalPages(res.data.pages);
+      setLoading(false);
+    }).catch(() => setLoading(false));
+  };
+
+  useEffect(() => { fetchLogs(); }, [page, actionFilter]);
+
+  const actionLabels: Record<string, string> = {
+    order_created: 'إنشاء طلب', order_delivered: 'تسليم', instant_sale: 'بيع فوري',
+    payment_verified: 'تأكيد دفع', stock_added: 'إضافة مخزون', stock_adjusted: 'تعديل مخزون',
+    book_created: 'إضافة كتاب', book_updated: 'تعديل كتاب', user_banned: 'حظر مستخدم',
+    payment_uploaded: 'رفع إيصال', order_approved: 'موافقة طلب',
+  };
+
+  const getCashierLogs = () => {
+    const cashierMap: Record<string, { name: string; actions: number; totalRevenue: number }> = {};
+    logs.forEach(log => {
+      if (log.admin?._id) {
+        const id = log.admin._id;
+        if (!cashierMap[id]) cashierMap[id] = { name: log.admin.name || log.admin.email, actions: 0, totalRevenue: 0 };
+        cashierMap[id].actions++;
+        if (log.details?.totalPrice) cashierMap[id].totalRevenue += log.details.totalPrice;
+      }
+    });
+    return Object.entries(cashierMap);
+  };
+
+  if (loading) return <LoadingPanel />;
+
+  return (
+    <div className="space-y-6">
+      <div><h1 className="text-2xl md:text-3xl font-bold">سجل النشاطات</h1><p className="text-gray-400 text-sm">متابعة حركة الكاشير والمشرفين</p></div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {getCashierLogs().map(([id, data]) => (
+          <div key={id} className="card p-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-teal-500/10 flex items-center justify-center">
+                <span className="text-teal-500 font-bold">{data.name.charAt(0)}</span>
+              </div>
+              <div>
+                <p className="font-semibold text-sm">{data.name}</p>
+                <p className="text-xs text-gray-400">{data.actions} عملية | {data.totalRevenue.toLocaleString()} ج.م</p>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="flex flex-wrap gap-2">
+        <select value={actionFilter} onChange={e => { setActionFilter(e.target.value); setPage(1); }} className="input-field text-sm w-auto">
+          <option value="">كل الأنشطة</option>
+          {Object.entries(actionLabels).map(([key, label]) => (
+            <option key={key} value={key}>{label}</option>
+          ))}
+        </select>
+      </div>
+
+      <div className="card overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="admin-table">
+            <thead><tr><th>الوقت</th><th>الكاشير</th><th>النشاط</th><th>الكتاب</th><th>الطلب</th><th>التفاصيل</th></tr></thead>
+            <tbody>
+              {logs.map(log => (
+                <tr key={log._id}>
+                  <td className="text-xs text-gray-400 whitespace-nowrap">{new Date(log.createdAt).toLocaleString('ar-EG')}</td>
+                  <td className="text-sm">{log.admin?.name || log.admin?.email || '-'}</td>
+                  <td><span className="text-xs px-2 py-1 rounded-full bg-blue-100 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400">{actionLabels[log.action] || log.action}</span></td>
+                  <td className="text-sm">{log.book?.titleAr || '-'}</td>
+                  <td className="text-xs">{log.order?.orderId || '-'}</td>
+                  <td className="text-xs text-gray-400">{log.details?.book || log.details?.reason || log.details?.customerName || '-'}</td>
+                </tr>
+              ))}
+              {logs.length === 0 && <tr><td colSpan={6} className="text-center text-gray-400 py-8">لا توجد نشاطات</td></tr>}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {totalPages > 1 && (
+        <div className="flex items-center justify-center gap-2">
+          <button disabled={page <= 1} onClick={() => setPage(p => p - 1)} className="btn-secondary text-sm">السابق</button>
+          <span className="text-sm text-gray-400">صفحة {page} من {totalPages}</span>
+          <button disabled={page >= totalPages} onClick={() => setPage(p => p + 1)} className="btn-secondary text-sm">التالي</button>
+        </div>
+      )}
     </div>
   );
 }
