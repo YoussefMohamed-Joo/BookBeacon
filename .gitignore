@@ -10,3 +10,4 @@ client/dist/
 
 .vercel
 .env*
+server/backups/
