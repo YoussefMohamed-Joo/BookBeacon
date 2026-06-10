@@ -75,6 +75,9 @@ export const ordersAPI = {
   instantDelivery: (id: string) => API.post(`/orders/${id}/instant-delivery`),
   refundOrder: (data: { orderId: string; items: { bookId: string; quantity: number }[]; reason: string }) =>
     API.post('/orders/refund', data),
+  adminAction: (id: string, data: { action: 'approve' | 'reject'; note?: string }) =>
+    API.post(`/orders/${id}/admin-action`, data),
+  getGovernorates: () => API.get('/orders/governorates/prices'),
 };
 
 export const activityAPI = {

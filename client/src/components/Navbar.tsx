@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { LogOut, ShoppingCart, LayoutDashboard, Store, User, Menu, X, Moon, Sun } from 'lucide-react';
+import { LogOut, ShoppingCart, LayoutDashboard, Store, User, Menu, X, Moon, Sun, PlusCircle } from 'lucide-react';
 import { useStore } from '../store/useStore';
 import NotificationBell from './NotificationBell';
 import SearchBar from './SearchBar';
@@ -64,6 +64,12 @@ export default function Navbar() {
                 <span className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full text-[10px] font-bold flex items-center justify-center" style={{ background: 'var(--accent)', color: '#0a1628' }}>{cartCount}</span>
               )}
             </Link>
+
+            {user && (
+              <Link to="/order/new" className="btn-primary text-sm !py-1.5 !px-3">
+                <PlusCircle className="w-3.5 h-3.5" /> طلب جديد
+              </Link>
+            )}
 
             {user ? (
               <div className="relative">

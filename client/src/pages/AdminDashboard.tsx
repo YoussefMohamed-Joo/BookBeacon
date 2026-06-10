@@ -4,6 +4,8 @@ import { Helmet } from 'react-helmet-async';
 import { useStore } from '../store/useStore';
 import { authAPI, dashboardAPI, ordersAPI, usersAPI, booksAPI, deliveryAPI, accountingAPI, aiAPI, blogAPI, reviewsAPI, activityAPI, inventoryAPI } from '../lib/api';
 import POSPage from './POSPage';
+import OnlineOrdersPanel from './OnlineOrdersPanel';
+import CustomersSearchPanel from './CustomersSearchPanel';
 import { formatPrice, getStatusColor, getStatusText, getDeliveryMethodText, EGYPTIAN_GOVERNORATES, GRADES } from '../lib/utils';
 import toast from 'react-hot-toast';
 import {
@@ -11,14 +13,14 @@ import {
   Search, X, Check, Plus, Edit2, Trash2, Shield, TrendingUp, DollarSign, AlertTriangle,
   Package, Phone, MapPin, Hash, Upload, Image as ImageIcon, RefreshCw, Ban, Zap,
   ArrowUpDown, Filter, Clock, ChevronLeft, ChevronRight, Download, Eye, MessageSquare, Send, Calculator,
-  Scan, Store, QrCode, Barcode, ClipboardList, UserCog, Settings, Key, Mail, Lock, Shield, UserPlus, UserX, EyeOff,
-  Warehouse
+  Scan, Store, QrCode, Barcode, ClipboardList, UserCog, Settings, Key, Mail, Lock, UserPlus, UserX, EyeOff,
+  Warehouse, Globe
 } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line, AreaChart, Area } from 'recharts';
 
 const COLORS = ['#0098A4', '#4EE7F3', '#007A83', '#10b981', '#f59e0b', '#8b5cf6', '#f97316'];
 
-type Tab = 'dashboard' | 'orders' | 'customers' | 'books' | 'delivery' | 'pickup' | 'instant' | 'inventory' | 'accounting' | 'ai' | 'reviews' | 'staff' | 'settings' | 'activity';
+type Tab = 'dashboard' | 'orders' | 'online-orders' | 'customers' | 'customers-search' | 'books' | 'delivery' | 'pickup' | 'instant' | 'inventory' | 'accounting' | 'ai' | 'reviews' | 'staff' | 'settings' | 'activity';
 
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState<Tab>('dashboard');
@@ -34,7 +36,9 @@ export default function AdminDashboard() {
   const allTabs = [
     { id: 'dashboard', icon: LayoutDashboard, label: 'لوحة المعلومات' },
     { id: 'orders', icon: ShoppingBag, label: 'الطلبات' },
+    { id: 'online-orders', icon: Globe, label: 'الطلبات الأونلاين' },
     { id: 'customers', icon: Users, label: 'العملاء' },
+    { id: 'customers-search', icon: Search, label: 'بحث العملاء' },
     { id: 'pickup', icon: Store, label: 'حجوزات المنفذ' },
     { id: 'instant', icon: Zap, label: 'الاستلام الفوري' },
     { id: 'books', icon: BookOpen, label: 'الكتب' },
@@ -118,7 +122,9 @@ export default function AdminDashboard() {
           <div className="animate-in">
             {!isCashier && activeTab === 'dashboard' && <DashboardPanel />}
             {activeTab === 'orders' && <OrdersPanel />}
+            {activeTab === 'online-orders' && <OnlineOrdersPanel />}
             {activeTab === 'customers' && <CustomersPanel />}
+            {activeTab === 'customers-search' && <CustomersSearchPanel />}
             {!isCashier && activeTab === 'books' && <BooksPanel />}
             {!isCashier && activeTab === 'delivery' && <DeliveryPanel />}
             {activeTab === 'pickup' && <PickupPanel />}

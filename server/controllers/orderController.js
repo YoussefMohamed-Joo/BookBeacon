@@ -2,6 +2,7 @@ const Order = require('../models/Order');
 const Book = require('../models/Book');
 const User = require('../models/User');
 const Transaction = require('../models/Transaction');
+const DeliveryPrice = require('../models/DeliveryPrice');
 const { createNotification } = require('./notificationController');
 const { logActivity } = require('./activityController');
 
@@ -70,23 +71,43 @@ async function accountOrder(order) {
 
 const createOrder = async (req, res) => {
   try {
-    // Admin and cashier cannot place orders
     if (req.user.role === 'admin' || req.user.role === 'cashier') {
       return res.status(403).json({ message: 'المشرفين والكاشير لا يمكنهم تقديم طلبات' });
     }
 
-    const { bookId, grade, subject, quantity, deliveryType, deliveryDetails, senderPhone } = req.body;
+    const { bookId, grade, subject, quantity, deliveryType, paymentType, deliveryDetails, senderPhone } = req.body;
 
     const book = await Book.findById(bookId);
     if (!book || !book.isActive) return res.status(404).json({ message: 'الكتاب غير موجود' });
     if (book.stock - (book.reservedQuantity || 0) < quantity) return res.status(400).json({ message: 'الكتاب غير متوفر بالكمية المطلوبة' });
 
     const booksTotal = book.price * quantity;
-    const deliveryCost = deliveryType === 'delivery' ? (deliveryDetails?.deliveryPrice || 0) : 0;
+    const deliveryCost = (deliveryType === 'shipping' || deliveryType === 'delivery') ? (deliveryDetails?.deliveryPrice || 0) : 0;
     const totalPrice = booksTotal + deliveryCost;
     const totalCost = (book.costPrice || 0) * quantity;
     const profit = totalPrice - totalCost;
-    const deposit = Math.round(totalPrice * 0.1);
+
+    // Determine paid amount based on order type and payment type
+    let paidAmount;
+    let remainingAmount;
+    const effectivePaymentType = paymentType || (deliveryType === 'shipping' ? 'full' : deliveryType === 'pickup' ? 'deposit' : 'full');
+
+    if (effectivePaymentType === 'full') {
+      paidAmount = 0; // will be paid via payment proof upload
+      remainingAmount = totalPrice;
+    } else {
+      // deposit mode
+      paidAmount = Math.round(totalPrice * 0.1);
+      remainingAmount = totalPrice - paidAmount;
+    }
+
+    const orderDetails = { ...deliveryDetails };
+    if (deliveryType === 'pickup') {
+      delete orderDetails.governorate;
+      delete orderDetails.center;
+      delete orderDetails.address;
+      delete orderDetails.deliveryPrice;
+    }
 
     const order = await Order.create({
       user: req.user._id,
@@ -95,27 +116,25 @@ const createOrder = async (req, res) => {
       booksTotal,
       deliveryPrice: deliveryCost,
       totalPrice,
-      paidAmount: deposit,
-      remainingAmount: totalPrice - deposit,
-      deliveryType: deliveryType || 'delivery',
+      paidAmount,
+      remainingAmount,
+      paymentType: effectivePaymentType,
+      deliveryType: deliveryType || 'shipping',
       orderSource: 'online',
-      deliveryDetails: deliveryType === 'delivery' ? deliveryDetails : {},
+      deliveryDetails: orderDetails,
       paymentProof: { senderPhone: senderPhone || '' },
       costPrice: totalCost,
       profit,
       status: 'pending',
     });
 
-    // Reserve inventory
     book.reservedQuantity = (book.reservedQuantity || 0) + quantity;
     await book.save();
 
-    // Notifications
     createNotification({ user: req.user._id, type: 'order_created', title: 'تم إنشاء الطلب', message: `تم إنشاء طلب ${book.titleAr}`, link: '/orders' });
     createNotification({ type: 'order_created', title: 'طلب جديد', message: `طلب جديد من ${req.user.name}: ${book.titleAr}`, link: '/admin', isAdminNotification: true });
 
-    // Activity log
-    logActivity({ action: 'order_created', order: order._id, details: { orderId: order.orderId, book: book.titleAr, totalPrice } });
+    logActivity({ action: 'order_created', order: order._id, details: { orderId: order.orderId, book: book.titleAr, totalPrice, deliveryType, paymentType: effectivePaymentType } });
 
     res.status(201).json(order);
   } catch (error) {
@@ -188,12 +207,20 @@ const getUserOrders = async (req, res) => {
 
 const getAllOrders = async (req, res) => {
   try {
-    const { status, deliveryStatus, page = 1, limit = 20, search, orderSource } = req.query;
+    const { status, deliveryStatus, deliveryType, paymentType, page = 1, limit = 20, search, orderSource, dateFrom, dateTo } = req.query;
     const query = {};
 
     if (status) query.status = status;
     if (deliveryStatus) query.deliveryStatus = deliveryStatus;
+    if (deliveryType) query.deliveryType = deliveryType;
+    if (paymentType) query.paymentType = paymentType;
     if (orderSource) query.orderSource = orderSource;
+
+    if (dateFrom || dateTo) {
+      query.createdAt = {};
+      if (dateFrom) query.createdAt.$gte = new Date(dateFrom);
+      if (dateTo) query.createdAt.$lte = new Date(dateTo);
+    }
 
     if (search) {
       query.$or = [
@@ -201,7 +228,6 @@ const getAllOrders = async (req, res) => {
         { customerName: { $regex: search, $options: 'i' } },
       ];
 
-      // Also search by user name/phone via lookup
       const users = await User.find({
         $or: [
           { name: { $regex: search, $options: 'i' } },
@@ -445,8 +471,61 @@ const refundOrder = async (req, res) => {
   }
 };
 
+const adminAction = async (req, res) => {
+  try {
+    const { action, note } = req.body;
+    const order = await Order.findById(req.params.id).populate('book').populate('user');
+    if (!order) return res.status(404).json({ message: 'الطلب غير موجود' });
+
+    if (action === 'approve') {
+      if (order.status !== 'payment_review' && order.status !== 'pending') {
+        return res.status(400).json({ message: 'يمكن الموافقة على الطلبات قيد المراجعة فقط' });
+      }
+      const prevStatus = order.status;
+      order.status = 'approved';
+      order.approvedAt = new Date();
+      if (note) order.adminNote = note;
+      if (!order.accounted) await accountOrder(order);
+      await syncInventory(order, prevStatus);
+      if (order.user) {
+        createNotification({ user: order.user._id, type: 'order_approved', title: 'تم الموافقة على طلبك', message: `تمت الموافقة على طلب ${order.book?.titleAr || ''}`, link: '/orders' });
+      }
+      logActivity({ action: 'order_approved', admin: req.user._id, order: order._id, details: { note } });
+    } else if (action === 'reject') {
+      const prevStatus = order.status;
+      order.status = 'rejected';
+      if (note) order.adminNote = note;
+      await syncInventory(order, prevStatus);
+      if (order.book) {
+        order.book.reservedQuantity = Math.max(0, (order.book.reservedQuantity || 0) - order.quantity);
+        await order.book.save();
+      }
+      if (order.user) {
+        createNotification({ user: order.user._id, type: 'order_rejected', title: 'تم رفض الطلب', message: `تم رفض طلب ${order.book?.titleAr || ''}` + (note ? `: ${note}` : ''), link: '/orders' });
+      }
+      logActivity({ action: 'order_rejected', admin: req.user._id, order: order._id, details: { note } });
+    } else {
+      return res.status(400).json({ message: 'إجراء غير معروف' });
+    }
+
+    await order.save();
+    res.json({ message: 'تم بنجاح', order });
+  } catch (error) {
+    res.status(500).json({ message: 'خطأ', error: error.message });
+  }
+};
+
+const getGovernorates = async (req, res) => {
+  try {
+    const prices = await DeliveryPrice.find().sort({ governorate: 1 });
+    res.json(prices);
+  } catch (error) {
+    res.status(500).json({ message: 'خطأ في جلب المحافظات' });
+  }
+};
+
 module.exports = {
   createOrder, createInstantSale, getUserOrders, getAllOrders,
   updateOrderStatus, uploadPaymentProof, verifyPayment, confirmDelivery, instantDelivery,
-  refundOrder,
+  refundOrder, adminAction, getGovernorates,
 };

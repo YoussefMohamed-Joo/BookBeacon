@@ -55,11 +55,19 @@ const orderSchema = new mongoose.Schema(
       default: 'delivery',
     },
 
+    paymentType: {
+      type: String,
+      enum: ['full', 'deposit'],
+      default: 'full',
+    },
+    adminNote: { type: String, default: '' },
+
     deliveryDetails: {
       governorate: { type: String },
       center: { type: String },
       address: { type: String },
       phone: { type: String },
+      altPhone: { type: String },
       whatsapp: { type: String },
       deliveryPrice: { type: Number, default: 0 },
     },
