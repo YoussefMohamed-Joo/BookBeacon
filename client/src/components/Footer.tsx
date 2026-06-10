@@ -53,7 +53,7 @@ export default function Footer() {
                 {links.map((link) => (
                   <li key={link.label}>
                     <Link to={link.path} className="text-sm transition-all duration-200" style={{ color: '#AAB3C5' }}
-                      onMouseEnter={(e) => e.currentTarget.style.color = '#FFD84D'}
+                      onMouseEnter={(e) => e.currentTarget.style.color = '#4EE7F3'}
                       onMouseLeave={(e) => e.currentTarget.style.color = '#AAB3C5'}
                     >
                       {link.label}
@@ -70,7 +70,7 @@ export default function Footer() {
             <ul className="space-y-3">
               {contactInfo.map(({ icon: Icon, text }) => (
                 <li key={text} className="flex items-center gap-2.5 text-sm" style={{ color: '#AAB3C5' }}>
-                  <Icon className="w-4 h-4 flex-shrink-0" style={{ color: '#1E5EFF' }} />
+                  <Icon className="w-4 h-4 flex-shrink-0" style={{ color: '#0098A4' }} />
                   <span>{text}</span>
                 </li>
               ))}

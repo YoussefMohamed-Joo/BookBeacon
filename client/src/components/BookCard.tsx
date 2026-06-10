@@ -76,7 +76,7 @@ export default function BookCard({ book }: BookCardProps) {
           <button onClick={(e) => { e.preventDefault(); }}
             className="w-full mt-2 py-2 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-all"
             style={{ background: 'var(--primary)', color: 'white' }}
-            onMouseEnter={(e) => e.currentTarget.style.background = '#1545CC'}
+            onMouseEnter={(e) => e.currentTarget.style.background = '#007A83'}
             onMouseLeave={(e) => e.currentTarget.style.background = 'var(--primary)'}
           >
             <ShoppingCart className="w-3.5 h-3.5" /> أضف للسلة

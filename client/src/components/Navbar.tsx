@@ -59,7 +59,7 @@ export default function Navbar() {
 
             <button className="relative p-2 rounded-lg hover:bg-white/5 transition-all">
               <ShoppingCart className="w-5 h-5" />
-              <span className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full text-[10px] font-bold flex items-center justify-center" style={{ background: 'var(--accent)', color: '#0B1F3A' }}>0</span>
+              <span className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full text-[10px] font-bold flex items-center justify-center" style={{ background: 'var(--accent)', color: '#0a1628' }}>0</span>
             </button>
 
             {user ? (

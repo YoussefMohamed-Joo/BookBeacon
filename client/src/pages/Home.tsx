@@ -101,7 +101,7 @@ export default function Home() {
               <div className="max-w-lg">
                 <span
                   className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold mb-4"
-                  style={{ background: 'rgba(255,216,77,0.15)', color: 'var(--accent)' }}
+                  style={{ background: 'rgba(78,231,243,0.15)', color: 'var(--accent)' }}
                 >
                   {slides[slideIndex].badge}
                 </span>
