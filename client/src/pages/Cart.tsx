@@ -93,18 +93,16 @@ export default function Cart() {
                   <span>الإجمالي</span>
                   <span>{formatPrice(total)}</span>
                 </div>
-                <button onClick={() => {
-                  if (!useStore.getState().user) { navigate('/login?redirect=/cart'); return; }
-                  navigate('/checkout');
-                }}
-                  disabled={cart.length === 0}
-                  className="btn-primary w-full justify-center text-sm !py-3">
-                  <CreditCard className="w-4 h-4" /> إتمام الطلب
-                </button>
-                {!useStore.getState().user && (
-                  <p className="text-xs text-center" style={{ color: 'var(--muted)' }}>
-                    <AlertTriangle className="w-3 h-3 inline" /> ستحتاج إلى تسجيل الدخول لإتمام الطلب
-                  </p>
+                {useStore.getState().user ? (
+                  <Link to={`/books/${cart[0]?.book.slug}`}
+                    className="btn-primary w-full justify-center text-sm !py-3 flex items-center gap-2">
+                    <CreditCard className="w-4 h-4" /> إتمام الطلب
+                  </Link>
+                ) : (
+                  <Link to="/login?redirect=/cart"
+                    className="btn-primary w-full justify-center text-sm !py-3 flex items-center gap-2">
+                    <CreditCard className="w-4 h-4" /> تسجيل الدخول للطلب
+                  </Link>
                 )}
               </div>
             </div>
