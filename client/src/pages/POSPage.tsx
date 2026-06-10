@@ -1,9 +1,11 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, X, Plus, Trash2, Scan, Zap, ShoppingCart, CreditCard, DollarSign, Percent, CheckCircle, AlertTriangle, Package, User, Minus as Dash, Loader2 } from 'lucide-react';
+import { Search, X, Plus, Trash2, Scan, Zap, ShoppingCart, CreditCard, DollarSign, Percent, CheckCircle, AlertTriangle, Package, User, Printer, Minus as Dash, Loader2 } from 'lucide-react';
 import { formatPrice } from '../lib/utils';
 import { booksAPI, ordersAPI } from '../lib/api';
+import { useStore } from '../store/useStore';
 import BarcodeScanner from '../components/BarcodeScanner';
+import ThermalReceipt from '../components/ThermalReceipt';
 import toast from 'react-hot-toast';
 
 interface CartItem {
@@ -13,6 +15,7 @@ interface CartItem {
 }
 
 export default function POSPage({ onBack }: { onBack?: () => void }) {
+  const { user } = useStore();
   const [books, setBooks] = useState<any[]>([]);
   const [filteredBooks, setFilteredBooks] = useState<any[]>([]);
   const [search, setSearch] = useState('');
@@ -26,6 +29,8 @@ export default function POSPage({ onBack }: { onBack?: () => void }) {
   const [todaySales, setTodaySales] = useState<any[]>([]);
   const [showTodaySales, setShowTodaySales] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [showReceipt, setShowReceipt] = useState(false);
+  const [receiptData, setReceiptData] = useState<{ items: { titleAr: string; quantity: number; price: number }[]; total: number; paid: number; discount: number; customer: string }>({ items: [], total: 0, paid: 0, discount: 0, customer: '' });
   const searchRef = useRef<HTMLInputElement>(null);
   const [showSuccess, setShowSuccess] = useState(false);
 
@@ -120,6 +125,10 @@ export default function POSPage({ onBack }: { onBack?: () => void }) {
           paidAmount: paidAmount > 0 ? Math.min(paidAmount, item.book.price * item.quantity) : undefined,
         })
       ));
+      const snapshot = [...cart];
+      const paidSnapshot = paidAmount;
+      const discountSnapshot = discountPercent;
+      const customerSnapshot = customerName;
       setShowSuccess(true);
       setTimeout(() => setShowSuccess(false), 3000);
       setCart([]);
@@ -128,6 +137,14 @@ export default function POSPage({ onBack }: { onBack?: () => void }) {
       setPaidAmount(0);
       setSearch('');
       searchRef.current?.focus();
+      setReceiptData({
+        items: snapshot.map(i => ({ titleAr: i.book.titleAr, quantity: i.quantity, price: i.book.price })),
+        total: snapshot.reduce((s, i) => s + i.book.price * i.quantity, 0),
+        paid: paidSnapshot,
+        discount: discountSnapshot,
+        customer: customerSnapshot,
+      });
+      setShowReceipt(true);
     } catch (err: any) {
       toast.error(err.response?.data?.message || 'حدث خطأ أثناء البيع');
     }
@@ -393,6 +410,18 @@ export default function POSPage({ onBack }: { onBack?: () => void }) {
           </div>
         </div>
       </div>
+
+      {showReceipt && (
+        <ThermalReceipt
+          items={receiptData.items}
+          total={receiptData.total}
+          paidAmount={receiptData.paid}
+          discount={receiptData.discount}
+          cashierName={user?.name || 'كاشير'}
+          customerName={receiptData.customer}
+          onClose={() => setShowReceipt(false)}
+        />
+      )}
     </div>
   );
 }
