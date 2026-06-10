@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ordersAPI } from '../lib/api';
 import { formatPrice, getStatusColor, getStatusText, getOrderTypeText, getOrderTypeColor, getPaymentTypeText } from '../lib/utils';
@@ -6,7 +6,8 @@ import toast from 'react-hot-toast';
 import {
   Search, X, Check, Package, Phone, MapPin, Hash, Image as ImageIcon,
   ZoomIn, ZoomOut, ChevronLeft, ChevronRight, Filter, Calendar,
-  AlertTriangle, RefreshCw, User, BookOpen, DollarSign, Store, Truck, Zap
+  AlertTriangle, RefreshCw, User, BookOpen, DollarSign, Store, Truck, Zap,
+  Eye, EyeOff, Ban
 } from 'lucide-react';
 
 export default function OnlineOrdersPanel() {
@@ -17,15 +18,16 @@ export default function OnlineOrdersPanel() {
   const [search, setSearch] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [deliveryType, setDeliveryType] = useState('');
-  const [status, setStatus] = useState('');
+  const [statusFilter, setStatusFilter] = useState('');
   const [dateType, setDateType] = useState('all');
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
   const [actionModal, setActionModal] = useState<{ order: any; action: 'approve' | 'reject' } | null>(null);
   const [actionNote, setActionNote] = useState('');
   const [actionLoading, setActionLoading] = useState(false);
-  const [imageModal, setImageModal] = useState<{ url: string; senderPhone?: string } | null>(null);
+  const [imageModal, setImageModal] = useState<{ url: string; senderPhone?: string; amount?: number } | null>(null);
   const [zoom, setZoom] = useState(1);
+  const imgRef = useRef<HTMLImageElement>(null);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -40,7 +42,7 @@ export default function OnlineOrdersPanel() {
     const params: any = { orderSource: 'online', page, limit: 20 };
     if (debouncedSearch) params.search = debouncedSearch;
     if (deliveryType) params.deliveryType = deliveryType;
-    if (status) params.status = status;
+    if (statusFilter) params.status = statusFilter;
     if (dateType === 'today') {
       const today = new Date().toISOString().split('T')[0];
       params.dateFrom = today;
@@ -62,7 +64,7 @@ export default function OnlineOrdersPanel() {
         setLoading(false);
       })
       .catch(() => setLoading(false));
-  }, [debouncedSearch, deliveryType, status, dateType, dateFrom, dateTo, page]);
+  }, [debouncedSearch, deliveryType, statusFilter, dateType, dateFrom, dateTo, page]);
 
   useEffect(() => { fetchOrders(); }, [fetchOrders]);
 
@@ -92,19 +94,28 @@ export default function OnlineOrdersPanel() {
     setSearch('');
     setDebouncedSearch('');
     setDeliveryType('');
-    setStatus('');
+    setStatusFilter('');
     setDateType('all');
     setDateFrom('');
     setDateTo('');
     setPage(1);
   };
 
-  const hasFilters = search || deliveryType || status || dateType !== 'all' || dateFrom || dateTo;
+  const hasFilters = search || deliveryType || statusFilter || dateType !== 'all' || dateFrom || dateTo;
 
   const formatDate = (dateStr: string) => {
     return new Date(dateStr).toLocaleDateString('ar-EG', {
       year: 'numeric', month: 'long', day: 'numeric',
     });
+  };
+
+  const handleWheel = (e: React.WheelEvent) => {
+    if (e.deltaY < 0) setZoom(z => Math.min(z + 0.25, 5));
+    else setZoom(z => Math.max(z - 0.25, 0.5));
+  };
+
+  const hasPaymentProof = (order: any) => {
+    return !!(order.paymentProof?.imageUrl);
   };
 
   return (
@@ -134,7 +145,7 @@ export default function OnlineOrdersPanel() {
             <option value="pickup">استلام</option>
             <option value="delivery">دليفري</option>
           </select>
-          <select value={status} onChange={(e) => { setStatus(e.target.value); setPage(1); }} className="input-field py-2 text-sm w-auto">
+          <select value={statusFilter} onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }} className="input-field py-2 text-sm w-auto">
             <option value="">كل الحالات</option>
             <option value="pending">قيد الانتظار</option>
             <option value="approved">تمت الموافقة</option>
@@ -173,7 +184,10 @@ export default function OnlineOrdersPanel() {
         </div>
       ) : (
         <div className="grid grid-cols-1 gap-4">
-          {orders.map((order: any) => (
+          {orders.map((order: any) => {
+            const hasImage = hasPaymentProof(order);
+            const canApprove = hasImage;
+            return (
             <motion.div
               key={order._id}
               initial={{ opacity: 0, y: 10 }}
@@ -237,40 +251,92 @@ export default function OnlineOrdersPanel() {
                       </div>
                     )}
                   </div>
+
+                  {/* Payment proof section */}
+                  <div className="flex items-center gap-3 pt-2 border-t border-gray-100 dark:border-dark-700/50">
+                    {hasImage ? (
+                      <>
+                        <div className="relative group shrink-0">
+                          <img
+                            src={order.paymentProof.imageUrl}
+                            alt="إثبات الدفع"
+                            className="w-14 h-14 object-cover rounded-lg border border-gray-200 dark:border-dark-600 cursor-pointer"
+                            onClick={() => {
+                              setImageModal({ url: order.paymentProof.imageUrl, senderPhone: order.paymentProof.senderPhone, amount: order.paidAmount });
+                              setZoom(1);
+                            }}
+                          />
+                          <div className="absolute inset-0 bg-black/40 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer"
+                            onClick={() => {
+                              setImageModal({ url: order.paymentProof.imageUrl, senderPhone: order.paymentProof.senderPhone, amount: order.paidAmount });
+                              setZoom(1);
+                            }}>
+                            <Eye className="w-5 h-5 text-white" />
+                          </div>
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs font-medium flex items-center gap-1">
+                            <Phone className="w-3 h-3 text-green-500" />
+                            <span dir="ltr">{order.paymentProof.senderPhone || 'N/A'}</span>
+                          </p>
+                          <p className="text-[11px] text-gray-400">تم تحويل {formatPrice(order.paidAmount)}</p>
+                        </div>
+                      </>
+                    ) : (
+                      <div className="flex items-center gap-2 text-red-400">
+                        <Ban className="w-4 h-4" />
+                        <span className="text-xs">لا توجد صورة تحويل</span>
+                      </div>
+                    )}
+                  </div>
                 </div>
 
                 <div className="flex flex-wrap items-center gap-2 lg:flex-col lg:shrink-0">
+                  {hasImage && (
+                    <button
+                      onClick={() => {
+                        setImageModal({ url: order.paymentProof.imageUrl, senderPhone: order.paymentProof.senderPhone, amount: order.paidAmount });
+                        setZoom(1);
+                      }}
+                      className="w-full text-sm !py-1.5 !px-4 rounded-lg bg-blue-100 text-blue-700 hover:bg-blue-200 dark:bg-blue-900/20 dark:text-blue-400 transition-colors flex items-center justify-center gap-1"
+                    >
+                      <Eye className="w-4 h-4" /> عرض صورة التحويل
+                    </button>
+                  )}
+
                   {['pending', 'payment_review'].includes(order.status) && (
                     <>
-                      <button
-                        onClick={() => setActionModal({ order, action: 'approve' })}
-                        className="btn-success text-sm !py-1.5 !px-4 flex items-center gap-1"
-                      >
-                        <Check className="w-4 h-4" /> موافقة
-                      </button>
+                      {canApprove ? (
+                        <button
+                          onClick={() => setActionModal({ order, action: 'approve' })}
+                          className="w-full btn-success text-sm !py-1.5 !px-4 flex items-center justify-center gap-1"
+                        >
+                          <Check className="w-4 h-4" /> موافقة
+                        </button>
+                      ) : (
+                        <div className="w-full space-y-1">
+                          <button
+                            disabled
+                            className="w-full btn-success text-sm !py-1.5 !px-4 flex items-center justify-center gap-1 opacity-50 cursor-not-allowed"
+                            title="يجب مراجعة صورة التحويل أولاً"
+                          >
+                            <Check className="w-4 h-4" /> موافقة
+                          </button>
+                          <p className="text-[10px] text-amber-500 text-center">يجب مراجعة صورة التحويل أولاً</p>
+                        </div>
+                      )}
                       <button
                         onClick={() => setActionModal({ order, action: 'reject' })}
-                        className="btn-danger text-sm !py-1.5 !px-4 flex items-center gap-1"
+                        className="w-full btn-danger text-sm !py-1.5 !px-4 flex items-center justify-center gap-1"
                       >
                         <X className="w-4 h-4" /> رفض
                       </button>
                     </>
                   )}
-                  {order.paymentProof?.imageUrl && (
-                    <button
-                      onClick={() => {
-                        setImageModal({ url: order.paymentProof.imageUrl, senderPhone: order.paymentProof.senderPhone });
-                        setZoom(1);
-                      }}
-                      className="text-sm !py-1.5 !px-4 rounded-lg bg-blue-100 text-blue-700 hover:bg-blue-200 dark:bg-blue-900/20 dark:text-blue-400 transition-colors flex items-center gap-1"
-                    >
-                      <ImageIcon className="w-4 h-4" /> عرض الصورة
-                    </button>
-                  )}
                 </div>
               </div>
             </motion.div>
-          ))}
+          );})}
         </div>
       )}
 
@@ -315,7 +381,7 @@ export default function OnlineOrdersPanel() {
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
-              className="modal-content max-w-md"
+              className="modal-content max-w-lg"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex items-center justify-between mb-4">
@@ -332,20 +398,66 @@ export default function OnlineOrdersPanel() {
               </div>
 
               <div className="space-y-4">
-                <div className="p-3 bg-gray-50 dark:bg-dark-700/50 rounded-xl">
-                  <p className="text-xs text-gray-400 mb-1">رقم الطلب</p>
-                  <p className="font-medium">{actionModal.order.orderId || `#${actionModal.order._id.slice(-6)}`}</p>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="p-3 bg-gray-50 dark:bg-dark-700/50 rounded-xl">
+                    <p className="text-xs text-gray-400 mb-1">رقم الطلب</p>
+                    <p className="font-medium text-sm">{actionModal.order.orderId || `#${actionModal.order._id.slice(-6)}`}</p>
+                  </div>
+                  <div className="p-3 bg-gray-50 dark:bg-dark-700/50 rounded-xl">
+                    <p className="text-xs text-gray-400 mb-1">المبلغ</p>
+                    <p className="font-medium text-sm text-primary-500">{formatPrice(actionModal.order.totalPrice)}</p>
+                  </div>
                 </div>
                 <div className="p-3 bg-gray-50 dark:bg-dark-700/50 rounded-xl">
                   <p className="text-xs text-gray-400 mb-1">العميل</p>
-                  <p className="font-medium">{actionModal.order.customerName || actionModal.order.user?.name}</p>
+                  <p className="font-medium text-sm">{actionModal.order.customerName || actionModal.order.user?.name}</p>
                   <p className="text-xs text-gray-400">{actionModal.order.user?.phone || actionModal.order.deliveryDetails?.phone}</p>
                 </div>
                 <div className="p-3 bg-gray-50 dark:bg-dark-700/50 rounded-xl">
                   <p className="text-xs text-gray-400 mb-1">الكتاب</p>
-                  <p className="font-medium">{actionModal.order.book?.titleAr} × {actionModal.order.quantity}</p>
-                  <p className="text-xs text-gray-400">{formatPrice(actionModal.order.totalPrice)}</p>
+                  <p className="font-medium text-sm">{actionModal.order.book?.titleAr} × {actionModal.order.quantity}</p>
                 </div>
+
+                {/* Payment proof in action modal */}
+                {actionModal.order.paymentProof?.imageUrl && (
+                  <div className="p-3 bg-gray-50 dark:bg-dark-700/50 rounded-xl">
+                    <p className="text-xs text-gray-400 mb-2">صورة التحويل</p>
+                    <div className="flex items-center gap-3">
+                      <img
+                        src={actionModal.order.paymentProof.imageUrl}
+                        alt="إثبات الدفع"
+                        className="w-20 h-20 object-cover rounded-lg border border-gray-200 dark:border-dark-600 cursor-pointer"
+                        onClick={() => {
+                          setImageModal({ url: actionModal.order.paymentProof.imageUrl, senderPhone: actionModal.order.paymentProof.senderPhone, amount: actionModal.order.paidAmount });
+                          setZoom(1);
+                        }}
+                      />
+                      <div>
+                        <p className="text-xs flex items-center gap-1">
+                          <Phone className="w-3 h-3 text-green-500" />
+                          <span dir="ltr">{actionModal.order.paymentProof.senderPhone || 'N/A'}</span>
+                        </p>
+                        <p className="text-xs text-gray-400">{formatPrice(actionModal.order.paidAmount)}</p>
+                        <button
+                          onClick={() => {
+                            setImageModal({ url: actionModal.order.paymentProof.imageUrl, senderPhone: actionModal.order.paymentProof.senderPhone, amount: actionModal.order.paidAmount });
+                            setZoom(1);
+                          }}
+                          className="text-xs text-blue-500 hover:underline mt-1"
+                        >
+                          عرض الصورة كاملة
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {!actionModal.order.paymentProof?.imageUrl && actionModal.action === 'approve' && (
+                  <div className="p-3 bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-700 rounded-xl flex items-center gap-2">
+                    <AlertTriangle className="w-5 h-5 text-amber-500 shrink-0" />
+                    <p className="text-xs text-amber-700 dark:text-amber-400">تحذير: لا توجد صورة تحويل لهذا الطلب. الموافقة بدون صورة قد تكون خطيرة.</p>
+                  </div>
+                )}
 
                 <div>
                   <label className="block text-sm font-medium mb-1">
@@ -392,6 +504,7 @@ export default function OnlineOrdersPanel() {
             className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4"
             onClick={() => setImageModal(null)}
             onKeyDown={(e) => e.key === 'Escape' && setImageModal(null)}
+            tabIndex={0}
           >
             <div className="absolute top-4 left-4 right-4 flex items-center justify-between z-10">
               <div className="flex items-center gap-2">
@@ -416,22 +529,30 @@ export default function OnlineOrdersPanel() {
                 <X className="w-6 h-6" />
               </button>
             </div>
-            {imageModal.senderPhone && (
-              <div className="absolute bottom-6 left-1/2 -translate-x-1/2 bg-black/60 backdrop-blur-sm rounded-xl px-4 py-2 text-white text-sm flex items-center gap-2 z-10">
-                <Phone className="w-4 h-4" /> رقم المحول: {imageModal.senderPhone}
-              </div>
-            )}
-            <motion.img
-              src={imageModal.url}
-              alt="إيصال الدفع"
-              className="max-w-[90vw] max-h-[90vh] object-contain rounded-2xl"
-              style={{ transform: `scale(${zoom})` }}
-              initial={{ scale: 0.8, opacity: 0 }}
-              animate={{ scale: zoom, opacity: 1 }}
-              exit={{ scale: 0.8, opacity: 0 }}
-              transition={{ type: 'spring', damping: 20 }}
-              onClick={(e) => e.stopPropagation()}
-            />
+
+            <div className="absolute bottom-6 left-1/2 -translate-x-1/2 bg-black/60 backdrop-blur-sm rounded-xl px-4 py-2 text-white text-sm flex items-center gap-3 z-10">
+              <span className="flex items-center gap-1"><Phone className="w-4 h-4" /> {imageModal.senderPhone || 'N/A'}</span>
+              {imageModal.amount && (
+                <span className="flex items-center gap-1"><DollarSign className="w-4 h-4" /> {formatPrice(imageModal.amount)}</span>
+              )}
+            </div>
+
+            <div onWheel={handleWheel} className="flex items-center justify-center w-full h-full">
+              <motion.img
+                ref={imgRef}
+                src={imageModal.url}
+                alt="إيصال الدفع"
+                className="max-w-[90vw] max-h-[90vh] object-contain rounded-2xl cursor-grab active:cursor-grabbing"
+                style={{ transform: `scale(${zoom})` }}
+                initial={{ scale: 0.8, opacity: 0 }}
+                animate={{ scale: zoom, opacity: 1 }}
+                exit={{ scale: 0.8, opacity: 0 }}
+                transition={{ type: 'spring', damping: 20 }}
+                onClick={(e) => e.stopPropagation()}
+                drag
+                dragConstraints={{ left: -500, right: 500, top: -500, bottom: 500 }}
+              />
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
