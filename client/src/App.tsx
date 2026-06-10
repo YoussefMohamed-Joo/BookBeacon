@@ -32,6 +32,7 @@ import NavbarDemo from './pages/NavbarDemo';
 import SplineDemo from './pages/SplineDemo';
 import ComponentsDemo from './pages/ComponentsDemo';
 import ChatBot from './components/ChatBot';
+import { FloatingPathsBackground } from './components/ui/background-paths';
 
 function AnimatedPage({ children }: { children: React.ReactNode }) {
   return (
@@ -61,41 +62,44 @@ function App() {
   }, [location.pathname]);
 
   return (
-    <div className="min-h-screen" style={{ background: 'var(--bg)', backgroundImage: 'var(--bg-gradient)', color: 'var(--text)' }}>
-      <LoadingScreen />
-      <TopBar />
-      <Navbar />
-      <AnimatePresence mode="wait">
-        <Routes location={location} key={location.pathname}>
-          <Route path="/" element={<AnimatedPage><Home /></AnimatedPage>} />
-          <Route path="/books" element={<AnimatedPage><Books /></AnimatedPage>} />
-          <Route path="/books/:slug" element={<AnimatedPage><BookDetail /></AnimatedPage>} />
-          <Route path="/login" element={<AnimatedPage><Login /></AnimatedPage>} />
-          <Route path="/register" element={<AnimatedPage><Register /></AnimatedPage>} />
-          <Route path="/verify-otp" element={<AnimatedPage><VerifyOTP /></AnimatedPage>} />
-          <Route path="/orders" element={<AnimatedPage><Orders /></AnimatedPage>} />
-          <Route path="/blog" element={<AnimatedPage><Blog /></AnimatedPage>} />
-          <Route path="/blog/:slug" element={<AnimatedPage><BlogDetail /></AnimatedPage>} />
-          <Route path="/contact" element={<AnimatedPage><Contact /></AnimatedPage>} />
-          <Route path="/admin" element={<AnimatedPage><AdminDashboard /></AnimatedPage>} />
-          <Route path="/privacy" element={<AnimatedPage><Privacy /></AnimatedPage>} />
-          <Route path="/terms" element={<AnimatedPage><Terms /></AnimatedPage>} />
-          <Route path="/faq" element={<AnimatedPage><FAQ /></AnimatedPage>} />
-          <Route path="/payment-methods" element={<AnimatedPage><PaymentMethods /></AnimatedPage>} />
-          <Route path="/delivery-policy" element={<AnimatedPage><DeliveryPolicy /></AnimatedPage>} />
-          <Route path="/cart" element={<AnimatedPage><Cart /></AnimatedPage>} />
-          <Route path="/order/new" element={<AnimatedPage><OrderPage /></AnimatedPage>} />
-          <Route path="/scroll-demo" element={<AnimatedPage><ScrollDemo /></AnimatedPage>} />
-          <Route path="/navbar-demo" element={<AnimatedPage><NavbarDemo /></AnimatedPage>} />
-          <Route path="/spline-demo" element={<AnimatedPage><SplineDemo /></AnimatedPage>} />
-          <Route path="/components-demo" element={<AnimatedPage><ComponentsDemo /></AnimatedPage>} />
-          <Route path="/my-pickups" element={<AnimatedPage><MyPickups /></AnimatedPage>} />
-          <Route path="/dashboard" element={<AnimatedPage><CustomerDashboard /></AnimatedPage>} />
-          <Route path="*" element={<AnimatedPage><div className="min-h-screen flex items-center justify-center"><div className="text-center"><h1 className="text-6xl font-bold opacity-20 mb-4">404</h1><p className="opacity-50">الصفحة غير موجودة</p></div></div></AnimatedPage>} />
-        </Routes>
-      </AnimatePresence>
-      <ChatBot />
-      <Footer />
+    <div className="min-h-screen relative" style={{ background: 'var(--bg)', backgroundImage: 'var(--bg-gradient)', color: 'var(--text)' }}>
+      <FloatingPathsBackground />
+      <div className="relative z-10">
+        <LoadingScreen />
+        <TopBar />
+        <Navbar />
+        <AnimatePresence mode="wait">
+          <Routes location={location} key={location.pathname}>
+            <Route path="/" element={<AnimatedPage><Home /></AnimatedPage>} />
+            <Route path="/books" element={<AnimatedPage><Books /></AnimatedPage>} />
+            <Route path="/books/:slug" element={<AnimatedPage><BookDetail /></AnimatedPage>} />
+            <Route path="/login" element={<AnimatedPage><Login /></AnimatedPage>} />
+            <Route path="/register" element={<AnimatedPage><Register /></AnimatedPage>} />
+            <Route path="/verify-otp" element={<AnimatedPage><VerifyOTP /></AnimatedPage>} />
+            <Route path="/orders" element={<AnimatedPage><Orders /></AnimatedPage>} />
+            <Route path="/blog" element={<AnimatedPage><Blog /></AnimatedPage>} />
+            <Route path="/blog/:slug" element={<AnimatedPage><BlogDetail /></AnimatedPage>} />
+            <Route path="/contact" element={<AnimatedPage><Contact /></AnimatedPage>} />
+            <Route path="/admin" element={<AnimatedPage><AdminDashboard /></AnimatedPage>} />
+            <Route path="/privacy" element={<AnimatedPage><Privacy /></AnimatedPage>} />
+            <Route path="/terms" element={<AnimatedPage><Terms /></AnimatedPage>} />
+            <Route path="/faq" element={<AnimatedPage><FAQ /></AnimatedPage>} />
+            <Route path="/payment-methods" element={<AnimatedPage><PaymentMethods /></AnimatedPage>} />
+            <Route path="/delivery-policy" element={<AnimatedPage><DeliveryPolicy /></AnimatedPage>} />
+            <Route path="/cart" element={<AnimatedPage><Cart /></AnimatedPage>} />
+            <Route path="/order/new" element={<AnimatedPage><OrderPage /></AnimatedPage>} />
+            <Route path="/scroll-demo" element={<AnimatedPage><ScrollDemo /></AnimatedPage>} />
+            <Route path="/navbar-demo" element={<AnimatedPage><NavbarDemo /></AnimatedPage>} />
+            <Route path="/spline-demo" element={<AnimatedPage><SplineDemo /></AnimatedPage>} />
+            <Route path="/components-demo" element={<AnimatedPage><ComponentsDemo /></AnimatedPage>} />
+            <Route path="/my-pickups" element={<AnimatedPage><MyPickups /></AnimatedPage>} />
+            <Route path="/dashboard" element={<AnimatedPage><CustomerDashboard /></AnimatedPage>} />
+            <Route path="*" element={<AnimatedPage><div className="min-h-screen flex items-center justify-center"><div className="text-center"><h1 className="text-6xl font-bold opacity-20 mb-4">404</h1><p className="opacity-50">الصفحة غير موجودة</p></div></div></AnimatedPage>} />
+          </Routes>
+        </AnimatePresence>
+        <ChatBot />
+        <Footer />
+      </div>
     </div>
   );
 }
