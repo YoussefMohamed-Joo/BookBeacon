@@ -28,6 +28,7 @@ import CustomerDashboard from './pages/CustomerDashboard';
 import Cart from './pages/Cart';
 import OrderPage from './pages/OrderPage';
 import ScrollDemo from './pages/ScrollDemo';
+import NavbarDemo from './pages/NavbarDemo';
 import ChatBot from './components/ChatBot';
 
 function AnimatedPage({ children }: { children: React.ReactNode }) {
@@ -83,6 +84,7 @@ function App() {
           <Route path="/cart" element={<AnimatedPage><Cart /></AnimatedPage>} />
           <Route path="/order/new" element={<AnimatedPage><OrderPage /></AnimatedPage>} />
           <Route path="/scroll-demo" element={<AnimatedPage><ScrollDemo /></AnimatedPage>} />
+          <Route path="/navbar-demo" element={<AnimatedPage><NavbarDemo /></AnimatedPage>} />
           <Route path="/my-pickups" element={<AnimatedPage><MyPickups /></AnimatedPage>} />
           <Route path="/dashboard" element={<AnimatedPage><CustomerDashboard /></AnimatedPage>} />
           <Route path="*" element={<AnimatedPage><div className="min-h-screen flex items-center justify-center"><div className="text-center"><h1 className="text-6xl font-bold opacity-20 mb-4">404</h1><p className="opacity-50">الصفحة غير موجودة</p></div></div></AnimatedPage>} />

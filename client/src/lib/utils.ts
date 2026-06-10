@@ -1,3 +1,9 @@
+import { clsx } from 'clsx';
+
+export function cn(...inputs: any[]) {
+  return clsx(inputs);
+}
+
 // Format price as "XXX جنيه"
 export const formatPrice = (price: number): string => {
   return `${price.toFixed(0)} جنيه`;
