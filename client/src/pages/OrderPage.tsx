@@ -76,6 +76,11 @@ export default function OrderPage() {
   const fileRef = useRef<HTMLInputElement>(null);
   const [dragOver, setDragOver] = useState(false);
 
+  // Pre-fill user data from profile
+  useEffect(() => {
+    if (user) { setName(user.name); setPhone(user.phone); }
+  }, [user]);
+
   useEffect(() => {
     if (bookId) {
       booksAPI.getById(bookId).then((res) => { setBook(res.data); setBookLoading(false); }).catch(() => { toast.error('الكتاب غير موجود'); navigate('/books'); });

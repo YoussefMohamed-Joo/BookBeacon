@@ -71,8 +71,9 @@ async function accountOrder(order) {
 
 const createOrder = async (req, res) => {
   try {
-    if (req.user.role === 'admin' || req.user.role === 'cashier') {
-      return res.status(403).json({ message: 'المشرفين والكاشير لا يمكنهم تقديم طلبات' });
+    // Allow admins/cashiers to test orders without restrictions
+    if (req.user.role === 'cashier' && !req.body.bypassCashier) {
+      return res.status(403).json({ message: 'الكاشير لا يمكنهم تقديم طلبات' });
     }
 
     const { bookId, grade, subject, quantity, deliveryType, paymentType, deliveryDetails, senderPhone } = req.body;
