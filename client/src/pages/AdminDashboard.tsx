@@ -320,6 +320,10 @@ function OrdersPanel() {
   const [sourceFilter, setSourceFilter] = useState('');
   const [selectedOrder, setSelectedOrder] = useState<any>(null);
   const [page, setPage] = useState(1);
+  const [refundOrder, setRefundOrder] = useState<any>(null);
+  const [refundQtys, setRefundQtys] = useState<Record<string, number>>({});
+  const [refundReason, setRefundReason] = useState('');
+  const [refunding, setRefunding] = useState(false);
 
   const fetchOrders = () => {
     setLoading(true);
@@ -349,6 +353,28 @@ function OrdersPanel() {
       toast.success('تم تأكيد التوصيل مع التحصيل');
       fetchOrders(); setSelectedOrder(null);
     } catch { toast.error('حدث خطأ'); }
+  };
+
+  const openRefundModal = (order: any) => {
+    setRefundOrder(order);
+    setRefundQtys({ [order.book?._id]: order.quantity });
+    setRefundReason('');
+  };
+
+  const handleRefund = async () => {
+    if (!refundOrder) return;
+    const items = Object.entries(refundQtys)
+      .filter(([, qty]) => qty > 0)
+      .map(([bookId, quantity]) => ({ bookId, quantity }));
+    if (items.length === 0) { toast.error('اختر كمية للإرجاع'); return; }
+    setRefunding(true);
+    try {
+      await ordersAPI.refundOrder({ orderId: refundOrder._id, items, reason: refundReason });
+      toast.success('تم إرجاع الطلب');
+      setRefundOrder(null);
+      fetchOrders();
+    } catch { toast.error('حدث خطأ'); }
+    setRefunding(false);
   };
 
   return (
@@ -428,6 +454,11 @@ function OrdersPanel() {
                     )}
                   </>
                 )}
+                {['delivered', 'approved', 'ready_for_pickup'].includes(order.status) && (
+                  <button onClick={() => openRefundModal(order)} className="text-xs !py-1.5 !px-3 rounded-lg bg-amber-100 text-amber-700 hover:bg-amber-200 dark:bg-amber-900/20 dark:text-amber-400 transition-colors flex items-center gap-1">
+                    <RefreshCw className="w-3 h-3" /> ترجيع
+                  </button>
+                )}
               </div>
             </motion.div>
           ))}
@@ -495,6 +526,37 @@ function OrdersPanel() {
                   {selectedOrder.status === 'ready_for_pickup' && (
                     <button onClick={() => handleConfirmDelivery(selectedOrder._id)} className="flex-1 btn-success text-sm"><Check className="w-4 h-4 inline ml-1" />تأكيد الاستلام</button>
                   )}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+        {refundOrder && (
+          <div className="modal-overlay" onClick={() => setRefundOrder(null)}>
+            <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-bold">ترجيع الطلب {refundOrder.orderId || `#${refundOrder._id.slice(-6)}`}</h3>
+                <button onClick={() => setRefundOrder(null)} className="p-1 hover:bg-gray-100 dark:hover:bg-dark-700 rounded-lg"><X className="w-5 h-5" /></button>
+              </div>
+              <div className="space-y-4">
+                <div className="p-3 bg-gray-50 dark:bg-dark-700/50 rounded-xl">
+                  <p className="text-xs text-gray-400 mb-1">الكتاب</p>
+                  <p className="font-medium">{refundOrder.book?.titleAr}</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">الكمية المرتجعة</label>
+                  <input type="number" min="0" max={refundOrder.quantity} value={refundQtys[refundOrder.book?._id] || 0} onChange={(e) => setRefundQtys({ ...refundQtys, [refundOrder.book?._id]: Math.min(Number(e.target.value), refundOrder.quantity) })} className="input-field text-sm" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">سبب الإرجاع</label>
+                  <input type="text" value={refundReason} onChange={(e) => setRefundReason(e.target.value)} placeholder="مثال: تالف، خطأ في الطلب..." className="input-field text-sm" />
+                </div>
+                <div className="flex gap-2">
+                  <button onClick={handleRefund} disabled={refunding || (refundQtys[refundOrder.book?._id] || 0) <= 0} className="flex-1 btn-primary text-sm">
+                    {refunding ? <RefreshCw className="w-4 h-4 animate-spin inline ml-1" /> : null}
+                    تأكيد الإرجاع
+                  </button>
+                  <button onClick={() => setRefundOrder(null)} className="flex-1 btn-secondary text-sm">إلغاء</button>
                 </div>
               </div>
             </div>

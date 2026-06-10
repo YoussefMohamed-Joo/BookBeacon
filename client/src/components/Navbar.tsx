@@ -82,6 +82,7 @@ export default function Navbar() {
                         <p className="text-sm font-medium">{user.name}</p>
                         <p className="text-xs" style={{ color: 'var(--muted)' }}>{user.email}</p>
                       </div>
+                      <Link to="/dashboard" onClick={() => setShowUserMenu(false)} className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm hover:bg-white/5 transition-all"><LayoutDashboard className="w-4 h-4" /> حسابي</Link>
                       <Link to="/orders" onClick={() => setShowUserMenu(false)} className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm hover:bg-white/5 transition-all"><ShoppingCart className="w-4 h-4" /> طلباتي</Link>
                       <Link to="/my-pickups" onClick={() => setShowUserMenu(false)} className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm hover:bg-white/5 transition-all"><Store className="w-4 h-4" /> حجوزاتي</Link>
                       {(user.role === 'admin' || user.role === 'cashier') && (
@@ -125,6 +126,7 @@ export default function Navbar() {
             {user ? (
               <>
                 <div className="px-4 py-2 text-sm" style={{ color: 'var(--muted)' }}>{user.name}</div>
+                <Link to="/dashboard" className="block px-4 py-2.5 rounded-lg text-sm hover:bg-white/5">حسابي</Link>
                 <Link to="/orders" className="block px-4 py-2.5 rounded-lg text-sm hover:bg-white/5">طلباتي</Link>
                 <Link to="/my-pickups" className="block px-4 py-2.5 rounded-lg text-sm hover:bg-white/5">حجوزاتي</Link>
                 {(user.role === 'admin' || user.role === 'cashier') && <Link to="/admin" className="block px-4 py-2.5 rounded-lg text-sm hover:bg-white/5">لوحة التحكم</Link>}

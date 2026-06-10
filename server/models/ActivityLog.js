@@ -7,7 +7,7 @@ const activityLogSchema = new mongoose.Schema({
     enum: [
       'order_created', 'order_approved', 'order_delivered', 'order_rejected',
       'order_status_changed', 'payment_uploaded', 'payment_verified',
-      'instant_sale', 'user_banned', 'user_unbanned',
+      'instant_sale', 'user_banned', 'user_unbanned', 'order_returned',
       'stock_added', 'stock_adjusted', 'book_created', 'book_updated',
     ],
   },

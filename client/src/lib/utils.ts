@@ -38,6 +38,8 @@ export const getStatusColor = (status: string): string => {
       return 'badge-info';
     case 'delivered':
       return 'badge-success';
+    case 'returned':
+      return 'badge-danger';
     default:
       return 'badge';
   }
@@ -55,6 +57,7 @@ export const getStatusText = (status: string): string => {
     preparing: 'قيد التجهيز',
     out_for_delivery: 'خرج للتوصيل',
     delivered: 'تم التوصيل',
+    returned: 'تم الإرجاع',
   };
   return map[status] || status;
 };

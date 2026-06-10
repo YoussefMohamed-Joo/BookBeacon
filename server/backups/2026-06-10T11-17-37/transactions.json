@@ -1,0 +1,49 @@
+[
+  {
+    "_id": "6a2865813b28a8a61e22e290",
+    "type": "income",
+    "amount": 250,
+    "category": "مبيعات كتب",
+    "description": "طلب كتاب بسطهالم",
+    "order": "6a285f3fc097bb1ed2948419",
+    "date": "2026-06-09T19:12:01.445Z",
+    "createdAt": "2026-06-09T19:12:01.448Z",
+    "updatedAt": "2026-06-09T19:12:01.448Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a28658a3b28a8a61e22e29f",
+    "type": "income",
+    "amount": 250,
+    "category": "مبيعات كتب",
+    "description": "طلب كتاب بسطهالم",
+    "order": "6a284c4cdec34715f4ae2aae",
+    "date": "2026-06-09T19:12:10.884Z",
+    "createdAt": "2026-06-09T19:12:10.885Z",
+    "updatedAt": "2026-06-09T19:12:10.885Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a2865a006046adcb36cff02",
+    "type": "income",
+    "amount": 250,
+    "category": "مبيعات كتب",
+    "description": "طلب كتاب بسطهالم",
+    "order": "6a284c42dec34715f4ae2aa4",
+    "date": "2026-06-09T19:12:32.166Z",
+    "createdAt": "2026-06-09T19:12:32.167Z",
+    "updatedAt": "2026-06-09T19:12:32.167Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a293ffb7e3526bcd8423824",
+    "type": "income",
+    "amount": 250,
+    "category": "مبيعات كتب",
+    "description": "طلب BB-2026-000006: بسطهالم",
+    "order": "6a293ffb7e3526bcd8423820",
+    "createdAt": "2026-06-10T10:44:11.675Z",
+    "updatedAt": "2026-06-10T10:44:11.675Z",
+    "__v": 0
+  }
+]

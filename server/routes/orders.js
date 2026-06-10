@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { createOrder, createInstantSale, getUserOrders, getAllOrders, updateOrderStatus, uploadPaymentProof, verifyPayment, confirmDelivery, instantDelivery } = require('../controllers/orderController');
+const { createOrder, createInstantSale, getUserOrders, getAllOrders, updateOrderStatus, uploadPaymentProof, verifyPayment, confirmDelivery, instantDelivery, refundOrder } = require('../controllers/orderController');
 const { protect, admin, cashier } = require('../middleware/auth');
 const upload = require('../middleware/upload');
 
@@ -13,5 +13,6 @@ router.post('/:id/payment', protect, upload.single('paymentProof'), uploadPaymen
 router.post('/:id/verify-payment', protect, admin, verifyPayment);
 router.post('/:id/confirm-delivery', protect, cashier, confirmDelivery);
 router.post('/:id/instant-delivery', protect, admin, instantDelivery);
+router.post('/refund', protect, admin, refundOrder);
 
 module.exports = router;

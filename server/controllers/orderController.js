@@ -390,7 +390,63 @@ const instantDelivery = async (req, res) => {
   }
 };
 
+const refundOrder = async (req, res) => {
+  try {
+    const { orderId, items, reason } = req.body;
+
+    const order = await Order.findById(orderId).populate('book').populate('user');
+    if (!order) return res.status(404).json({ message: 'الطلب غير موجود' });
+
+    if (!['delivered', 'approved', 'ready_for_pickup'].includes(order.status)) {
+      return res.status(400).json({ message: 'لا يمكن إرجاع طلب بهذه الحالة' });
+    }
+
+    const refundItems = items && items.length > 0 ? items : [{ bookId: order.book?._id || order.book, quantity: order.quantity }];
+
+    let totalRefundAmount = 0;
+    const bookUpdates = [];
+
+    for (const item of refundItems) {
+      const book = await Book.findById(item.bookId);
+      if (!book) return res.status(404).json({ message: 'الكتاب غير موجود' });
+
+      book.stock = (book.stock || 0) + item.quantity;
+      book.soldQuantity = Math.max(0, (book.soldQuantity || 0) - item.quantity);
+      book.reservedQuantity = Math.max(0, (book.reservedQuantity || 0) - item.quantity);
+      await book.save();
+
+      totalRefundAmount += (book.price || 0) * item.quantity;
+      bookUpdates.push({ title: book.titleAr, quantity: item.quantity });
+    }
+
+    await Transaction.create({
+      type: 'expense',
+      amount: totalRefundAmount || order.totalPrice,
+      category: 'مرتجعات',
+      description: `مرتجع طلب ${order.orderId || ''}` + (reason ? `: ${reason}` : ''),
+      order: order._id,
+      recordedBy: req.user._id,
+    });
+
+    order.status = 'returned';
+    await order.save();
+
+    logActivity({
+      action: 'order_returned',
+      admin: req.user._id,
+      user: order.user?._id,
+      order: order._id,
+      details: { reason, items: bookUpdates, refundAmount: totalRefundAmount || order.totalPrice },
+    });
+
+    res.json({ message: 'تم إرجاع الطلب', order });
+  } catch (error) {
+    res.status(500).json({ message: 'خطأ في إرجاع الطلب', error: error.message });
+  }
+};
+
 module.exports = {
   createOrder, createInstantSale, getUserOrders, getAllOrders,
   updateOrderStatus, uploadPaymentProof, verifyPayment, confirmDelivery, instantDelivery,
+  refundOrder,
 };

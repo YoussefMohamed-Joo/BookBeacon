@@ -32,7 +32,7 @@ const orderSchema = new mongoose.Schema(
     // pending -> payment_review -> approved -> ready_for_pickup -> delivered
     status: {
       type: String,
-      enum: ['pending', 'payment_review', 'approved', 'ready_for_pickup', 'delivered', 'rejected'],
+      enum: ['pending', 'payment_review', 'approved', 'ready_for_pickup', 'delivered', 'rejected', 'returned'],
       default: 'pending',
     },
 

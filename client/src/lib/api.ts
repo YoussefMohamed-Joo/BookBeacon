@@ -73,6 +73,8 @@ export const ordersAPI = {
   verifyPayment: (id: string) => API.post(`/orders/${id}/verify-payment`),
   confirmDelivery: (id: string, data?: any) => API.post(`/orders/${id}/confirm-delivery`, data || {}),
   instantDelivery: (id: string) => API.post(`/orders/${id}/instant-delivery`),
+  refundOrder: (data: { orderId: string; items: { bookId: string; quantity: number }[]; reason: string }) =>
+    API.post('/orders/refund', data),
 };
 
 export const activityAPI = {
