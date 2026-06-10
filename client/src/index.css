@@ -84,6 +84,9 @@
     background: var(--primary-dark);
     box-shadow: 0 4px 14px rgba(0,152,164,0.3);
   }
+  .btn-primary:active {
+    transform: scale(0.97);
+  }
 
   /* === CTA / accent button (yellow) === */
   .btn-cta {
@@ -103,6 +106,9 @@
   .btn-cta:hover {
     box-shadow: 0 4px 14px rgba(78,231,243,0.3);
     transform: translateY(-1px);
+  }
+  .btn-cta:active {
+    transform: scale(0.97);
   }
 
   /* === Outlined secondary button === */
@@ -124,6 +130,9 @@
     border-color: var(--primary);
     color: var(--primary);
     background: rgba(0,152,164,0.08);
+  }
+  .btn-secondary:active {
+    transform: scale(0.97);
   }
 
   /* === Card container with border, hover lift & shadow === */
@@ -282,6 +291,23 @@
   0%, 100% { transform: scale(1); }
   50% { transform: scale(1.05); }
 }
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+@keyframes countUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes softPress {
+  0% { transform: scale(1); }
+  50% { transform: scale(0.97); }
+  100% { transform: scale(1); }
+}
+@keyframes ripple {
+  0% { box-shadow: 0 0 0 0 rgba(0,152,164,0.3); }
+  100% { box-shadow: 0 0 0 12px rgba(0,152,164,0); }
+}
 
 .animate-fade-in { animation: fadeIn 0.5s ease forwards; }
 .animate-fade-in-up { animation: fadeInUp 0.5s ease forwards; }
@@ -290,6 +316,33 @@
 .animate-scale-in { animation: scaleIn 0.4s ease forwards; }
 .animate-float { animation: float 3s ease-in-out infinite; }
 .animate-pulse-soft { animation: pulseSoft 2s ease-in-out infinite; }
+.animate-shimmer { animation: shimmer 2s linear infinite; background: linear-gradient(90deg, transparent 25%, rgba(255,255,255,0.05) 50%, transparent 75%); background-size: 200% 100%; }
+.animate-soft-press { animation: softPress 0.3s ease; }
+.animate-ripple { animation: ripple 0.6s ease-out; }
+
+/* Stagger children animation */
+.stagger-enter > * {
+  opacity: 0;
+  transform: translateY(12px);
+  animation: fadeInUp 0.4s ease forwards;
+}
+.stagger-enter > *:nth-child(1) { animation-delay: 0ms; }
+.stagger-enter > *:nth-child(2) { animation-delay: 60ms; }
+.stagger-enter > *:nth-child(3) { animation-delay: 120ms; }
+.stagger-enter > *:nth-child(4) { animation-delay: 180ms; }
+.stagger-enter > *:nth-child(5) { animation-delay: 240ms; }
+.stagger-enter > *:nth-child(6) { animation-delay: 300ms; }
+.stagger-enter > *:nth-child(7) { animation-delay: 360ms; }
+.stagger-enter > *:nth-child(8) { animation-delay: 420ms; }
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
 
 /* === Admin Dashboard custom utilities === */
 
@@ -361,6 +414,9 @@
   background: #dc2626;
   box-shadow: 0 4px 14px rgba(239,68,68,0.3);
 }
+.btn-danger:active {
+  transform: scale(0.97);
+}
 .btn-danger:disabled {
   opacity: 0.4;
   cursor: not-allowed;
@@ -385,6 +441,9 @@
   background: #059669;
   box-shadow: 0 4px 14px rgba(16,185,129,0.3);
 }
+.btn-success:active {
+  transform: scale(0.97);
+}
 
 /* Info button */
 .btn-info {
@@ -404,6 +463,9 @@
 .btn-info:hover {
   background: #007A83;
   box-shadow: 0 4px 14px rgba(0,152,164,0.3);
+}
+.btn-info:active {
+  transform: scale(0.97);
 }
 
 /* Modal overlay & content */

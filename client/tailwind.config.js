@@ -73,6 +73,19 @@ export default {
           '0%, 100%': { transform: 'scale(1)' },
           '50%': { transform: 'scale(1.05)' },
         },
+        shimmer: {
+          '0%': { backgroundPosition: '-200% 0' },
+          '100%': { backgroundPosition: '200% 0' },
+        },
+        softPress: {
+          '0%': { transform: 'scale(1)' },
+          '50%': { transform: 'scale(0.97)' },
+          '100%': { transform: 'scale(1)' },
+        },
+        ripple: {
+          '0%': { boxShadow: '0 0 0 0 rgba(0,152,164,0.3)' },
+          '100%': { boxShadow: '0 0 0 12px rgba(0,152,164,0)' },
+        },
       },
       animation: {
         'fade-in': 'fadeIn 0.5s ease forwards',
@@ -82,6 +95,9 @@ export default {
         'scale-in': 'scaleIn 0.4s ease forwards',
         'float': 'float 3s ease-in-out infinite',
         'pulse-soft': 'pulseSoft 2s ease-in-out infinite',
+        'shimmer': 'shimmer 2s linear infinite',
+        'soft-press': 'softPress 0.3s ease',
+        'ripple': 'ripple 0.6s ease-out',
       },
     },
   },

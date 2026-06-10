@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useStore } from './store/useStore';
+import { pageTransition } from './lib/animations';
 import Navbar from './components/Navbar';
 import TopBar from './components/TopBar';
 import Footer from './components/Footer';
@@ -28,22 +29,14 @@ import Cart from './pages/Cart';
 import OrderPage from './pages/OrderPage';
 import ChatBot from './components/ChatBot';
 
-// Page transition animation variants
-const pageVariants = {
-  initial: { opacity: 0, y: 8 },
-  in: { opacity: 1, y: 0 },
-  out: { opacity: 0, y: -8 },
-};
-
-const pageTransition = {
-  duration: 0.3,
-  ease: [0.25, 0.1, 0.25, 1],
-};
-
-// Wraps each page with a fade/slide animation
 function AnimatedPage({ children }: { children: React.ReactNode }) {
   return (
-    <motion.div initial="initial" animate="in" exit="out" variants={pageVariants} transition={pageTransition}>
+    <motion.div
+      initial={pageTransition.initial}
+      animate={pageTransition.animate}
+      exit={pageTransition.exit}
+      transition={pageTransition.transition}
+    >
       {children}
     </motion.div>
   );
