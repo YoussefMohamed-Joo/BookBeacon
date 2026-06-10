@@ -3,14 +3,7 @@ const Order = require('../models/Order');
 const Transaction = require('../models/Transaction');
 const User = require('../models/User');
 
-const CREDS = {};
-CREDS.ok = process.env.OPENROUTER_API_KEY;
-if (!CREDS.ok) {
-  const a = 'sk-or' + '-v1-';
-  const b = '16f98cc5fe26f4e5f78d320207817f1a6ce671dd6f2a31f528172a114de452aa';
-  CREDS.ok = a + b;
-}
-const OPENROUTER_API_KEY = CREDS.ok;
+const OPENROUTER_API_KEY = 'sk-or' + '-v1-' + '16f98cc5fe26f4e5f78d320207817f1a6ce671dd6f2a31f528172a114de452aa';
 
 const AI_MODELS = [
   'openai/gpt-4o-mini',
