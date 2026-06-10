@@ -11,7 +11,7 @@ import {
   Search, X, Check, Plus, Edit2, Trash2, Shield, TrendingUp, DollarSign, AlertTriangle,
   Package, Phone, MapPin, Hash, Upload, Image as ImageIcon, RefreshCw, Ban, Zap,
   ArrowUpDown, Filter, Clock, ChevronLeft, ChevronRight, Download, Eye, MessageSquare, Send, Calculator,
-  Scan, Store, QrCode, Barcode, ClipboardList, UserCog, Settings, Key, Mail, Lock, UserPlus, UserX, EyeOff,
+  Scan, Store, QrCode, Barcode, ClipboardList, UserCog, Settings, Key, Mail, Lock, Shield, UserPlus, UserX, EyeOff,
   Warehouse
 } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line, AreaChart, Area } from 'recharts';
@@ -62,19 +62,14 @@ export default function AdminDashboard() {
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
       if (e.ctrlKey || e.metaKey) {
-        switch (e.key) {
-          case '1': e.preventDefault(); setActiveTab('dashboard'); break;
-          case '2': e.preventDefault(); setActiveTab('orders'); break;
-          case '3': e.preventDefault(); setActiveTab('customers'); break;
-          case '4': e.preventDefault(); setActiveTab('pickup'); break;
-          case '5': e.preventDefault(); setActiveTab('instant'); break;
-          case '6': e.preventDefault(); setActiveTab('books'); break;
-          case '7': e.preventDefault(); setActiveTab('inventory'); break;
-          case '8': e.preventDefault(); setActiveTab('accounting'); break;
-          case '9': e.preventDefault(); setActiveTab('ai'); break;
-          case '0': e.preventDefault(); setActiveTab('activity'); break;
-          case 'b': e.preventDefault(); setSidebarOpen(p => !p); break;
-        }
+        const keyToTab: Record<string, Tab> = {
+          '1': 'dashboard', '2': 'orders', '3': 'customers', '4': 'pickup',
+          '5': 'instant', '6': 'books', '7': 'inventory', '8': 'accounting',
+          '9': 'ai', '0': 'activity',
+        };
+        const tabId = keyToTab[e.key];
+        if (tabId) { e.preventDefault(); handleTabClick(tabId); }
+        if (e.key === 'b') { e.preventDefault(); setSidebarOpen(p => !p); }
       }
       if (e.key === 'Escape') setSidebarOpen(false);
     };
@@ -93,16 +88,21 @@ export default function AdminDashboard() {
             </button>
             <div className="space-y-1">
               {tabs.map((tab) => (
-                <button key={tab.id} onClick={() => setActiveTab(tab.id)}
+                <button key={tab.id} onClick={() => handleTabClick(tab.id)}
                   className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${
                     activeTab === tab.id
                       ? 'bg-primary-500 text-white shadow-lg shadow-primary-500/25'
-                      : 'text-gray-500 hover:bg-gray-100 dark:hover:bg-dark-700'
+                      : isCashier && cashierBlocked.includes(tab.id)
+                        ? 'text-gray-400 cursor-not-allowed hover:bg-gray-50 dark:hover:bg-dark-800'
+                        : 'text-gray-500 hover:bg-gray-100 dark:hover:bg-dark-700'
                   }`}
-                  title={!sidebarOpen ? tab.label : undefined}>
+                  title={!sidebarOpen ? (isCashier && cashierBlocked.includes(tab.id) ? 'غير متاح' : tab.label) : undefined}>
                   <tab.icon className="w-5 h-5 shrink-0" />
                   <span className={`transition-opacity ${sidebarOpen ? 'opacity-100' : 'opacity-0 w-0 overflow-hidden'}`}>{tab.label}</span>
-                  <span className={`mr-auto text-[10px] text-gray-400 ${sidebarOpen ? 'opacity-60' : 'opacity-0 w-0 overflow-hidden'}`}>Ctrl+{tabs.indexOf(tab)+1}</span>
+                  {isCashier && cashierBlocked.includes(tab.id) && sidebarOpen && (
+                    <span className="mr-auto"><Lock className="w-3 h-3 text-gray-400" /></span>
+                  )}
+                  <span className={`mr-auto text-[10px] text-gray-400 ${sidebarOpen && !isCashier ? 'opacity-60' : 'opacity-0 w-0 overflow-hidden'}`}>Ctrl+{tabs.indexOf(tab)+1}</span>
                 </button>
               ))}
             </div>
@@ -125,6 +125,7 @@ export default function AdminDashboard() {
             {!isCashier && activeTab === 'staff' && <StaffPanel />}
             {!isCashier && activeTab === 'activity' && <ActivityPanel />}
             {!isCashier && activeTab === 'settings' && <SettingsPanel />}
+            {isCashier && cashierBlocked.includes(activeTab) && <UnauthorizedPanel />}
           </div>
         </main>
       </div>
@@ -1686,6 +1687,27 @@ function ActivityPanel() {
           <button disabled={page >= totalPages} onClick={() => setPage(p => p + 1)} className="btn-secondary text-sm">التالي</button>
         </div>
       )}
+    </div>
+  );
+}
+
+// -----------------------------------------------------------------------
+// UNAUTHORIZED PANEL
+// -----------------------------------------------------------------------
+function UnauthorizedPanel() {
+  return (
+    <div className="flex items-center justify-center min-h-[60vh]">
+      <div className="text-center max-w-md">
+        <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-red-100 dark:bg-red-900/20 flex items-center justify-center">
+          <Shield className="w-10 h-10 text-red-500" />
+        </div>
+        <h2 className="text-2xl font-bold mb-2">هذه الصلاحية غير متاحة لك</h2>
+        <p className="text-gray-400 mb-6">هذا القسم مخصص للمشرفين فقط. إذا كنت بحاجة إلى هذه الصلاحية، يرجى التواصل مع المشرف العام.</p>
+        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gray-100 dark:bg-dark-800 text-sm text-gray-500">
+          <Shield className="w-4 h-4" />
+          صلاحيتك الحالية: <span className="font-bold text-primary-500">كاشير</span>
+        </div>
+      </div>
     </div>
   );
 }
