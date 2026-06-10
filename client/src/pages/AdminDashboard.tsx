@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Helmet } from 'react-helmet-async';
 import { useStore } from '../store/useStore';
 import { authAPI, dashboardAPI, ordersAPI, usersAPI, booksAPI, deliveryAPI, accountingAPI, aiAPI, blogAPI, reviewsAPI, activityAPI, inventoryAPI } from '../lib/api';
-import BarcodeScanner from '../components/BarcodeScanner';
+import POSPage from './POSPage';
 import { formatPrice, getStatusColor, getStatusText, getDeliveryMethodText, EGYPTIAN_GOVERNORATES, GRADES } from '../lib/utils';
 import toast from 'react-hot-toast';
 import {
@@ -79,6 +79,11 @@ export default function AdminDashboard() {
 
   return (<>
     <Helmet><title>{isCashier ? 'الكاشير' : 'لوحة التحكم'} | Book Beacon</title></Helmet>
+    {activeTab === 'instant' ? (
+      <div className="pt-16">
+        <POSPage onBack={() => setActiveTab('orders')} />
+      </div>
+    ) : (
     <div className="min-h-screen pt-16 bg-gray-50 dark:bg-dark-950">
       <div className="flex">
         <aside className={`fixed right-0 top-16 h-[calc(100vh-4rem)] z-40 transition-all duration-300 ${sidebarOpen ? 'w-64' : 'w-16'} bg-white dark:bg-dark-900 border-l border-gray-100 dark:border-dark-800 overflow-hidden`}>
@@ -117,7 +122,6 @@ export default function AdminDashboard() {
             {!isCashier && activeTab === 'books' && <BooksPanel />}
             {!isCashier && activeTab === 'delivery' && <DeliveryPanel />}
             {activeTab === 'pickup' && <PickupPanel />}
-            {activeTab === 'instant' && <InstantPickupPanel />}
             {!isCashier && activeTab === 'inventory' && <InventoryPanel />}
             {!isCashier && activeTab === 'accounting' && <AccountingPanel />}
             {!isCashier && activeTab === 'ai' && <AIPanel />}
@@ -130,6 +134,7 @@ export default function AdminDashboard() {
         </main>
       </div>
     </div>
+    )}
   </>);
 }
 
@@ -918,148 +923,6 @@ function PickupPanel() {
             </tbody>
           </table>
         </div>
-      </div>
-    </div>
-  );
-}
-
-// -----------------------------------------------------------------------
-// INSTANT PICKUP PANEL (NEW)
-// -----------------------------------------------------------------------
-function InstantPickupPanel() {
-  const [books, setBooks] = useState<any[]>([]);
-  const [selectedBookId, setSelectedBookId] = useState('');
-  const [quantity, setQuantity] = useState(1);
-  const [customerName, setCustomerName] = useState('');
-  const [paidAmount, setPaidAmount] = useState<number>(0);
-  const [loading, setLoading] = useState(true);
-  const [submitting, setSubmitting] = useState(false);
-  const [showScanner, setShowScanner] = useState(false);
-
-  useEffect(() => {
-    booksAPI.getAll({ limit: 200 }).then((res) => {
-      setBooks(res.data.books);
-      setLoading(false);
-    }).catch(() => setLoading(false));
-  }, []);
-
-  const selectedBook = books.find(b => b._id === selectedBookId);
-  const totalPrice = selectedBook ? selectedBook.price * quantity : 0;
-
-  useEffect(() => {
-    if (selectedBook && paidAmount === 0) setPaidAmount(totalPrice);
-  }, [selectedBookId, quantity]);
-
-  const handleScan = async (barcode: string) => {
-    try {
-      const res = await booksAPI.lookupBarcode(barcode);
-      const book = res.data;
-      setSelectedBookId(book._id);
-      toast.success(`تم العثور على: ${book.titleAr}`);
-    } catch {
-      toast.error('لم يتم العثور على كتاب بهذا الباركود');
-    }
-    setShowScanner(false);
-  };
-
-  const handleSubmit = async () => {
-    if (!selectedBookId) { toast.error('اختر كتاباً'); return; }
-    if (paidAmount < 0) { toast.error('المبلغ يجب أن يكون 0 أو أكثر'); return; }
-    if (paidAmount > totalPrice) { toast.error('المبلغ المدفوع لا يمكن أن يتجاوز الإجمالي'); return; }
-    setSubmitting(true);
-    try {
-      await ordersAPI.createInstantSale({
-        bookId: selectedBookId,
-        quantity,
-        customerName: customerName || undefined,
-        paidAmount: paidAmount > 0 ? paidAmount : undefined,
-      });
-      toast.success(`تم بيع ${quantity} نسخة من ${selectedBook?.titleAr}`);
-      setQuantity(1);
-      setCustomerName('');
-      setPaidAmount(0);
-      setSelectedBookId('');
-    } catch (err: any) {
-      toast.error(err.response?.data?.message || 'حدث خطأ');
-    }
-    setSubmitting(false);
-  };
-
-  if (loading) return <LoadingPanel />;
-
-  return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl md:text-3xl font-bold">الاستلام الفوري</h1>
-        <p className="text-gray-400 text-sm">بيع مباشر للعملاء الذين يحضرون إلى المنفذ بدون طلب مسبق</p>
-      </div>
-
-      <div className="card p-4 bg-gradient-to-l from-emerald-50 to-green-50 dark:from-emerald-900/10 dark:to-green-900/10 border-emerald-200 dark:border-emerald-800">
-        <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400">
-          <Zap className="w-5 h-5" />
-          <span className="font-medium">سيتم إنشاء الطلب، تسجيل الإيراد، وتحديث المخزون فوراً</span>
-        </div>
-      </div>
-
-      <div className="max-w-lg mx-auto space-y-4">
-        <div>
-          <label className="block text-sm font-medium mb-1">اختر الكتاب</label>
-          <div className="flex gap-2">
-            <select value={selectedBookId} onChange={(e) => setSelectedBookId(e.target.value)} className="input-field text-sm flex-1" required>
-              <option value="">-- اختر كتاباً --</option>
-              {books.filter(b => b.isActive !== false).map((b) => {
-                const available = b.stock - (b.reservedQuantity || 0);
-                return (
-                  <option key={b._id} value={b._id} disabled={available < 1}>
-                    {b.titleAr} — {formatPrice(b.price)} ({available >= 1 ? `${available} متاح` : 'نفد'}) {b.barcode ? `[${b.barcode}]` : ''}
-                  </option>
-                );
-              })}
-            </select>
-            <button onClick={() => setShowScanner(true)} className="btn-primary text-sm !px-3 flex items-center gap-1 shrink-0">
-              <Scan className="w-4 h-4" /> مسح
-            </button>
-          </div>
-        </div>
-
-        {showScanner && <BarcodeScanner onScan={handleScan} onClose={() => setShowScanner(false)} />}
-
-        {selectedBook && (
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium mb-1">الكمية</label>
-              <input type="number" min="1" max={selectedBook.stock - (selectedBook.reservedQuantity || 0)} value={quantity}
-                onChange={(e) => setQuantity(Math.min(Number(e.target.value), selectedBook.stock - (selectedBook.reservedQuantity || 0)))}
-                className="input-field text-sm" />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">الإجمالي</label>
-              <div className="input-field text-sm bg-gray-50 dark:bg-dark-700 flex items-center font-bold text-primary-500">
-                {formatPrice(totalPrice)}
-              </div>
-            </div>
-          </div>
-        )}
-
-        <div>
-          <label className="block text-sm font-medium mb-1">اسم العميل (اختياري)</label>
-          <input type="text" value={customerName} onChange={(e) => setCustomerName(e.target.value)}
-            placeholder="مثال: أحمد علي" className="input-field text-sm" />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium mb-1">المبلغ المدفوع</label>
-          <input type="number" min="0" max={totalPrice} value={paidAmount} onChange={(e) => setPaidAmount(Number(e.target.value))} className="input-field text-sm" />
-          {paidAmount < totalPrice && (
-            <p className="text-xs text-amber-500 mt-1">المتبقي: {formatPrice(totalPrice - paidAmount)}</p>
-          )}
-        </div>
-
-        <button onClick={handleSubmit} disabled={!selectedBookId || submitting}
-          className="btn-success w-full text-sm !py-3 flex items-center justify-center gap-2">
-          {submitting ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Zap className="w-4 h-4" />}
-          {submitting ? 'جاري البيع...' : 'إتمام البيع'}
-        </button>
       </div>
     </div>
   );
