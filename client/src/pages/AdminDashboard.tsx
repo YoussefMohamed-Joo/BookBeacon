@@ -709,14 +709,20 @@ function BooksPanel() {
     reader.readAsDataURL(file);
   };
 
+  const fileToBase64 = (file: File): Promise<string> => new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const fd = new FormData();
-      Object.entries(form).forEach(([k, v]) => fd.append(k, String(v)));
-      if (selectedFile) fd.append('image', selectedFile);
-      if (editBook) { await booksAPI.update(editBook._id, fd); toast.success('تم تحديث الكتاب'); }
-      else { await booksAPI.create(fd); toast.success('تم إنشاء الكتاب'); }
+      const payload: any = { ...form };
+      if (selectedFile) payload.image = await fileToBase64(selectedFile);
+      if (editBook) { await booksAPI.update(editBook._id, payload); toast.success('تم تحديث الكتاب'); }
+      else { await booksAPI.create(payload); toast.success('تم إنشاء الكتاب'); }
       setShowForm(false); setEditBook(null); setSelectedFile(null); setImagePreview(null);
       fetchBooks();
     } catch { toast.error('حدث خطأ'); }

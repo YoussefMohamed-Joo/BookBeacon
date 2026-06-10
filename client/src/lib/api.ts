@@ -53,10 +53,10 @@ export const booksAPI = {
   getBySlug: (slug: string) => API.get(`/books/slug/${slug}`),
   getById: (id: string) => API.get(`/books/${id}`),
   getByGrade: (grade: string) => API.get(`/books/grade/${encodeURIComponent(grade)}`),
-  create: (data: FormData) =>
-    API.post('/books', data, { headers: { 'Content-Type': 'multipart/form-data' } }),
-  update: (id: string, data: FormData) =>
-    API.put(`/books/${id}`, data, { headers: { 'Content-Type': 'multipart/form-data' } }),
+  create: (data: any) =>
+    API.post('/books', data),
+  update: (id: string, data: any) =>
+    API.put(`/books/${id}`, data),
   delete: (id: string) => API.delete(`/books/${id}`),
   lookupBarcode: (barcode: string) => API.get(`/books/barcode/${barcode}`),
   generateBarcodes: () => API.post('/books/generate-barcodes'),

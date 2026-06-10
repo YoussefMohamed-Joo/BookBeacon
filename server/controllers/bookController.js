@@ -62,7 +62,7 @@ const getBookById = async (req, res) => {
 
 const createBook = async (req, res) => {
   try {
-    const { title, titleAr, grade, subject, teacher, price, costPrice, deposit, stock, description, descriptionAr, keywords, metaTitle, metaDescription } = req.body;
+    const { title, titleAr, grade, subject, teacher, price, costPrice, deposit, stock, description, descriptionAr, keywords, metaTitle, metaDescription, image } = req.body;
 
     const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') + '-' + grade.replace(/\s/g, '-');
 
@@ -75,7 +75,7 @@ const createBook = async (req, res) => {
       stock: stock || 0,
       description, descriptionAr,
       keywords, metaTitle, metaDescription,
-      image: req.file ? `/uploads/${req.file.filename}` : '',
+      image: image || '',
     });
 
     res.status(201).json(book);
@@ -90,7 +90,13 @@ const updateBook = async (req, res) => {
     if (!book) return res.status(404).json({ message: 'الكتاب غير موجود' });
 
     const updateData = req.body;
-    if (req.file) updateData.image = `/uploads/${req.file.filename}`;
+    if (updateData.image && updateData.image.startsWith('data:')) {
+      // base64 image — keep it
+    } else if (updateData.image === '') {
+      // clearing the image
+    } else {
+      delete updateData.image; // don't change existing image
+    }
 
     const updated = await Book.findByIdAndUpdate(req.params.id, updateData, { new: true });
     res.json(updated);
