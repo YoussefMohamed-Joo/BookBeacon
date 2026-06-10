@@ -162,7 +162,7 @@ export default function OrderPage() {
         senderPhone,
       };
       if (deliveryType === 'shipping') {
-        data.deliveryDetails = { governorate, center, address, phone, altPhone };
+        data.deliveryDetails = { governorate, center, address, phone, altPhone, deliveryPrice: shippingPrice };
       } else if (deliveryType === 'delivery') {
         data.deliveryDetails = { address, phone, altPhone };
       }
