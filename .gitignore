@@ -11,3 +11,5 @@ client/dist/
 .vercel
 .env*
 server/backups/
+__pycache__/
+*.pyc
