@@ -175,16 +175,21 @@ export default function OrderPage() {
     } finally { setSubmitting(false); }
   };
 
+  const fileToBase64 = (file: File): Promise<string> => new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+
   const handleUploadPayment = async () => {
     if (!orderId) return;
     if (!paymentFile) { toast.error('يرجى اختيار صورة الإيصال'); return; }
     if (!senderPhone) { toast.error('يرجى إدخال رقم هاتف المرسل'); return; }
     setUploading(true);
     try {
-      const fd = new FormData();
-      fd.append('paymentProof', paymentFile);
-      fd.append('senderPhone', senderPhone);
-      await ordersAPI.uploadPayment(orderId, fd);
+      const imageBase64 = await fileToBase64(paymentFile);
+      await ordersAPI.uploadPayment(orderId, { image: imageBase64, senderPhone });
       toast.success('تم رفع إيصال الدفع بنجاح');
       setDone(true);
     } catch (err: any) {

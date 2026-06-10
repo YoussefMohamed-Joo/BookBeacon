@@ -324,7 +324,8 @@ const uploadPaymentProof = async (req, res) => {
     const order = await Order.findById(req.params.id);
     if (!order) return res.status(404).json({ message: 'الطلب غير موجود' });
 
-    if (req.file) order.paymentProof.imageUrl = `/uploads/${req.file.filename}`;
+    // Accept base64 image (works on Vercel serverless)
+    if (req.body.image) order.paymentProof.imageUrl = req.body.image;
     if (req.body.senderPhone) order.paymentProof.senderPhone = req.body.senderPhone;
 
     // Move to payment_review

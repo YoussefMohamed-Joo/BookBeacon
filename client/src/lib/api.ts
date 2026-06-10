@@ -68,10 +68,8 @@ export const ordersAPI = {
   getMyOrders: () => API.get('/orders/my-orders'),
   getAll: (params?: any) => API.get('/orders', { params }),
   updateStatus: (id: string, data: any) => API.patch(`/orders/${id}/status`, data),
-  uploadPayment: (id: string, data: FormData) =>
-    API.post(`/orders/${id}/payment`, data, {
-      headers: { 'Content-Type': 'multipart/form-data' },
-    }),
+  uploadPayment: (id: string, data: any) =>
+    API.post(`/orders/${id}/payment`, data),
   verifyPayment: (id: string) => API.post(`/orders/${id}/verify-payment`),
   confirmDelivery: (id: string, data?: any) => API.post(`/orders/${id}/confirm-delivery`, data || {}),
   instantDelivery: (id: string) => API.post(`/orders/${id}/instant-delivery`),
