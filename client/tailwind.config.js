@@ -86,6 +86,10 @@ export default {
           '0%': { boxShadow: '0 0 0 0 rgba(0,152,164,0.3)' },
           '100%': { boxShadow: '0 0 0 12px rgba(0,152,164,0)' },
         },
+        spotlight: {
+          '0%': { opacity: '0', transform: 'translate(-72%, -62%) scale(0.5)' },
+          '100%': { opacity: '1', transform: 'translate(-50%, -40%) scale(1)' },
+        },
       },
       animation: {
         'fade-in': 'fadeIn 0.5s ease forwards',
@@ -98,6 +102,7 @@ export default {
         'shimmer': 'shimmer 2s linear infinite',
         'soft-press': 'softPress 0.3s ease',
         'ripple': 'ripple 0.6s ease-out',
+        'spotlight': 'spotlight 2s ease 0.5s forwards',
       },
     },
   },
