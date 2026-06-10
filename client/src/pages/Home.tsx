@@ -38,15 +38,13 @@ const sliderScrollStyle = `
 `;
 
 export default function Home() {
-  const [bestSellers, setBestSellers] = useState<any[]>([]);
   const [books, setBooks] = useState<any[]>([]);
   const [slideIndex, setSlideIndex] = useState(0);
   const sliderRef = useRef<HTMLDivElement>(null);
 
   // Fetch books on mount
   useEffect(() => {
-    booksAPI.getAll({ limit: 10, sort: 'sales' }).then((res) => setBestSellers(res.data.books)).catch(() => {});
-    booksAPI.getAll({ limit: 8 }).then((res) => setBooks(res.data.books)).catch(() => {});
+    booksAPI.getAll({ limit: 10 }).then((res) => setBooks(res.data.books)).catch(() => {});
   }, []);
 
   // Hero slider navigation
@@ -164,7 +162,7 @@ export default function Home() {
             ref={sliderRef}
             className="slider-track flex gap-4 overflow-x-auto pb-4"
           >
-            {bestSellers.length > 0 ? bestSellers.map((book: any, i: number) => (
+            {books.length > 0 ? books.map((book: any, i: number) => (
               <div key={book._id || i} className="flex-shrink-0" style={{ width: '250px' }}>
                 <BookCard book={book} index={i} />
               </div>
