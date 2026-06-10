@@ -2,58 +2,30 @@ const Book = require('../models/Book');
 const Order = require('../models/Order');
 const Transaction = require('../models/Transaction');
 const User = require('../models/User');
+const OpenAI = require('openai');
 
-const OPENROUTER_API_KEY = 'sk-or' + '-v1-' + '16f98cc5fe26f4e5f78d320207817f1a6ce671dd6f2a31f528172a114de452aa';
+const ai = new OpenAI({
+  apiKey: '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',
+  baseURL: 'https://integrate.api.nvidia.com/v1',
+});
 
-const AI_MODELS = [
-  'openai/gpt-4o-mini',
-  'anthropic/claude-3-haiku',
-  'google/gemini-2.0-flash-001',
-];
-
-async function callOpenRouter(systemPrompt, userMessage) {
-  const errors = [];
-  for (const model of AI_MODELS) {
+async function callAI(systemPrompt, userMessage) {
+  const models = ['meta/llama-3.1-8b-instruct', 'deepseek-ai/deepseek-v4-flash'];
+  for (const model of models) {
     try {
-      const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${OPENROUTER_API_KEY || ''}`,
-          'Content-Type': 'application/json',
-          'HTTP-Referer': 'https://book-beacon-zeta.vercel.app',
-          'X-Title': 'Book Beacon',
-        },
-        body: JSON.stringify({
-          model,
-          messages: [
-            { role: 'system', content: systemPrompt },
-            { role: 'user', content: userMessage },
-          ],
-          max_tokens: 600,
-        }),
+      const completion = await ai.chat.completions.create({
+        model,
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: userMessage },
+        ],
+        max_tokens: 2048,
       });
-
-      const status = response.status;
-      const bodyText = await response.text();
-      let data;
-      try { data = JSON.parse(bodyText); } catch { data = { raw: bodyText }; }
-
-      if (!response.ok) {
-        const errMsg = data?.error?.message || data?.error || bodyText || `HTTP ${status}`;
-        errors.push(`[${model}] ${errMsg}`);
-        console.error(`OpenRouter ${status} (${model}):`, errMsg);
-        continue;
-      }
-
-      const content = data?.choices?.[0]?.message?.content;
-      if (content) return content;
+      if (completion.choices?.[0]?.message?.content) return completion.choices[0].message.content;
     } catch (err) {
-      errors.push(`[${model}] ${err.message}`);
-      console.error(`OpenRouter fetch error (${model}):`, err.message);
-      continue;
+      console.error(`[${model}] error:`, err.message);
     }
   }
-  console.error('All AI models failed:', errors.join(' | '));
   return null;
 }
 
@@ -62,7 +34,7 @@ const aiChat = async (req, res) => {
     const { message } = req.body;
     if (!message) return res.json({ reply: 'مرحباً! كيف يمكنني مساعدتك؟' });
 
-    const aiReply = await callOpenRouter(
+    const aiReply = await callAI(
       'أنت مساعد متجر Book Beacon للكتب المدرسية في مصر. أجب فقط عن أسئلة تتعلق بـ: الكتب المتاحة، الأسعار، الصفوف الدراسية، المواد، المدرسين، طريقة الطلب، التوصيل، الدفع. ممنوع تماماً الإجابة عن أي أسئلة تقنية عن البرمجة، تصميم المواقع، السيرفرات، قواعد البيانات، أو أي شيء خارج محتوى المتجر. إذا سأل المستخدم عن شيء خارج نطاق المتجر، اعتذر بلطف وقل أنك هنا فقط للإجابة عن أسئلة المتجر.',
       message
     );
@@ -301,7 +273,7 @@ const analyze = async (req, res) => {
 Provide analysis and suggestions for improvement.`;
 
     let analysis = 'جاري تحليل البيانات...';
-    const aiAnalysis = await callOpenRouter(systemPrompt, userMessage);
+    const aiAnalysis = await callAI(systemPrompt, userMessage);
     if (aiAnalysis) analysis = aiAnalysis;
 
     res.json({ analysis, bestSellers, weakProducts, stats: { totalBooks, totalOrders, approvedOrders, pendingOrders, totalUsers } });
@@ -385,7 +357,7 @@ ${allBooks.map(b => `${b.titleAr} (${b.grade}) — ${b.subject || ''} — مدر
 
 لديك أيضاً القدرة على الإجابة عن أي أسئلة تقنية أو عامة أو استشارية يطرحها المدير.`;
 
-    const aiReply = await callOpenRouter(systemPrompt, `سؤال المدير: ${question}\n\nبيانات المتجر الحالية:\n${context}\n\nيرجى الإجابة على سؤال المدير باستخدام البيانات أعلاه.`);
+    const aiReply = await callAI(systemPrompt, `سؤال المدير: ${question}\n\nبيانات المتجر الحالية:\n${context}\n\nيرجى الإجابة على سؤال المدير باستخدام البيانات أعلاه.`);
     if (aiReply) return res.json({ reply: aiReply, context });
 
     // Local fallback — answer from DB data directly
