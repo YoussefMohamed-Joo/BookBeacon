@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { redirectToLogin } from './navigate';
 
 // Axios instance — baseURL proxies through Vite dev server (/api -> server)
 const API = axios.create({
@@ -10,10 +11,12 @@ const API = axios.create({
 API.interceptors.request.use((config) => {
   const user = localStorage.getItem('user');
   if (user) {
-    const parsed = JSON.parse(user);
-    if (parsed.token) {
-      config.headers.Authorization = `Bearer ${parsed.token}`;
-    }
+    try {
+      const parsed = JSON.parse(user);
+      if (parsed.token) {
+        config.headers.Authorization = `Bearer ${parsed.token}`;
+      }
+    } catch { /* ignore corrupted state */ }
   }
   return config;
 });
@@ -23,8 +26,7 @@ API.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      localStorage.removeItem('user');
-      window.location.href = '/login';
+      redirectToLogin();
     }
     return Promise.reject(error);
   }

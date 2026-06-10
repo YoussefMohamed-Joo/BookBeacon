@@ -1,8 +1,9 @@
 import { useEffect } from 'react';
-import { Routes, Route, useLocation } from 'react-router-dom';
+import { Routes, Route, useLocation, useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useStore } from './store/useStore';
 import { pageTransition } from './lib/animations';
+import { setNavigate } from './lib/navigate';
 import Navbar from './components/Navbar';
 import TopBar from './components/TopBar';
 import Footer from './components/Footer';
@@ -33,6 +34,7 @@ import SplineDemo from './pages/SplineDemo';
 import ComponentsDemo from './pages/ComponentsDemo';
 import ChatBot from './components/ChatBot';
 import { FloatingPathsBackground } from './components/ui/background-paths';
+import ErrorBoundary from './components/ErrorBoundary';
 
 function AnimatedPage({ children }: { children: React.ReactNode }) {
   return (
@@ -50,6 +52,10 @@ function AnimatedPage({ children }: { children: React.ReactNode }) {
 function App() {
   const { isDarkMode } = useStore();
   const location = useLocation();
+  const navigate = useNavigate();
+
+  // Register navigate for API 401 redirect (avoids full page reload)
+  useEffect(() => { setNavigate(navigate); }, [navigate]);
 
   // Sync dark mode class on <html>
   useEffect(() => {
@@ -65,9 +71,10 @@ function App() {
     <div className="min-h-screen relative" style={{ background: 'var(--bg)', backgroundImage: 'var(--bg-gradient)', color: 'var(--text)' }}>
       <FloatingPathsBackground />
       <div className="relative z-10">
-        <LoadingScreen />
-        <TopBar />
-        <Navbar />
+        <ErrorBoundary>
+          <LoadingScreen />
+          <TopBar />
+          <Navbar />
         <AnimatePresence mode="wait">
           <Routes location={location} key={location.pathname}>
             <Route path="/" element={<AnimatedPage><Home /></AnimatedPage>} />
@@ -99,6 +106,7 @@ function App() {
         </AnimatePresence>
         <ChatBot />
         <Footer />
+        </ErrorBoundary>
       </div>
     </div>
   );
