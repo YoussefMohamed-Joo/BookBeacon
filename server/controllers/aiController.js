@@ -6,18 +6,19 @@ const User = require('../models/User');
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
 
 const AI_MODELS = [
-  'meta-llama/llama-3-8b-instruct',
-  'google/gemini-flash-1.5',
-  'microsoft/phi-3-mini-128k-instruct',
+  'openai/gpt-4o-mini',
+  'anthropic/claude-3-haiku',
+  'google/gemini-2.0-flash-001',
 ];
 
 async function callOpenRouter(systemPrompt, userMessage) {
+  const errors = [];
   for (const model of AI_MODELS) {
     try {
       const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
+          'Authorization': `Bearer ${OPENROUTER_API_KEY || ''}`,
           'Content-Type': 'application/json',
           'HTTP-Referer': 'https://book-beacon-zeta.vercel.app',
           'X-Title': 'Book Beacon',
@@ -31,18 +32,28 @@ async function callOpenRouter(systemPrompt, userMessage) {
           max_tokens: 600,
         }),
       });
-      const data = await response.json();
-      if (data.error) {
-        console.error(`OpenRouter error (${model}):`, data.error.message || JSON.stringify(data.error));
+
+      const status = response.status;
+      const bodyText = await response.text();
+      let data;
+      try { data = JSON.parse(bodyText); } catch { data = { raw: bodyText }; }
+
+      if (!response.ok) {
+        const errMsg = data?.error?.message || data?.error || bodyText || `HTTP ${status}`;
+        errors.push(`[${model}] ${errMsg}`);
+        console.error(`OpenRouter ${status} (${model}):`, errMsg);
         continue;
       }
-      const content = data.choices?.[0]?.message?.content;
+
+      const content = data?.choices?.[0]?.message?.content;
       if (content) return content;
     } catch (err) {
-      console.error(`OpenRouter API error (${model}):`, err.message);
+      errors.push(`[${model}] ${err.message}`);
+      console.error(`OpenRouter fetch error (${model}):`, err.message);
       continue;
     }
   }
+  console.error('All AI models failed:', errors.join(' | '));
   return null;
 }
 
@@ -377,7 +388,30 @@ ${allBooks.map(b => `${b.titleAr} (${b.grade}) — ${b.subject || ''} — مدر
     const aiReply = await callOpenRouter(systemPrompt, `سؤال المدير: ${question}\n\nبيانات المتجر الحالية:\n${context}\n\nيرجى الإجابة على سؤال المدير باستخدام البيانات أعلاه.`);
     if (aiReply) return res.json({ reply: aiReply, context });
 
-    res.json({ reply: 'عذراً، لم أتمكن من تحليل البيانات الآن. حاول مرة أخرى.', context });
+    // Local fallback — answer from DB data directly
+    let fallback = '';
+    if (/أفضل|الأكثر مبيعاً|top|best|مبيعات/.test(q)) {
+      fallback = `🏆 أفضل الكتب مبيعاً:\n\n${bestSellers.map((b, i) =>
+        `${i+1}. ${b.titleAr} — ${b.salesCount} مبيعات — سعر ${b.price} ج.م`).join('\n')}`;
+    } else if (/ربح|إيرادات|مصروفات|دخل|profit|revenue/.test(q)) {
+      fallback = `💰 الملخص المالي:\n\n- الإيرادات: ${totalRevenue.toLocaleString()} ج.م\n- المصروفات: ${totalExpenses.toLocaleString()} ج.م\n- صافي الربح: ${netProfit.toLocaleString()} ج.م\n- هامش الربح: ${profitMargin}%\n\n📊 أعلى الكتب ربحاً:\n\n${highestProfitBooks.map((b, i) =>
+        `${i+1}. ${b.titleAr} — ربح ${((b.price - (b.costPrice || 0)) * (b.salesCount || 0)).toLocaleString()} ج.م`).join('\n')}`;
+    } else if (/مخزون|كمية|stock|ناقص|قليل/.test(q)) {
+      fallback = `⚠️ الكتب منخفضة المخزون (أقل من 10):\n\n${lowestStock.length > 0
+        ? lowestStock.map(b => `- ${b.titleAr} — متبقي ${b.stock} نسخة`).join('\n')
+        : 'جميع الكتب متوفرة بمخزون كافٍ ✅'}`;
+    } else if (/طلبات|orders|معلق|pending|مقبول|approved/.test(q)) {
+      fallback = `📦 حالة الطلبات:\n\n- إجمالي الطلبات: ${totalOrders}\n- ✅ مقبولة: ${approvedOrders}\n- ⏳ معلقة: ${pendingOrders}\n- ❌ مرفوضة: ${rejectedOrders}`;
+    } else if (/مستخدم|user|عميل|عملاء|زائر/.test(q)) {
+      fallback = `👥 إجمالي المستخدمين المسجلين: ${totalUsers} مستخدم`;
+    } else if (/صف|grade|مرحلة|ثانوي/.test(q)) {
+      fallback = `📚 الكتب حسب الصف الدراسي:\n\n${gradesList.map(g =>
+        `- ${g}: ${booksByGrade[g].count} كتب, ${booksByGrade[g].totalSales} مبيعات, ربح ${booksByGrade[g].totalProfit.toLocaleString()} ج.م`).join('\n')}`;
+    } else {
+      fallback = `📊 ملخص المتجر:\n\n📚 الكتب: ${totalBooks}\n📦 الطلبات: ${totalOrders} (مقبول ${approvedOrders} | معلق ${pendingOrders})\n👥 المستخدمين: ${totalUsers}\n💰 الإيرادات: ${totalRevenue.toLocaleString()} ج.م\n💵 صافي الربح: ${netProfit.toLocaleString()} ج.م (${profitMargin}%)`;
+    }
+
+    res.json({ reply: fallback, context });
   } catch (error) {
     console.error('Admin query error:', error);
     res.status(500).json({ reply: 'حدث خطأ في معالجة السؤال', error: error.message });

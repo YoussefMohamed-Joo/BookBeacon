@@ -36,10 +36,7 @@ export default function Navbar() {
     }`}>
       <div className="page-container">
         <div className="flex items-center justify-between h-16 md:h-[72px]">
-          <Link to="/" className="flex items-center gap-2.5">
-            <Logo size={40} />
-            <span className="text-base font-bold" style={{ color: 'var(--text-primary)' }}>Book Beacon</span>
-          </Link>
+          <Logo size="md" />
 
           <div className="hidden md:flex items-center gap-1">
             {navLinks.map((link) => (

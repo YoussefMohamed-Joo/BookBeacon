@@ -33,8 +33,8 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 lg:gap-8">
           {/* Brand column */}
           <div className="lg:col-span-2">
-            <Link to="/" className="flex items-center gap-3 mb-4">
-              <Logo size={42} />
+            <Link to="/" className="flex items-center gap-3 mb-4 no-underline">
+              <Logo noLink showText={false} />
               <div>
                 <span className="text-lg font-bold text-white">Book Beacon</span>
                 <p className="text-xs" style={{ color: '#AAB3C5' }}>بوك بيكون — منصة الكتب التعليمية</p>

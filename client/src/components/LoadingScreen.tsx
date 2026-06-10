@@ -31,7 +31,7 @@ export default function LoadingScreen() {
                   animate={{ rotate: [0, 5, -5, 0], scale: [1, 1.05, 1] }}
                   transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
                 >
-                  <Logo size={90} />
+                  <Logo showText={false} size="lg" />
                 </motion.div>
               </div>
             </motion.div>
