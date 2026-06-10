@@ -283,27 +283,49 @@ function DashboardPanel() {
           <div className="modal-overlay" onClick={() => setShowReset(false)}>
             <div className="modal-content" onClick={(e) => e.stopPropagation()}>
               <h3 className="text-lg font-bold text-red-500 flex items-center gap-2 mb-4"><AlertTriangle className="w-5 h-5" /> مسح جميع البيانات</h3>
+              <div className="flex items-center gap-1 mb-4">
+                {[1,2,3,4,5].map(s => (
+                  <div key={s} className={`flex-1 h-1.5 rounded-full ${s <= resetStep ? 'bg-red-500' : 'bg-gray-200 dark:bg-dark-700'}`} />
+                ))}
+              </div>
+              <p className="text-center text-sm text-gray-400 mb-4">الخطوة {resetStep} من 5</p>
               {resetStep === 1 && (
                 <div className="space-y-4">
-                  <div className="confirm-step"><p className="font-medium">الخطوة 1: هل أنت متأكد؟</p><p className="text-sm text-gray-500">سيتم حذف جميع الحركات المالية</p></div>
+                  <div className="confirm-step"><p className="font-medium">الخطوة 1: هل أنت متأكد؟</p><p className="text-sm text-gray-500">سيتم حذف جميع البيانات والحركات المالية</p></div>
                   <button onClick={() => setResetStep(2)} className="btn-danger w-full">نعم، متأكد</button>
                   <button onClick={() => setShowReset(false)} className="btn-secondary w-full">إلغاء</button>
                 </div>
               )}
               {resetStep === 2 && (
                 <div className="space-y-4">
-                  <div className="confirm-step"><p className="font-medium">الخطوة 2: هل أنت متأكد تماماً؟</p><p className="text-sm text-gray-500">لا يمكن التراجع عن هذا الإجراء</p></div>
+                  <div className="confirm-step"><p className="font-medium">الخطوة 2: هل أنت متأكد تماماً؟</p><p className="text-sm text-gray-500">سيتم حذف جميع الطلبات والمعاملات المالية</p></div>
                   <button onClick={() => setResetStep(3)} className="btn-danger w-full">نعم، متأكد تماماً</button>
-                  <button onClick={() => { setResetStep(1); setShowReset(false); }} className="btn-secondary w-full">إلغاء</button>
+                  <button onClick={() => setResetStep(1)} className="btn-secondary w-full">رجوع</button>
                 </div>
               )}
               {resetStep === 3 && (
                 <div className="space-y-4">
-                  <div className="confirm-step"><p className="font-medium">الخطوة 3: تأكيد نهائي</p><p className="text-sm text-gray-500">اكتب "RESET DATA" لتأكيد المسح</p>
-                    <input type="text" value={resetInput} onChange={(e) => setResetInput(e.target.value)} className="input-field mt-2 text-sm" placeholder="RESET DATA" />
+                  <div className="confirm-step"><p className="font-medium">الخطوة 3: لا يمكن التراجع</p><p className="text-sm text-gray-500">هذا الإجراء نهائي ولا يمكن استرجاع البيانات بعده</p></div>
+                  <button onClick={() => setResetStep(4)} className="btn-danger w-full">أنا أعلم، أكمل</button>
+                  <button onClick={() => setResetStep(1)} className="btn-secondary w-full">رجوع</button>
+                </div>
+              )}
+              {resetStep === 4 && (
+                <div className="space-y-4">
+                  <div className="confirm-step"><p className="font-medium">الخطوة 4: اكتب "حذف"</p><p className="text-sm text-gray-500">اكتب كلمة "حذف" بالعربية لتأكيد رغبتك</p>
+                    <input type="text" value={resetInput} onChange={(e) => setResetInput(e.target.value)} className="input-field mt-2 text-sm text-center" placeholder="حذف" />
                   </div>
-                  <button onClick={handleReset} disabled={resetInput !== 'RESET DATA'} className="btn-danger w-full">تأكيد المسح النهائي</button>
-                  <button onClick={() => { setResetStep(1); setShowReset(false); }} className="btn-secondary w-full">إلغاء</button>
+                  <button onClick={() => { if (resetInput === 'حذف') { setResetStep(5); setResetInput(''); } }} disabled={resetInput !== 'حذف'} className="btn-danger w-full">تأكيد</button>
+                  <button onClick={() => { setResetStep(1); setResetInput(''); }} className="btn-secondary w-full">رجوع</button>
+                </div>
+              )}
+              {resetStep === 5 && (
+                <div className="space-y-4">
+                  <div className="confirm-step"><p className="font-medium">الخطوة 5: التأكيد النهائي</p><p className="text-sm text-gray-500">اكتب "RESET DATA" بالإنجليزية للمسح النهائي</p>
+                    <input type="text" value={resetInput} onChange={(e) => setResetInput(e.target.value)} className="input-field mt-2 text-sm text-center" placeholder="RESET DATA" />
+                  </div>
+                  <button onClick={handleReset} disabled={resetInput !== 'RESET DATA'} className="btn-danger w-full">مسح جميع البيانات</button>
+                  <button onClick={() => { setResetStep(1); setResetInput(''); }} className="btn-secondary w-full">رجوع</button>
                 </div>
               )}
             </div>
