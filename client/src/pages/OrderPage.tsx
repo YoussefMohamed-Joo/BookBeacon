@@ -477,8 +477,8 @@ export default function OrderPage() {
                       بيانات الدفع
                     </p>
                     <div className="bg-teal-500/5 rounded-2xl p-4 space-y-1 text-sm border border-teal-500/10">
-                      <p>فودافون كاش: <span className="font-bold" dir="ltr">01033558125</span></p>
-                      <p className="text-gray-400">صاحب الحساب: Book Beacon</p>
+                      <p>فودافون كاش: <span className="font-bold" dir="ltr">01033558125</span> — <span className="font-bold" dir="ltr">01285635691</span></p>
+                      <p className="text-gray-400">صاحب الحساب: Book Beacon <span className="text-teal-400">by Yousef&Moaz</span></p>
                       <p className="text-gray-400">المطلوب: {formatPrice(getRequiredPayment())}</p>
                     </div>
                   </div>

@@ -21,7 +21,7 @@ const footerLinks = {
 // Contact details
 const contactInfo = [
   { icon: MapPin, text: 'بني سويف، مصر' },
-  { icon: Phone, text: '01033558125' },
+  { icon: Phone, text: '01033558125 / 01285635691' },
   { icon: Mail, text: 'info@bookbeacon.com' },
   { icon: Clock, text: '٩ ص - ١٠ م يومياً' },
 ];
@@ -80,7 +80,7 @@ export default function Footer() {
 
         {/* Bottom copyright bar */}
         <div className="mt-12 pt-6 flex flex-col md:flex-row items-center justify-between gap-3 text-sm" style={{ borderTop: '1px solid rgba(255,255,255,0.05)', color: '#AAB3C5' }}>
-          <p>© {new Date().getFullYear()} Book Beacon. جميع الحقوق محفوظة.</p>
+          <p>© {new Date().getFullYear()} Book Beacon <span style={{ color: '#4EE7F3' }}>by Yousef&Moaz</span>. جميع الحقوق محفوظة.</p>
           <p>صنع في مصر 🇪🇬</p>
         </div>
       </div>

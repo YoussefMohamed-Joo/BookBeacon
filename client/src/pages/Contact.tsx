@@ -6,7 +6,7 @@ import toast from 'react-hot-toast';
 import ScrollReveal from '../components/animations/ScrollReveal';
 
 const contactInfo = [
-  { icon: Phone, label: 'الهاتف', value: '01033558125', href: 'tel:01033558125', dir: 'ltr' },
+  { icon: Phone, label: 'الهاتف', value: '01033558125 / 01285635691', href: 'tel:01033558125', dir: 'ltr' },
   { icon: MessageCircle, label: 'واتساب', value: '01033558125', href: 'https://wa.me/201033558125', dir: 'ltr' },
   { icon: Mail, label: 'البريد الإلكتروني', value: 'info@bookbeacon.com', href: 'mailto:info@bookbeacon.com', dir: 'ltr' },
   { icon: MapPin, label: 'العنوان', value: 'القاهرة، مصر', dir: 'rtl' },

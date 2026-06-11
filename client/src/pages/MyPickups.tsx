@@ -48,7 +48,7 @@ export default function MyPickups() {
               <div>
                 <p className="font-medium">منفذ الاستلام</p>
                 <p className="text-sm text-gray-500">بني سويف — الاباصيري الجديد — خلف كازيون</p>
-                <p className="text-xs text-gray-400 mt-1">٩ ص — ١٠ م يومياً | اتصل بنا: 01033558125</p>
+                <p className="text-xs text-gray-400 mt-1">٩ ص — ١٠ م يومياً | اتصل بنا: 01033558125 / 01285635691</p>
               </div>
             </div>
           </div>

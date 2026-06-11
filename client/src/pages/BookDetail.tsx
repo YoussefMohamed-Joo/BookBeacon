@@ -258,8 +258,8 @@ export default function BookDetail() {
                           ? `حول عربون ${formatPrice(book.deposit || 10)}`
                           : `حول ${formatPrice(totalPrice)}`}
                       </p>
-                      <p className="text-sm text-gray-500">فودافون كاش: <span className="font-bold text-gray-800 dark:text-gray-200" dir="ltr">01033558125</span></p>
-                      <p className="text-xs text-gray-400">صاحب الحساب: Book Beacon</p>
+                      <p className="text-sm text-gray-500">فودافون كاش: <span className="font-bold text-gray-800 dark:text-gray-200" dir="ltr">01033558125</span> — <span className="font-bold text-gray-800 dark:text-gray-200" dir="ltr">01285635691</span></p>
+                      <p className="text-xs text-gray-400">صاحب الحساب: Book Beacon <span className="text-teal-500">by Yousef&Moaz</span></p>
                     </div>
                   </div>
                   <div className="relative">

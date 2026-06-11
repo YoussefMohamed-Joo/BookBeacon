@@ -4,7 +4,7 @@ import { Smartphone, Building, CreditCard, AlertCircle } from 'lucide-react';
 
 export default function PaymentMethods() {
   const methods = [
-    { icon: Smartphone, title: 'Vodafone Cash', desc: 'حول المبلغ المطلوب (العربون 10%) على رقم 01033558125. بعد التحويل، ارفع صورة الإيصال في صفحة الطلب.', color: 'from-red-500 to-red-600' },
+    { icon: Smartphone, title: 'Vodafone Cash', desc: 'حول المبلغ المطلوب (العربون 10%) على رقم 01033558125 أو 01285635691 (by Yousef&Moaz). بعد التحويل، ارفع صورة الإيصال في صفحة الطلب.', color: 'from-red-500 to-red-600' },
     { icon: Building, title: 'الدفع عند الاستلام', desc: 'يمكنك دفع باقي المبلغ عند استلام الطلب (للتوصيل) أو عند الاستلام من الفرع.', color: 'from-green-500 to-green-600' },
     { icon: CreditCard, title: 'التحويل البنكي', desc: 'يمكنك التحويل البنكي للحسابات الرسمية للمنصة. للاستفسار عن بيانات الحساب، تواصل معنا.', color: 'from-blue-500 to-blue-600' },
   ];

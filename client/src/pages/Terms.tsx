@@ -27,7 +27,7 @@ export default function Terms() {
               <h2 className="text-xl font-bold text-gray-800 dark:text-white mb-3">الطلبات والدفع</h2>
               <ul className="list-disc list-inside space-y-1">
                 <li>يتم دفع 10% من قيمة الطلب كعربون عند تقديم الطلب</li>
-                <li>يتم الدفع عبر Vodafone Cash على الرقم 01033558125</li>
+                <li>يتم الدفع عبر Vodafone Cash على الأرقام 01033558125 أو 01285635691 (by Yousef&Moaz)</li>
                 <li>الباقي يُدفع عند الاستلام (للتوصيل) أو عند الاستلام من الفرع</li>
                 <li>يجب رفع صورة التحويل كدليل على الدفع</li>
               </ul>
