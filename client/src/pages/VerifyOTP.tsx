@@ -65,7 +65,7 @@ export default function VerifyOTP() {
                 <Shield className="w-8 h-8 text-white" />
               </div>
             </motion.div>
-            <h1 className="text-2xl font-bold gradient-text">التحقق من البريد الإلكتروني</h1>
+            <h1 className="text-2xl font-bold text-[var(--primary)]">التحقق من البريد الإلكتروني</h1>
             <p className="text-gray-500 dark:text-gray-400 mt-2 text-sm">
               أدخل رمز التحقق المرسل إلى
             </p>

@@ -18,7 +18,7 @@ import {
 } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line, AreaChart, Area } from 'recharts';
 
-const COLORS = ['#0098A4', '#4EE7F3', '#007A83', '#10b981', '#f59e0b', '#8b5cf6', '#f97316'];
+const COLORS = ['#0098A4', '#4EE7F3', '#007A83', '#10b981', '#f59e0b', '#0a1628', '#f97316'];
 
 type Tab = 'dashboard' | 'orders' | 'online-orders' | 'customers' | 'customers-search' | 'books' | 'delivery' | 'pickup' | 'instant' | 'inventory' | 'accounting' | 'ai' | 'reviews' | 'staff' | 'settings' | 'activity';
 
@@ -175,7 +175,7 @@ function DashboardPanel() {
     { label: 'صافي الربح', value: formatPrice(stats.netProfit || 0), icon: TrendingUp, color: 'from-emerald-500 to-emerald-600' },
     { label: 'طلبات معلقة', value: stats.pendingOrders, icon: AlertTriangle, color: 'from-amber-500 to-amber-600' },
     { label: 'تم التوصيل', value: stats.deliveredOrders || 0, icon: Truck, color: 'from-primary-500 to-primary-600' },
-    { label: 'العملاء', value: stats.totalCustomers, icon: Users, color: 'from-purple-500 to-purple-600' },
+    { label: 'العملاء', value: stats.totalCustomers, icon: Users, color: 'from-primary-500 to-primary-600' },
     { label: 'المخزون', value: stats.inventorySummary?.totalStock || 0, icon: Warehouse, color: 'from-cyan-500 to-cyan-600' },
     { label: 'اليوم', value: `${stats.todayOrders || 0} طلبات`, icon: Clock, color: 'from-primary-400 to-primary-500' },
   ];
@@ -996,7 +996,7 @@ function PickupPanel() {
                   <td>{order.quantity}</td>
                   <td className="text-green-500 text-xs">{formatPrice(order.paidAmount)}</td>
                   <td className={`text-xs ${order.remainingAmount > 0 ? 'text-amber-500 font-medium' : 'text-gray-400'}`}>{order.remainingAmount > 0 ? formatPrice(order.remainingAmount) : '—'}</td>
-                  <td><span className={`text-xs ${order.orderSource === 'store' ? 'text-purple-500' : 'text-blue-500'}`}>{order.orderSource === 'store' ? 'متجر' : 'اونلاين'}</span></td>
+                  <td><span className={`text-xs ${order.orderSource === 'store' ? 'text-primary-500' : 'text-blue-500'}`}>{order.orderSource === 'store' ? 'متجر' : 'اونلاين'}</span></td>
                   <td><span className={`text-xs ${getStatusColor(order.status)}`}>{getStatusText(order.status)}</span></td>
                   <td>
                     <div className="flex gap-1.5 flex-wrap">
@@ -1198,7 +1198,7 @@ function StaffPanel() {
                   <td className="font-medium">{c.name}</td>
                   <td className="text-xs text-gray-400">{c.email}</td>
                   <td className="text-xs" dir="ltr">{c.phone}</td>
-                  <td><span className="text-xs px-2 py-1 rounded-full bg-purple-100 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400">كاشير</span></td>
+                  <td><span className="text-xs px-2 py-1 rounded-full bg-primary-100 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400">كاشير</span></td>
                   <td className="text-xs text-gray-400">{new Date(c.createdAt).toLocaleDateString('ar-EG')}</td>
                   <td><button onClick={() => handleDelete(c._id)} className="text-red-500 hover:underline text-xs"><Trash2 className="w-3 h-3 inline" /> حذف</button></td>
                 </tr>
@@ -1338,7 +1338,7 @@ function AccountingPanel() {
         <div className="card p-5 border-emerald-500/30"><p className="text-sm text-gray-400 mb-1">الإيرادات</p><p className="text-2xl font-bold text-emerald-500">{formatPrice(overview?.totalRevenue || 0)}</p></div>
         <div className="card p-5 border-red-500/30"><p className="text-sm text-gray-400 mb-1">المصروفات</p><p className="text-2xl font-bold text-red-400">{formatPrice(overview?.totalExpenses || 0)}</p></div>
         <div className="card p-5 border-primary-500/30"><p className="text-sm text-gray-400 mb-1">صافي الربح</p><p className={`text-2xl font-bold ${(overview?.netProfit || 0) >= 0 ? 'text-emerald-500' : 'text-red-400'}`}>{formatPrice(overview?.netProfit || 0)}</p></div>
-        <div className="card p-5 border-purple-500/30"><p className="text-sm text-gray-400 mb-1">هامش الربح</p><p className="text-2xl font-bold text-purple-400">{margin}%</p></div>
+        <div className="card p-5 border-primary-500/30"><p className="text-sm text-gray-400 mb-1">هامش الربح</p><p className="text-2xl font-bold text-primary-400">{margin}%</p></div>
       </div>
 
       <div className="card p-6">
@@ -1453,7 +1453,7 @@ function AIPanel() {
           {queryLoading && (
             <div className="flex justify-end">
               <div className="bg-white dark:bg-dark-700 shadow-sm rounded-2xl rounded-tl-sm p-4 border border-gray-100 dark:border-dark-600">
-                <div className="flex gap-1.5"><div className="w-2 h-2 bg-primary-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} /><div className="w-2 h-2 bg-primary-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} /><div className="w-2 h-2 bg-primary-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} /></div>
+                <div className="flex gap-1.5"><div className="w-2 h-2 bg-primary-400 rounded-full animate-pulse-soft" style={{ animationDelay: '0ms' }} /><div className="w-2 h-2 bg-primary-400 rounded-full animate-pulse-soft" style={{ animationDelay: '150ms' }} /><div className="w-2 h-2 bg-primary-400 rounded-full animate-pulse-soft" style={{ animationDelay: '300ms' }} /></div>
               </div>
             </div>
           )}

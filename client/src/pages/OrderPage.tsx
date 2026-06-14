@@ -35,7 +35,7 @@ const stepLabels = ['النوع', 'البيانات', 'الدفع'];
 
 const typeCards = [
   { type: 'shipping' as DeliveryType, icon: Truck, title: 'شحن لكل المحافظات', subtitle: 'الدفع كامل + مصاريف الشحن', gradient: 'from-blue-500 to-blue-600', shadow: 'shadow-blue-500/20' },
-  { type: 'pickup' as DeliveryType, icon: Store, title: 'استلام من المنفذ', subtitle: 'دفع 10% فقط كعربون', gradient: 'from-purple-500 to-purple-600', shadow: 'shadow-purple-500/20' },
+  { type: 'pickup' as DeliveryType, icon: Store, title: 'استلام من المنفذ', subtitle: 'دفع 10% فقط كعربون', gradient: 'from-primary-500 to-primary-600', shadow: 'shadow-primary-500/20' },
   { type: 'delivery' as DeliveryType, icon: MapPin, title: 'دليفري داخل المحافظة', subtitle: 'دفع كامل أو عربون', gradient: 'from-orange-500 to-orange-600', shadow: 'shadow-orange-500/20' },
 ];
 

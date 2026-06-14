@@ -18,7 +18,7 @@ export default function PaymentMethods() {
             <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-primary-500 to-primary-700 flex items-center justify-center shadow-xl shadow-primary-500/30">
               <CreditCard className="w-8 h-8 text-white" />
             </div>
-            <h1 className="text-3xl font-bold gradient-text">طرق الدفع</h1>
+            <h1 className="text-3xl font-bold text-[var(--primary)]">طرق الدفع</h1>
             <p className="text-gray-500 dark:text-gray-400 mt-2">نوفر لك أكثر من طريقة دفع مرنة</p>
           </motion.div>
           <div className="grid gap-6">

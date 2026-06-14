@@ -12,7 +12,7 @@ export default function Terms() {
             <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-primary-500 to-primary-700 flex items-center justify-center shadow-xl shadow-primary-500/30">
               <FileText className="w-8 h-8 text-white" />
             </div>
-            <h1 className="text-3xl font-bold gradient-text">الشروط والأحكام</h1>
+            <h1 className="text-3xl font-bold text-[var(--primary)]">الشروط والأحكام</h1>
           </motion.div>
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="bg-white dark:bg-dark-800/50 rounded-3xl p-8 shadow-xl border border-gray-100 dark:border-dark-700/50 space-y-6 text-gray-600 dark:text-gray-300 leading-relaxed">
             <section>

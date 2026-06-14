@@ -19,7 +19,7 @@ export default function DeliveryPolicy() {
             <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-primary-500 to-primary-700 flex items-center justify-center shadow-xl shadow-primary-500/30">
               <Truck className="w-8 h-8 text-white" />
             </div>
-            <h1 className="text-3xl font-bold gradient-text">سياسة التوصيل</h1>
+            <h1 className="text-3xl font-bold text-[var(--primary)]">سياسة التوصيل</h1>
             <p className="text-gray-500 dark:text-gray-400 mt-2">نوصل لكل محافظات مصر</p>
           </motion.div>
           <div className="grid md:grid-cols-2 gap-4 mb-8">

@@ -1,0 +1,123 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-06-14T06:36:00+02:00",
+  "title": "Design System: Book Beacon",
+  "extensions": {
+    "colorMeta": {
+      "primary": { "role": "primary", "displayName": "Primary Teal", "canonical": "#0098A4", "tonalRamp": ["#001f22", "#003d42", "#005c63", "#007A83", "#0098A4", "#00a8b5", "#4dc9d1", "#80dbdf", "#b3e9ed", "#e6f7f8"] },
+      "accent": { "role": "accent", "displayName": "Accent Cyan", "canonical": "#4EE7F3", "tonalRamp": ["#0a3d40", "#147880", "#1eb3c0", "#35d0df", "#4EE7F3", "#6eeef7", "#8ef4fb", "#aff8fd", "#cffcfe", "#effeff"] },
+      "navy-dark": { "role": "neutral", "displayName": "Navy Dark", "canonical": "#0a1628", "tonalRamp": ["#020408", "#050814", "#080c1f", "#0a1628", "#0d1f35", "#102842", "#13314f", "#163a5c", "#194369", "#1c4c76"] },
+      "danger": { "role": "semantic", "displayName": "Danger", "canonical": "#FF6B6B", "tonalRamp": ["#4a0a0a", "#8c1414", "#ce1e1e", "#ff3b3b", "#FF6B6B", "#ff8f8f", "#ffb3b3", "#ffd4d4", "#ffe8e8", "#fff5f5"] }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "Hero headlines only, ExtraBold 800, 2.5–4.5rem" },
+      "headline": { "displayName": "Headline", "purpose": "Section titles, Bold 700, 1.5rem" },
+      "title": { "displayName": "Title", "purpose": "Card and form titles, SemiBold 600, 1.125rem" },
+      "body": { "displayName": "Body", "purpose": "Running text and paragraphs, Regular 400, 0.9rem" },
+      "label": { "displayName": "Label", "purpose": "Button labels, table headers, uppercase with tracking, Medium 500, 0.75rem" }
+    },
+    "shadows": [
+      { "name": "card", "value": "0 2px 8px rgba(0,0,0,0.15)", "purpose": "Default card resting shadow" },
+      { "name": "card-hover", "value": "0 8px 24px rgba(0,152,164,0.15)", "purpose": "Card hover state" },
+      { "name": "teal-glow", "value": "0 4px 14px rgba(0,152,164,0.3)", "purpose": "Primary button hover glow" },
+      { "name": "cyan-glow", "value": "0 4px 14px rgba(78,231,243,0.3)", "purpose": "CTA button hover glow" },
+      { "name": "modal", "value": "0 16px 48px rgba(0,0,0,0.2)", "purpose": "Modal backdrop" }
+    ],
+    "motion": [
+      { "name": "default-transition", "value": "all 0.25s ease", "purpose": "Default easing for state transitions (hover, focus)" },
+      { "name": "card-transition", "value": "all 0.3s ease", "purpose": "Card hover lift transition" },
+      { "name": "press", "value": "scale(0.97)", "purpose": "Button press feedback on click" },
+      { "name": "fade-in-up", "value": "fadeInUp 0.5s ease forwards", "purpose": "Entrance animation" },
+      { "name": "float", "value": "float 3s ease-in-out infinite", "purpose": "Gentle floating for decorative elements" },
+      { "name": "shimmer", "value": "shimmer 2s linear infinite", "purpose": "Loading shimmer effect" }
+    ],
+    "breakpoints": [
+      { "name": "sm", "value": "640px" },
+      { "name": "md", "value": "768px" },
+      { "name": "lg", "value": "1024px" },
+      { "name": "xl", "value": "1280px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "الزر الرئيسي — التفاعل الأساسي في كل الصفحات",
+      "html": "<button class=\"ds-btn-primary\">تسوق الآن</button>",
+      "css": ".ds-btn-primary { background: #0098A4; color: #FFFFFF; font-weight: 600; padding: 0.6rem 1.5rem; border-radius: 10px; border: none; transition: all 0.25s ease; display: inline-flex; align-items: center; gap: 0.5rem; font-size: 0.9rem; cursor: pointer; font-family: 'Alexandria', system-ui, sans-serif; } .ds-btn-primary:hover { background: #007A83; box-shadow: 0 4px 14px rgba(0,152,164,0.3); } .ds-btn-primary:active { transform: scale(0.97); }"
+    },
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "زر ثانوي — لإجراءات أقل أهمية",
+      "html": "<button class=\"ds-btn-secondary\">إلغاء</button>",
+      "css": ".ds-btn-secondary { background: transparent; color: #FFFFFF; font-weight: 500; padding: 0.6rem 1.5rem; border-radius: 10px; border: 1px solid rgba(255,255,255,0.06); transition: all 0.25s ease; display: inline-flex; align-items: center; gap: 0.5rem; font-size: 0.9rem; cursor: pointer; font-family: 'Alexandria', system-ui, sans-serif; } .ds-btn-secondary:hover { border-color: #0098A4; color: #0098A4; background: rgba(0,152,164,0.08); } .ds-btn-secondary:active { transform: scale(0.97); }"
+    },
+    {
+      "name": "Input Field",
+      "kind": "input",
+      "refersTo": "input-default",
+      "description": "حقل إدخال نصي أساسي",
+      "html": "<input class=\"ds-input\" type=\"text\" placeholder=\"اكتب هنا...\" />",
+      "css": ".ds-input { width: 100%; padding: 0.7rem 1rem; border-radius: 10px; border: 1.5px solid rgba(255,255,255,0.06); background: rgba(255,255,255,0.05); color: #FFFFFF; font-family: 'Alexandria', system-ui, sans-serif; transition: all 0.25s ease; outline: none; font-size: 0.9rem; box-sizing: border-box; } .ds-input:focus { border-color: #0098A4; box-shadow: 0 0 0 3px rgba(0,152,164,0.15); } .ds-input::placeholder { color: #5a8a8e; }"
+    },
+    {
+      "name": "Card",
+      "kind": "card",
+      "refersTo": "card-default",
+      "description": "بطاقة محتوى أساسية",
+      "html": "<div class=\"ds-card\"><div class=\"ds-card-body\">محتوى البطاقة</div></div>",
+      "css": ".ds-card { background: #0f2e30; border-radius: 14px; border: 1px solid rgba(255,255,255,0.06); transition: all 0.3s ease; padding: 1rem; box-shadow: 0 2px 8px rgba(0,0,0,0.15); } .ds-card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(0,152,164,0.12); }"
+    },
+    {
+      "name": "Nav Link",
+      "kind": "nav",
+      "refersTo": "nav-link",
+      "description": "رابط تنقل — شريط导航",
+      "html": "<a class=\"ds-nav-link\" href=\"#\">الرئيسية</a>",
+      "css": ".ds-nav-link { color: #a0c4c8; font-weight: 500; font-size: 0.88rem; padding: 0.4rem 0.75rem; border-radius: 8px; transition: all 0.25s ease; text-decoration: none; display: inline-block; font-family: 'Alexandria', system-ui, sans-serif; } .ds-nav-link:hover { color: #FFFFFF; background: rgba(255,255,255,0.06); }"
+    },
+    {
+      "name": "Badge",
+      "kind": "chip",
+      "refersTo": "badge",
+      "description": "علامة تصنيف — حالة أو صف دراسي",
+      "html": "<span class=\"ds-badge\">أولى ثانوي</span>",
+      "css": ".ds-badge { display: inline-flex; align-items: center; padding: 0.2rem 0.6rem; border-radius: 6px; font-size: 0.75rem; font-weight: 500; white-space: nowrap; background: rgba(16,185,129,0.2); color: #34d399; font-family: 'Alexandria', system-ui, sans-serif; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "Book Beacon",
+    "overview": "منصة مصرية لبيع الكتب الدراسية — تجمع بين الثقة والسلاسة والوضوح. النظام البصري مبني على تباين هادئ بين Navy العميق والـ Teal النابض، مع Alexandria كخط وحيد يخدم العربية والإنجليزية بانسيابية. الهدف: يشعر المستخدم إنه في مكان آمن وسريع وموثوق، مش إنه يتوه في زينة بصرية.",
+    "keyCharacteristics": [
+      "هوية مصرية واضحة — RTL، عربية، محافظات، جنيه مصري",
+      "داكن بإضاءة — dark mode هو الأساس، light mode مريح بلا مفاجآت",
+      "ناعم وودود — زوايا دائرية (10-14px)، ظلال جريئة، ترانزيشن ناعم",
+      "أمين وسريع — تباين عالي، خط readable، ترتيب معلوماتي مباشر"
+    ],
+    "rules": [
+      { "name": "The One Voice Rule", "body": "اللون الرئيسي (Teal) لا يتجاوز 15% من مساحة الشاشة. ندرته هي قوته. Cyan أقل من 5%.", "section": "colors" },
+      { "name": "The One Font Rule", "body": "Alexandria هو الخط الوحيد. لا تزاوج مع خط آخر. التنوع يكون بالوزن (300–800) والحجم، لا بإضافة خط ثانٍ.", "section": "typography" }
+    ],
+    "dos": [
+      "استخدم Teal (#0098A4) كلون رئيسي وحيد للتفاعلات.",
+      "حافظ على زوايا دائرية 10-14px لكل العناصر.",
+      "استخدم ظلال جريئة وصريحة — لا تخف من الظل.",
+      "اعتمد على خط Alexandria وحده — التنوع بالوزن والحجم.",
+      "اجعل الوضع الداكن هو الأساس والفاتح هو البديل.",
+      "أضف transitions 0.25s ease لكل العناصر التفاعلية.",
+      "أضف ضغط (scale 0.97) عند النقر على الأزرار."
+    ],
+    "donts": [
+      "تزوج خطاً ثانياً مع Alexandria. خط واحد يكفي.",
+      "تستخدم glassmorphism بدون سبب عملي.",
+      "تزاحم الشاشة بأكثر من 15% من Teal أو 5% من Cyan.",
+      "تهمش reduced motion — كل الحركات لازم يكون لها بديل صامت (media query).",
+      "تزحف النصوص — اختبر العناوين على كل الشاشات، صغر الـ clamp إذا overflow.",
+      "تستخدم ألوان رمادية غير مرتبطة بالـ Navy أو Teal في النصوص الثانوية.",
+      "تنسى الـ RTL — الهوامش والاتجاهات مبنية على right-to-left."
+    ]
+  }
+}

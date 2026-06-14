@@ -145,7 +145,7 @@ export default function BookDetail() {
               </div>
 
               <div className="flex items-center gap-4 mb-6">
-                <div className="text-4xl font-bold gradient-text">{formatPrice(book.price)}</div>
+                <div className="text-4xl font-bold" style={{ color: 'var(--primary)' }}>{formatPrice(book.price)}</div>
                 <div className="text-sm text-amber-600 bg-amber-50 dark:bg-amber-900/20 px-3 py-1.5 rounded-xl font-medium">
                   مقدم {formatPrice(book.deposit || Math.round(book.price * 0.1))}
                 </div>

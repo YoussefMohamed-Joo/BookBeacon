@@ -42,7 +42,7 @@ export default function Contact() {
                   <MessageCircle className="w-6 h-6 text-white" />
                 </div>
                 <div>
-                  <h1 className="text-3xl md:text-4xl font-bold gradient-text">تواصل معنا</h1>
+                  <h1 className="text-3xl md:text-4xl font-bold text-[var(--primary)]">تواصل معنا</h1>
                   <p className="text-gray-500 dark:text-gray-400">فريقنا جاهز لمساعدتك على مدار الأسبوع</p>
                 </div>
               </div>

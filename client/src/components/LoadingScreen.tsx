@@ -41,7 +41,7 @@ export default function LoadingScreen() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2, duration: 0.4 }}
             >
-              <h2 className="text-2xl font-bold gradient-text mb-1">Book Beacon</h2>
+              <h2 className="text-2xl font-bold text-[var(--primary)] mb-1">Book Beacon</h2>
               <p className="text-sm text-gray-400 dark:text-gray-500 mb-6">بوك بيكون</p>
             </motion.div>
 

@@ -28,7 +28,7 @@ export default function FAQ() {
             <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-primary-500 to-primary-700 flex items-center justify-center shadow-xl shadow-primary-500/30">
               <HelpCircle className="w-8 h-8 text-white" />
             </div>
-            <h1 className="text-3xl font-bold gradient-text">الأسئلة الشائعة</h1>
+            <h1 className="text-3xl font-bold text-[var(--primary)]">الأسئلة الشائعة</h1>
             <p className="text-gray-500 dark:text-gray-400 mt-2">إجابات لأكثر الأسئلة شيوعاً</p>
           </motion.div>
           <div className="space-y-3">
